@@ -1,0 +1,12 @@
+diff --git a/src/core/imported/rdf/rdf/inc/amdrdf.h b/src/core/imported/rdf/rdf/inc/amdrdf.h
+index 2ac8b1ce..51cc95fd 100644
+--- a/src/core/imported/rdf/rdf/inc/amdrdf.h
++++ b/src/core/imported/rdf/rdf/inc/amdrdf.h
+@@ -26,6 +26,7 @@
+ 
+ #include <cstddef>
+ #include <cstring>
++#include <cstdint>
+ #include <functional>
+ #include <memory>
+ #include <stdexcept>

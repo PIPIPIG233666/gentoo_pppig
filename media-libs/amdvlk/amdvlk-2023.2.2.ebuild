@@ -12,7 +12,7 @@ DESCRIPTION="AMD Open Source Driver for Vulkan"
 HOMEPAGE="https://github.com/GPUOpen-Drivers/AMDVLK"
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64"
 IUSE="wayland +raytracing"
 REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )"
 
@@ -75,6 +75,7 @@ PATCHES=(
 	#"${FILESDIR}/amdvlk-2022.4.2-reduced-llvm-installations.patch"
 	#"${FILESDIR}/amdvlk-2022.4.2-reduced-llvm-installations-part2.patch"
 	"${FILESDIR}/amdvlk-2022.4.4-r1-disable-Werror.patch" #887777
+	"${FILESDIR}/amdvlk-2023.2.2-gcc-13-cstdint.patch"
 )
 
 pkg_pretend(){
