@@ -47,7 +47,7 @@ CMAKE_USE_DIR="${S}/${PN}/Source"
 src_prepare() {
 	distutils-r1_src_prepare
 	sed -e "s,\@LLVM_PATH\@,$(get_llvm_prefix ${LLVM_MAX_SLOT}),g" \
-		"${FILESDIR}"/${PN}-5.4.2-gentoopath.patch > "${S}"/gentoopath.patch || die
+		"${FILESDIR}"/${PN}-5.5.0-gentoopath.patch > "${S}"/gentoopath.patch || die
 	eapply $(prefixify_ro "${S}"/gentoopath.patch)
 
 	pushd ${PN} || die
