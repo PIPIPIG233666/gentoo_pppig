@@ -22,8 +22,6 @@ SLOT="0/$(ver_cut 1-2)"
 RDEPEND=">=dev-libs/rocr-runtime-${PV}"
 DEPEND="${RDEPEND}"
 
-PATCHES=("${FILESDIR}/${PN}-5.1.3-detect-builtin-amdgpu.patch")
-
 src_prepare() {
 	sed -e "/CPACK_RESOURCE_FILE_LICENSE/d" -i CMakeLists.txt || die
 	sed -e "/num_change_since_prev_pkg(/cset(NUM_COMMITS 0)" -i cmake_modules/utils.cmake || die # Fix QA issue on "git not found"
