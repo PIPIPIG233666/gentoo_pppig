@@ -30,6 +30,9 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.3.3-fno-stack-protector.patch"
 	"${FILESDIR}/${PN}-5.3.3-remove-h-option.patch"
 	"${FILESDIR}/${PN}-5.5.0-gcc-13-None-not-defined.patch"
+	"${FILESDIR}/${PN}-5.5.0-gcc-13-warnings.patch"
+	"${FILESDIR}/${PN}-5.5.0-gcc-13-undeclared-OPT_mrelax_relocations.patch"
+	"${FILESDIR}/${PN}-5.5.0-gcc-13-fix-lld-include.patch"
 )
 
 DESCRIPTION="Radeon Open Compute Code Object Manager"
