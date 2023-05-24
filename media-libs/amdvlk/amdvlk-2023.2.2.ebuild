@@ -122,11 +122,6 @@ multilib_src_configure() {
 		)
 	cmake_src_configure
 }
-
-multilib_src_install() {
-	cmake_src_install --component icd
-}
-
 multilib_check_headers() {
 	einfo "Checking headers skipped: there is no headers"
 }
