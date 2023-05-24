@@ -1,0 +1,12 @@
+diff --git a/tools/scrambled_sobol32_direction_vector_generator.cpp b/tools/scrambled_sobol32_direction_vector_generator.cpp
+index 5623704..a5a981b 100644
+--- a/tools/scrambled_sobol32_direction_vector_generator.cpp
++++ b/tools/scrambled_sobol32_direction_vector_generator.cpp
+@@ -23,6 +23,7 @@
+ #include <iomanip>
+ #include <iostream>
+ #include <string>
++#include <cstdint>
+ 
+ using namespace std;
+ 

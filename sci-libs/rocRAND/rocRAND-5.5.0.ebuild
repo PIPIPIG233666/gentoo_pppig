@@ -29,6 +29,10 @@ BDEPEND="dev-util/rocm-cmake
 
 S="${WORKDIR}/rocRAND-rocm-${PV}"
 
+PATCHES=(
+	"${FILESDIR}/${PN}-5.5.0-gcc-13-cstdint.patch"
+)
+
 src_prepare() {
 	rmdir hipRAND || die
 	mv -v ../hipRAND-${HIPRAND_COMMIT_HASH} hipRAND || die
