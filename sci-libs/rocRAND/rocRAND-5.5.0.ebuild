@@ -35,7 +35,6 @@ src_prepare() {
 	# change installed include and lib dir, and avoid symlink overwrite the installed headers
 	# avoid setting RPATH
 	sed -r -e "s:(hip|roc)rand/lib:\${CMAKE_INSTALL_LIBDIR}:" \
-		-e "s:(hip|roc)rand/include:include/\1rand:" \
 		-e '/\$\{INSTALL_SYMLINK_COMMAND\}/d' \
 		-e "/INSTALL_RPATH/d" -i library/CMakeLists.txt || die
 
