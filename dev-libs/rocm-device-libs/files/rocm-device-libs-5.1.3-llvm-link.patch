@@ -10,4 +10,4 @@ Adapt to libLLVM.so instead of the seperated libs
 -llvm_map_components_to_libnames(llvm_libs support core bitreader bitwriter)
 -target_link_libraries(prepare-builtins ${llvm_libs})
 +llvm_map_components_to_libnames(llvm_libs support)
-+target_link_libraries(prepare-builtins ${llvm_libs} LLVM)
++target_link_libraries(prepare-builtins LLVM)
