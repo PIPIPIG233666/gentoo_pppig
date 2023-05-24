@@ -113,6 +113,7 @@ src_configure() {
 		-DBUILD_CLIENTS_SELFTEST=$(usex test ON OFF)
 		-DPYTHON3_EXE=${EPYTHON}
 		-DBUILD_CLIENTS_RIDER=$(usex benchmark ON OFF)
+		-DSQLITE_USE_SYSTEM_PACKAGE=ON
 	)
 
 	CXX=hipcc cmake_src_configure
