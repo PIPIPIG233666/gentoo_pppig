@@ -70,15 +70,11 @@ python_check_deps() {
 }
 
 src_prepare() {
-	sed -e "s/PREFIX rocsparse//" \
-		-e "/rocm_install_symlink_subdir(rocsparse)/d" \
+	sed -e "/rocm_install_symlink_subdir(rocsparse)/d" \
 		-i "${S}/library/CMakeLists.txt" || die
 
 	# remove GIT dependency
 	sed -e "/find_package(Git/d" -i cmake/Dependencies.cmake || die
-
-	# Fix install path
-	sed -i -e "s.set(CMAKE_INSTALL_LIBDIR.#set(CMAKE_INSTALL_LIBDIR." CMakeLists.txt || die
 
 	# use python interpreter specifyied by python-any-r1
 	sed -e "/COMMAND ..\/common\/rocsparse_gentest.py/s,COMMAND ,COMMAND ${EPYTHON} ," -i clients/tests/CMakeLists.txt || die
