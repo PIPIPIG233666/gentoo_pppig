@@ -27,7 +27,6 @@ RESTRICT="!test? ( test )"
 S="${WORKDIR}/rccl-rocm-${PV}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.0.2-change_install_location.patch"
 	"${FILESDIR}/${PN}-5.1.3-remove-chrpath.patch"
 )
 
