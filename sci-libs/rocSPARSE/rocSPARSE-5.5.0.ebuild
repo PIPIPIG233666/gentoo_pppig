@@ -62,6 +62,7 @@ S="${WORKDIR}/rocSPARSE-rocm-${PV}"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-5.5.0-fix-include.patch"
+	"${FILESDIR}/${PN}-5.5.0-fma-ambiguities.patch"
 )
 
 python_check_deps() {
