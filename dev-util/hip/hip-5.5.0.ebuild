@@ -77,7 +77,7 @@ src_prepare() {
 	pushd ${HIP_S} || die
 	eapply "${FILESDIR}/${PN}-5.1.3-rocm-path.patch"
 	eapply "${FILESDIR}/${PN}-5.1.3-fno-stack-protector.patch"
-	eapply "${FILESDIR}/${PN}-5.4.3-correct-ldflag.patch"
+	# eapply "${FILESDIR}/${PN}-5.4.3-correct-ldflag.patch"
 	eapply "${FILESDIR}/${PN}-5.4.3-clang-version.patch"
 	eapply "${FILESDIR}/${PN}-5.4.3-clang-include.patch"
 	eapply "${FILESDIR}/0003-SWDEV-352878-Removed-relative-path-based-CLANG-inclu.patch"
