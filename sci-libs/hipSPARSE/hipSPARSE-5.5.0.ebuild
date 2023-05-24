@@ -52,6 +52,7 @@ BDEPEND="dev-util/rocm-cmake
 S="${WORKDIR}/hipSPARSE-rocm-${PV}"
 
 PATCHES=(
+	"${FILESDIR}/${PN}-5.5.0-fix-include.patch"
 )
 
 src_prepare() {
