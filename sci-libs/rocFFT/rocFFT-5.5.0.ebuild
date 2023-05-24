@@ -53,6 +53,7 @@ PATCHES=(
 	# "${FILESDIR}/${PN}-5.1.3-unbundle-sqlite.patch"
 	# "${FILESDIR}/${PN}-5.0.2-add-math-header.patch"
 	# "${FILESDIR}/${PN}-5.1.3-add-stdexcept-header.patch"
+	"${FILESDIR}/${PN}-5.5.0-gcc-13-cstdint.patch"
 )
 
 required_mem() {
