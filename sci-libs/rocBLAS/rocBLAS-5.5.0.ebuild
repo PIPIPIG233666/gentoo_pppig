@@ -51,7 +51,6 @@ PATCHES=(
 
 src_prepare() {
 	cmake_src_prepare
-	cp -a "${WORKDIR}/asm_full/" library/src/blas3/Tensile/Logic/ || die
 	sed -e "s:,-rpath=.*\":\":" -i clients/CMakeLists.txt || die
 }
 
