@@ -71,9 +71,7 @@ python_check_deps() {
 
 src_prepare() {
 	sed -e "s/PREFIX rocsparse//" \
-		-e "/<INSTALL_INTERFACE/s,include,include/rocsparse," \
 		-e "/rocm_install_symlink_subdir(rocsparse)/d" \
-		-e "s:rocsparse/include:include/rocsparse:" \
 		-i "${S}/library/CMakeLists.txt" || die
 
 	# remove GIT dependency
