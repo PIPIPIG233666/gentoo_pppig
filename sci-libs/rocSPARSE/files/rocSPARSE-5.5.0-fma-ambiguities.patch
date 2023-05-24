@@ -35,18 +35,6 @@ index f291cfe1..ab68ec1f 100644
      }
  
      static __forceinline__ __device__ __host__ double fma(double p, double q, double r)
-diff --git a/library/src/conversion/rocsparse_csxsldu_preprocess.cpp b/library/src/conversion/rocsparse_csxsldu_preprocess.cpp
-index cf3451c4..855dda96 100644
---- a/library/src/conversion/rocsparse_csxsldu_preprocess.cpp
-+++ b/library/src/conversion/rocsparse_csxsldu_preprocess.cpp
-@@ -211,7 +211,6 @@ rocsparse_status rocsparse_csxsldu_preprocess_template(rocsparse_handle     hand
-                                  : buffer)
-               : uptr_;
- 
--    rocsparse_status status;
-     switch(dir_)
-     {
-     case rocsparse_direction_row:
 diff --git a/library/src/include/common.h b/library/src/include/common.h
 index 60a9a51c..854b556e 100644
 --- a/library/src/include/common.h
