@@ -56,10 +56,6 @@ src_prepare() {
 		-i Source/cmake/FindROCmSMI.cmake || die
 	sed -r -e "/TENSILE_USE_LLVM/s/ON/OFF/" \
 		-i Source/CMakeLists.txt || die
-	sed -e "/chmod 755/d" -i Source/TensileCreateLibrary.cmake || die # remove chmod 755 on
-
-	# ${Tensile_ROOT}/bin does not exists; call command directly
-	sed -e "s,\${Tensile_ROOT}/bin/,,g" -i Source/TensileCreateLibrary.cmake cmake/TensileConfig.cmake || die
 
 	local Tensile_share_dir="\"${EPREFIX}/usr/share/${PN}\""
 	sed -e "/HipClangVersion/s/0.0.0/$(hipconfig -v)/" -i Common.py || die
