@@ -37,7 +37,7 @@ DEPEND="${RDEPEND}"
 PATCHES=(
 	"${FILESDIR}"/${PN}-change-cmake-name-for-msgpack-cxx-6-release.patch
 	"${FILESDIR}"/${PN}-4.3.0-output-commands.patch
-	"${FILESDIR}"/${PN}-5.4.2-gfx1031.patch
+	# "${FILESDIR}"/${PN}-5.4.2-gfx1031.patch
 	"${FILESDIR}"/${PN}-5.4.2-fix-arch-parse.patch
 	"${FILESDIR}"/${PN}-5.4.2-use-ninja.patch
 )
