@@ -5,13 +5,13 @@ Subject: [PATCH] None -> std::nullopt
 
 Change-Id: I1cc241aa47de538f9f5b1c12cb5655aca8a4502f
 ---
- lib/comgr/src/comgr-env.cpp | 2 +-
+ src/comgr-env.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/comgr/src/comgr-env.cpp b/lib/comgr/src/comgr-env.cpp
+diff --git a/src/comgr-env.cpp b/src/comgr-env.cpp
 index 742f4d4..6ab6f0f 100644
---- a/lib/comgr/src/comgr-env.cpp
-+++ b/lib/comgr/src/comgr-env.cpp
+--- a/src/comgr-env.cpp
++++ b/src/comgr-env.cpp
 @@ -53,7 +53,7 @@ bool shouldSaveTemps() {
  Optional<StringRef> getRedirectLogs() {
    static char *RedirectLogs = getenv("AMD_COMGR_REDIRECT_LOGS");
