@@ -10,3 +10,15 @@ index 5623704..a5a981b 100644
  
  using namespace std;
  
+diff --git a/tools/sobol32_direction_vector_generator.cpp b/tools/sobol32_direction_vector_generator.cpp
+index 16c4354..334d145 100644
+--- a/tools/sobol32_direction_vector_generator.cpp
++++ b/tools/sobol32_direction_vector_generator.cpp
+@@ -22,6 +22,7 @@
+ #include <fstream>
+ #include <string>
+ #include <iomanip>
++#include <cstdint>
+ 
+ using namespace std;
+ 
