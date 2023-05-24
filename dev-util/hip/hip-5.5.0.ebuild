@@ -40,7 +40,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.0.2-set-build-id.patch"
 	"${FILESDIR}/${PN}-5.3.3-remove-cmake-doxygen-commands.patch"
 	"${FILESDIR}/${PN}-5.5.0-disable-Werror.patch"
-	"${FILESDIR}/0001-SWDEV-352878-LLVM-pkg-search-directly-using-find_dep.patch"
+	# "${FILESDIR}/0001-SWDEV-352878-LLVM-pkg-search-directly-using-find_dep.patch"
 )
 
 S="${WORKDIR}/hipamd-rocm-${PV}"
