@@ -61,6 +61,7 @@ RESTRICT="!test? ( test )"
 S="${WORKDIR}/rocSPARSE-rocm-${PV}"
 
 PATCHES=(
+	"${FILESDIR}/${PN}-5.5.0-fix-include.patch"
 )
 
 python_check_deps() {

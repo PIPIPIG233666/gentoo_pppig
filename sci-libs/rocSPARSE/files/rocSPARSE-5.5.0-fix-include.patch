@@ -1,0 +1,26 @@
+diff --git a/library/include/rocsparse-auxiliary.h b/library/include/rocsparse-auxiliary.h
+index 6bd71683..25b3c923 100644
+--- a/library/include/rocsparse-auxiliary.h
++++ b/library/include/rocsparse-auxiliary.h
+@@ -28,7 +28,7 @@
+ #ifndef _ROCSPARSE_AUXILIARY_H_
+ #define _ROCSPARSE_AUXILIARY_H_
+ 
+-#include "rocsparse-export.h"
++#include <rocsparse/rocsparse-export.h>
+ #include "rocsparse-types.h"
+ 
+ #ifdef __cplusplus
+diff --git a/library/include/rocsparse-functions.h b/library/include/rocsparse-functions.h
+index eb1eb470..a55f31e5 100644
+--- a/library/include/rocsparse-functions.h
++++ b/library/include/rocsparse-functions.h
+@@ -29,7 +29,7 @@
+ #ifndef _ROCSPARSE_FUNCTIONS_H_
+ #define _ROCSPARSE_FUNCTIONS_H_
+ 
+-#include "rocsparse-export.h"
++#include <rocsparse/rocsparse-export.h>
+ #include "rocsparse-types.h"
+ 
+ #ifdef __cplusplus
