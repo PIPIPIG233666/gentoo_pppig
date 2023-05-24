@@ -9,7 +9,7 @@ inherit cmake rocm
 
 DESCRIPTION="Generate pseudo-random and quasi-random numbers"
 HOMEPAGE="https://github.com/ROCmSoftwarePlatform/rocRAND"
-HIPRAND_COMMIT_HASH=de941a7eb9ede2a862d719cd3ca23234a3692d07
+HIPRAND_COMMIT_HASH=8babdbe0cf4dc330c9ec5a0231ac059187a7bc8a
 SRC_URI="https://github.com/ROCmSoftwarePlatform/${PN}/archive/rocm-${PV}.tar.gz -> ${P}.tar.gz
 https://github.com/ROCmSoftwarePlatform/hipRAND/archive/${HIPRAND_COMMIT_HASH}.tar.gz -> hipRAND-${HIPRAND_COMMIT_HASH}.tar.gz"
 
