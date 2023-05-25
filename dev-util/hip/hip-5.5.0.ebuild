@@ -119,7 +119,6 @@ src_configure() {
 	# see "hipBLAS"
 	local mycmakeargs=(
 		-DCMAKE_PREFIX_PATH="$(get_llvm_prefix "${LLVM_MAX_SLOT}")"
-		-DCMAKE_BUILD_TYPE=${buildtype}
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
 		-DCMAKE_SKIP_RPATH=ON
 		-DBUILD_HIPIFY_CLANG=OFF
