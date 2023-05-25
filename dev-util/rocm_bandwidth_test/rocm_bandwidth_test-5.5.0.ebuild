@@ -19,6 +19,10 @@ BDEPEND=""
 
 S="${WORKDIR}/${PN}-rocm-${PV}"
 
+PATCHES=(
+	"${FILESDIR}/${PN}-5.5.0-fix-include.patch"
+)
+
 src_install() {
 	cmake_src_install
 
