@@ -28,7 +28,7 @@ BDEPEND="
 
 DEPEND="
 	>=dev-cpp/msgpack-cxx-6.0.0
-	dev-util/hip
+	dev-libs/hip
 	test? (
 		virtual/blas
 		dev-cpp/gtest

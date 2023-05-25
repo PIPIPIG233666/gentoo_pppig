@@ -18,7 +18,7 @@ SLOT="0/$(ver_cut 1-2)"
 
 RESTRICT="test"
 
-RDEPEND="dev-util/hip:${SLOT}
+RDEPEND="dev-libs/hip:${SLOT}
 	sci-libs/rocFFT:${SLOT}[${ROCM_USEDEP}]"
 DEPEND="${RDEPEND}"
 BDEPEND=""

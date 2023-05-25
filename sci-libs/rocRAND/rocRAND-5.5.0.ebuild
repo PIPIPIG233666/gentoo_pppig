@@ -20,7 +20,7 @@ IUSE="benchmark test"
 REQUIRED_USE="${ROCM_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
 
-RDEPEND="dev-util/hip"
+RDEPEND="dev-libs/hip"
 DEPEND="${RDEPEND}
 dev-util/rocm-cmake
 test? ( dev-cpp/gtest )"

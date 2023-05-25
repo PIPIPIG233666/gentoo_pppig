@@ -17,7 +17,7 @@ KEYWORDS="~amd64"
 SLOT="0/$(ver_cut 1-2)"
 IUSE="test"
 
-RDEPEND="dev-util/hip
+RDEPEND="dev-libs/hip
 dev-util/rocm-smi:${SLOT}"
 DEPEND="${RDEPEND}"
 BDEPEND=">=dev-util/cmake-3.22
