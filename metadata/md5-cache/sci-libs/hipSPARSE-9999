@@ -1,0 +1,16 @@
+BDEPEND=dev-util/rocm-cmake >=dev-util/cmake-3.22 >=dev-util/ninja-1.8.2 >=dev-util/cmake-3.20.5 >=dev-vcs/git-1.8.2.1[curl]
+DEFINED_PHASES=compile configure install prepare test unpack
+DEPEND=dev-util/rocminfo dev-util/hip sci-libs/rocSPARSE:0/9999[amdgpu_targets_gfx906(-)?,amdgpu_targets_gfx908(-)?,amdgpu_targets_gfx90a(-)?,amdgpu_targets_gfx1030(-)?,amdgpu_targets_gfx803(-)?,amdgpu_targets_gfx900(-)?,amdgpu_targets_gfx1010(-)?,amdgpu_targets_gfx1011(-)?,amdgpu_targets_gfx1012(-)?,amdgpu_targets_gfx1031(-)?,amdgpu_targets_gfx1100(-)?,amdgpu_targets_gfx1101(-)?,amdgpu_targets_gfx1102(-)?]
+DESCRIPTION=ROCm SPARSE marshalling library
+EAPI=8
+HOMEPAGE=https://github.com/ROCmSoftwarePlatform/hipSPARSE
+INHERIT=cmake edo rocm git-r3
+IUSE=test +amdgpu_targets_gfx906 +amdgpu_targets_gfx908 +amdgpu_targets_gfx90a +amdgpu_targets_gfx1030 amdgpu_targets_gfx803 amdgpu_targets_gfx900 amdgpu_targets_gfx1010 amdgpu_targets_gfx1011 amdgpu_targets_gfx1012 amdgpu_targets_gfx1031 amdgpu_targets_gfx1100 amdgpu_targets_gfx1101 amdgpu_targets_gfx1102
+LICENSE=MIT
+PROPERTIES=live
+RDEPEND=dev-util/rocminfo dev-util/hip sci-libs/rocSPARSE:0/9999[amdgpu_targets_gfx906(-)?,amdgpu_targets_gfx908(-)?,amdgpu_targets_gfx90a(-)?,amdgpu_targets_gfx1030(-)?,amdgpu_targets_gfx803(-)?,amdgpu_targets_gfx900(-)?,amdgpu_targets_gfx1010(-)?,amdgpu_targets_gfx1011(-)?,amdgpu_targets_gfx1012(-)?,amdgpu_targets_gfx1031(-)?,amdgpu_targets_gfx1100(-)?,amdgpu_targets_gfx1101(-)?,amdgpu_targets_gfx1102(-)?]
+REQUIRED_USE=|| ( amdgpu_targets_gfx906 amdgpu_targets_gfx908 amdgpu_targets_gfx90a amdgpu_targets_gfx1030 amdgpu_targets_gfx803 amdgpu_targets_gfx900 amdgpu_targets_gfx1010 amdgpu_targets_gfx1011 amdgpu_targets_gfx1012 amdgpu_targets_gfx1031 amdgpu_targets_gfx1100 amdgpu_targets_gfx1101 amdgpu_targets_gfx1102 )
+RESTRICT=test
+SLOT=0/9999
+_eclasses_=toolchain-funcs	14a8ae365191b518fad51caad7a08f3e	multilib	104e1332efb829e2f7cbf89307a474f1	flag-o-matic	16483e58fadb0d47b4528f0aa7e171f6	multiprocessing	b4e253ab22cef7b1085e9b67c7a3b730	ninja-utils	76050953ad5b70d7e09a6ca55558db92	xdg-utils	baea6080dd821f5562d715887954c9d3	cmake	7fb5980de96325cbab639f5b2187357c	edo	c0eb9cbe6b0bd01fcb4918f12598a4d3	rocm	d027c5dabbfc98896a8fe0defa5a6c0a	git-r3	27e13c09a4c7e4c78ac812f74727e676
+_md5_=b7b3ab8dab7831fb5f3aaf74a2c1df8c
