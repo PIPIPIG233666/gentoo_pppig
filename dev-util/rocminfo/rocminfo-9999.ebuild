@@ -21,8 +21,3 @@ SLOT="0/$(ver_cut 1-2)"
 
 RDEPEND="dev-libs/rocr-runtime"
 DEPEND="${RDEPEND}"
-
-src_configure() {
-	local mycmakeargs=( -DROCRTST_BLD_TYPE=Release )
-	cmake_src_configure
-}
