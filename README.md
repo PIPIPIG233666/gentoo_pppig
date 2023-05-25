@@ -16,3 +16,5 @@
 "rocPRIM-5.5.0.ebuild"
 "rocRAND-5.5.0.ebuild"
 "rocSPARSE-5.5.0.ebuild"
+
+emerge rccl rocm-comgr rocm-device-libs rocm-opencl-runtime rocr-runtime roct-thunk-interface dev-libs/hip rocm_bandwidth_test rocm-cmake rocminfo rocm-smi Tensile hipSPARSE rocBLAS rocFFT rocPRIM rocRAND rocSPARSE
