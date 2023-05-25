@@ -40,14 +40,12 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.0.2-set-build-id.patch"
 	"${FILESDIR}/${PN}-5.3.3-remove-cmake-doxygen-commands.patch"
 	"${FILESDIR}/${PN}-5.5.0-disable-Werror.patch"
-	# "${FILESDIR}/0001-SWDEV-352878-LLVM-pkg-search-directly-using-find_dep.patch"
 )
 
 S="${WORKDIR}/hipamd-rocm-${PV}"
 HIP_S="${WORKDIR}"/HIP-rocm-${PV}
 OCL_S="${WORKDIR}"/ROCm-OpenCL-Runtime-rocm-${PV}
 CLR_S="${WORKDIR}"/ROCclr-rocm-${PV}
-RTC_S="${WORKDIR}"/roctracer-rocm-${PV}
 DOCS_DIR="${HIP_S}"/docs/doxygen-input
 DOCS_CONFIG_NAME=doxy.cfg
 
@@ -75,21 +73,14 @@ src_prepare() {
 		-e "/CPACK_RESOURCE_FILE_LICENSE/d" -i packaging/CMakeLists.txt || die
 
 	pushd ${HIP_S} || die
-	eapply "${FILESDIR}/${PN}-5.1.3-rocm-path.patch"
+	eapply "${FILESDIR}/${PN}-5.5.0-rocm-path.patch"
 	eapply "${FILESDIR}/${PN}-5.1.3-fno-stack-protector.patch"
-	# eapply "${FILESDIR}/${PN}-5.4.3-correct-ldflag.patch"
-	# eapply "${FILESDIR}/${PN}-5.4.3-clang-version.patch"
-	# eapply "${FILESDIR}/${PN}-5.4.3-clang-include.patch"
-	# eapply "${FILESDIR}/0003-SWDEV-352878-Removed-relative-path-based-CLANG-inclu.patch"
-	eapply "${FILESDIR}/${PN}-5.4.3-fix-HIP_CLANG_PATH-detection.patch"
-
 	# Setting HSA_PATH to "/usr" results in setting "-isystem /usr/include"
 	# which makes "stdlib.h" not found when using "#include_next" in header files;
 	sed -e "/FLAGS .= \" -isystem \$HSA_PATH/d" \
 		-e "/HIP.*FLAGS.*isystem.*HIP_INCLUDE_PATH/d" \
 		-e "s:\$ENV{'DEVICE_LIB_PATH'}:'${EPREFIX}/usr/lib/amdgcn/bitcode':" \
-		-e "s:\$ENV{'HIP_LIB_PATH'}:'${EPREFIX}/usr/$(get_libdir)':" \
-		-e "/rpath/s,--rpath=[^ ]*,," -i bin/hipcc.pl || die
+		-e "s:\$ENV{'HIP_LIB_PATH'}:'${EPREFIX}/usr/$(get_libdir)':" -i bin/hipcc.pl || die
 
 	# change --hip-device-lib-path to "/usr/lib/amdgcn/bitcode", must align with "dev-libs/rocm-device-libs"
 	sed -e "s:\${AMD_DEVICE_LIBS_PREFIX}/lib:${EPREFIX}/usr/lib/amdgcn/bitcode:" \
@@ -99,11 +90,11 @@ src_prepare() {
 	hprefixify $(grep -rl --exclude-dir=build/ --exclude="hip-config.cmake.in" "/usr" "${S}")
 	hprefixify $(grep -rl --exclude-dir=build/ --exclude="hipcc.pl" "/usr" "${HIP_S}")
 
+	mv bin/hipvars.pm "${T}"/
 	cp "$(prefixify_ro "${FILESDIR}"/hipvars-5.3.3.pm)" bin/hipvars.pm || die "failed to replace hipvars.pm"
 	sed -e "s,@HIP_BASE_VERSION_MAJOR@,$(ver_cut 1)," -e "s,@HIP_BASE_VERSION_MINOR@,$(ver_cut 2)," \
-		-e "s,@HIP_VERSION_PATCH@,$(ver_cut 3)," \
-		-e "s,@CLANG_PATH@,${LLVM_PREFIX}/bin," -i bin/hipvars.pm || die
-	popd || die
+		-e "s,@HIP_VERSION_PATCH@,$(ver_cut 3)," -i bin/hipvars.pm
+	sed	-e "s,@CLANG_PATH@,${LLVM_PREFIX}/bin," -i bin/hipvars.pm || die
 
 	pushd ${CLR_S} || die
 	eapply "${FILESDIR}/rocclr-5.3.3-gcc13.patch"
@@ -119,6 +110,7 @@ src_configure() {
 	# see "hipBLAS"
 	local mycmakeargs=(
 		-DCMAKE_PREFIX_PATH="$(get_llvm_prefix "${LLVM_MAX_SLOT}")"
+		-DCMAKE_BUILD_TYPE=${buildtype}
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
 		-DCMAKE_SKIP_RPATH=ON
 		-DBUILD_HIPIFY_CLANG=OFF
