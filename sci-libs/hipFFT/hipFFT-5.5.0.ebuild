@@ -46,5 +46,5 @@ src_configure() {
 		-DBUILD_CLIENTS_RIDER=OFF
 	)
 
-	cmake_src_configure
+	CC=hipcc cmake_src_configure
 }
