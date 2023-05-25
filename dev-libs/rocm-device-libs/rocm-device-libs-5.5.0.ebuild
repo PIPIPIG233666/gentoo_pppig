@@ -32,7 +32,7 @@ CMAKE_BUILD_TYPE=Release
 
 PATCHES=(
 	"${FILESDIR}/${PN}-9999-test-bitcode-dir.patch"
-	"${FILESDIR}/${PN}-5.1.3-llvm-link.patch"
+	"${FILESDIR}/${PN}-9999-llvm16-link.patch"
 )
 
 src_prepare() {
