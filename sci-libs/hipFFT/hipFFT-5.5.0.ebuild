@@ -26,9 +26,9 @@ BDEPEND=""
 S="${WORKDIR}/hipFFT-rocm-${PV}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.1.3-gentoo-install-locations.patch"
 	"${FILESDIR}/${PN}-5.0.2-remove-git-dependency.patch"
 	"${FILESDIR}/${PN}-4.3.0-add-complex-header.patch"
+	"${FILESDIR}/${PN}-5.5.0-gentoo-install-locations.patch"
 )
 
 src_prepare() {
