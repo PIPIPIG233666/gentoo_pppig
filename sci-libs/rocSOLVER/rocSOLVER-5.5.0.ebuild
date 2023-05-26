@@ -19,9 +19,9 @@ SLOT="0/$(ver_cut 1-2)"
 IUSE="test benchmark"
 REQUIRED_USE="${ROCM_REQUIRED_USE}"
 
-RDEPEND="dev-libs/hip
+RDEPEND="dev-util/hip
 	sci-libs/rocBLAS:${SLOT}[${ROCM_USEDEP}]
-	=dev-libs/libfmt-8*
+	dev-libs/libfmt
 	benchmark? ( virtual/blas )"
 DEPEND="${RDEPEND}"
 BDEPEND="test? ( dev-cpp/gtest

@@ -7,40 +7,33 @@ ROCM_VERSION=${PV}
 
 inherit cmake rocm
 
-DESCRIPTION="HIP back-end for the parallel algorithm library Thrust"
-HOMEPAGE="https://github.com/ROCmSoftwarePlatform/rocThrust"
-SRC_URI="https://github.com/ROCmSoftwarePlatform/rocThrust/archive/rocm-${PV}.tar.gz -> rocThrust-rocm-${PV}.tar.gz"
+DESCRIPTION="Wrapper of rocPRIM or CUB for GPU parallel primitives"
+HOMEPAGE="https://github.com/ROCmSoftwarePlatform/hipCUB"
 S="${WORKDIR}/${PN}-rocm-${PV}"
+SRC_URI="https://github.com/ROCmSoftwarePlatform/hipCUB/archive/rocm-${PV}.tar.gz -> hipCUB-${PV}.tar.gz"
 KEYWORDS="~amd64"
 
-LICENSE="Apache-2.0"
+LICENSE="BSD"
 SLOT="0/$(ver_cut 1-2)"
 IUSE="benchmark test"
 REQUIRED_USE="${ROCM_REQUIRED_USE}"
-
 RESTRICT="!test? ( test )"
 
 RDEPEND="dev-util/hip
 	sci-libs/rocPRIM:${SLOT}[${ROCM_USEDEP}]
-	test? ( dev-cpp/gtest )"
+	benchmark? ( dev-cpp/benchmark )
+	test? ( dev-cpp/gtest )
+"
 DEPEND="${RDEPEND}"
-BDEPEND=">=dev-util/cmake-3.22"
 
-PATCHES=( "${FILESDIR}/${PN}-4.0-operator_new.patch" )
+PATCHES="${FILESDIR}/${PN}-4.3.0-add-memory-header.patch"
 
 src_prepare() {
-	sed -e "s:\${ROCM_INSTALL_LIBDIR}:\${CMAKE_INSTALL_LIBDIR}:" -i cmake/ROCMExportTargetsHeaderOnly.cmake || die
-
-	# do not install test files
-	find "test" "testing" -name "CMakeLists.txt" -print0 | \
-		while IFS=  read -r -d '' filename; do
-			sed '/rocm_install(/ {:r;/)/!{N;br}; s,.*,,}' -i ${filename} || die
-		done
+	sed	-e "s:\${ROCM_INSTALL_LIBDIR}:\${CMAKE_INSTALL_LIBDIR}:" -i cmake/ROCMExportTargetsHeaderOnly.cmake || die
 
 	# do not install test files
 	sed '/rocm_install(/ {:r;/)/!{N;br}; s,.*,,}' -i test/CMakeLists.txt || die
 
-	eapply_user
 	cmake_src_prepare
 }
 
@@ -53,7 +46,7 @@ src_configure() {
 		-DROCM_SYMLINK_LIBS=OFF
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-DBUILD_TEST=$(usex test ON OFF)
-		-DBUILD_BENCHMARKS=$(usex benchmark ON OFF)
+		-DBUILD_BENCHMARK=$(usex benchmark ON OFF)
 	)
 
 	CXX=hipcc cmake_src_configure

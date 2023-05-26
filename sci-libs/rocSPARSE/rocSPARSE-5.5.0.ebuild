@@ -45,7 +45,7 @@ IUSE="benchmark test"
 REQUIRED_USE="${ROCM_REQUIRED_USE}"
 SLOT="0/$(ver_cut 1-2)"
 
-RDEPEND="dev-libs/hip
+RDEPEND="dev-util/hip
 	sci-libs/rocPRIM:${SLOT}"
 DEPEND="${RDEPEND}"
 BDEPEND="test? (

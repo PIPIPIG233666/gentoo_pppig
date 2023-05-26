@@ -29,7 +29,7 @@ perfscripts? (
 	dev-python/pandas[${PYTHON_USEDEP}] )
 ${PYTHON_DEPS}"
 
-DEPEND="dev-libs/hip
+DEPEND="dev-util/hip
 	${PYTHON_DEPS}"
 
 BDEPEND="

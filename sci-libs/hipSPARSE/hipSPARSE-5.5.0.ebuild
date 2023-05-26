@@ -42,7 +42,7 @@ REQUIRED_USE="${ROCM_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
 
 RDEPEND="dev-util/rocminfo
-		dev-libs/hip
+		dev-util/hip
 		sci-libs/rocSPARSE:${SLOT}[${ROCM_USEDEP}]"
 DEPEND="${RDEPEND}"
 BDEPEND="dev-util/rocm-cmake

@@ -18,7 +18,7 @@ SLOT="0/$(ver_cut 1-2)"
 
 RESTRICT="test"
 
-RDEPEND="dev-libs/hip:${SLOT}
+RDEPEND="dev-util/hip:${SLOT}
 	sci-libs/rocFFT:${SLOT}[${ROCM_USEDEP}]"
 DEPEND="${RDEPEND}"
 BDEPEND=""
@@ -28,7 +28,6 @@ S="${WORKDIR}/hipFFT-rocm-${PV}"
 PATCHES=(
 	"${FILESDIR}/${PN}-5.0.2-remove-git-dependency.patch"
 	"${FILESDIR}/${PN}-4.3.0-add-complex-header.patch"
-	"${FILESDIR}/${PN}-5.5.0-gentoo-install-locations.patch"
 	"${FILESDIR}/${PN}-5.5.0-fix-include.patch"
 )
 
@@ -39,13 +38,14 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=(
-		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
-		-DCMAKE_INSTALL_INCLUDEDIR="include/hipfft"
+		-DBUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
+		-DROCM_SYMLINK_LIBS=OFF
 		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
+		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
 		-DHIP_ROOT_DIR="${EPREFIX}/usr"
 		-DBUILD_CLIENTS_TESTS=OFF
 		-DBUILD_CLIENTS_RIDER=OFF
 	)
 
-	CXX=hipcc cmake_src_configure
+	ROCM_PATH="${EPREFIX}/usr" CXX=hipcc cmake_src_configure
 }

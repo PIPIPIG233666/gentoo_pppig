@@ -22,7 +22,7 @@ IUSE="debug test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	>=dev-libs/hip-5.3.3
+	>=dev-util/hip-5.3.3
 	>=dev-db/sqlite-3.17
 	sci-libs/rocBLAS:${SLOT}[${ROCM_USEDEP}]
 	>=dev-libs/boost-1.72

@@ -21,7 +21,7 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND=">=dev-libs/rocr-runtime-5.5.0
-	>=dev-libs/hip-5.5.0"
+	>=dev-util/hip-5.5.0"
 DEPEND="${RDEPEND}"
 BDEPEND="
 	$(python_gen_any_dep '
