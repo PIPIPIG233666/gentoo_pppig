@@ -1,25 +1,4 @@
-emerge
-rccl
-rocm-comgr
-rocm-device-libs
-rocm-opencl-runtime
-rocr-runtime
-roct-thunk-interface
-hip
-rocm_bandwidth_test
-rocm-cmake
-rocminfo
-rocm-smi
-roctracer
-Tensile
-hipCUB
-hipFFT
-hipSPARSE
-miopen
-rocBLAS
-rocFFT
-rocPRIM
-rocRAND
-rocSOLVER
-rocSPARSE
-rocThrust
+###/etc/portage/package.use/rocm 
+####dev-util/amd-rocm-meta hip profiling science
+
+emerge amd-rocm-meta

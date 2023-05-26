@@ -21,7 +21,6 @@ RDEPEND="
 	=dev-util/rocm-smi-${ROCMVER}*
 
 	=dev-util/rocm-cmake-${ROCMVER}*
-	=sys-devel/llvm-roc-${ROCMVER}*
 	=dev-libs/rocm-device-libs-${ROCMVER}*
 	=dev-libs/rocm-comgr-${ROCMVER}*
 	=dev-libs/rocm-opencl-runtime-${ROCMVER}*
