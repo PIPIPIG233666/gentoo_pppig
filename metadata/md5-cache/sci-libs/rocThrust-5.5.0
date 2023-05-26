@@ -1,0 +1,17 @@
+BDEPEND=>=dev-util/cmake-3.22 >=dev-util/ninja-1.8.2 >=dev-util/cmake-3.20.5
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=dev-libs/hip sci-libs/rocPRIM:0/5.5[amdgpu_targets_gfx906(-)?,amdgpu_targets_gfx908(-)?,amdgpu_targets_gfx90a(-)?,amdgpu_targets_gfx1030(-)?,amdgpu_targets_gfx803(-)?,amdgpu_targets_gfx900(-)?,amdgpu_targets_gfx1010(-)?,amdgpu_targets_gfx1011(-)?,amdgpu_targets_gfx1012(-)?,amdgpu_targets_gfx1031(-)?,amdgpu_targets_gfx1100(-)?,amdgpu_targets_gfx1101(-)?,amdgpu_targets_gfx1102(-)?] test? ( dev-cpp/gtest )
+DESCRIPTION=HIP back-end for the parallel algorithm library Thrust
+EAPI=8
+HOMEPAGE=https://github.com/ROCmSoftwarePlatform/rocThrust
+INHERIT=cmake rocm
+IUSE=benchmark test +amdgpu_targets_gfx906 +amdgpu_targets_gfx908 +amdgpu_targets_gfx90a +amdgpu_targets_gfx1030 amdgpu_targets_gfx803 amdgpu_targets_gfx900 amdgpu_targets_gfx1010 amdgpu_targets_gfx1011 amdgpu_targets_gfx1012 amdgpu_targets_gfx1031 amdgpu_targets_gfx1100 amdgpu_targets_gfx1101 amdgpu_targets_gfx1102
+KEYWORDS=~amd64
+LICENSE=Apache-2.0
+RDEPEND=dev-libs/hip sci-libs/rocPRIM:0/5.5[amdgpu_targets_gfx906(-)?,amdgpu_targets_gfx908(-)?,amdgpu_targets_gfx90a(-)?,amdgpu_targets_gfx1030(-)?,amdgpu_targets_gfx803(-)?,amdgpu_targets_gfx900(-)?,amdgpu_targets_gfx1010(-)?,amdgpu_targets_gfx1011(-)?,amdgpu_targets_gfx1012(-)?,amdgpu_targets_gfx1031(-)?,amdgpu_targets_gfx1100(-)?,amdgpu_targets_gfx1101(-)?,amdgpu_targets_gfx1102(-)?] test? ( dev-cpp/gtest )
+REQUIRED_USE=|| ( amdgpu_targets_gfx906 amdgpu_targets_gfx908 amdgpu_targets_gfx90a amdgpu_targets_gfx1030 amdgpu_targets_gfx803 amdgpu_targets_gfx900 amdgpu_targets_gfx1010 amdgpu_targets_gfx1011 amdgpu_targets_gfx1012 amdgpu_targets_gfx1031 amdgpu_targets_gfx1100 amdgpu_targets_gfx1101 amdgpu_targets_gfx1102 )
+RESTRICT=!test? ( test )
+SLOT=0/5.5
+SRC_URI=https://github.com/ROCmSoftwarePlatform/rocThrust/archive/rocm-5.5.0.tar.gz -> rocThrust-rocm-5.5.0.tar.gz
+_eclasses_=toolchain-funcs	14a8ae365191b518fad51caad7a08f3e	multilib	104e1332efb829e2f7cbf89307a474f1	flag-o-matic	16483e58fadb0d47b4528f0aa7e171f6	multiprocessing	b4e253ab22cef7b1085e9b67c7a3b730	ninja-utils	76050953ad5b70d7e09a6ca55558db92	xdg-utils	baea6080dd821f5562d715887954c9d3	cmake	7fb5980de96325cbab639f5b2187357c	rocm	d027c5dabbfc98896a8fe0defa5a6c0a
+_md5_=26bfc118f3cdc687565b585122b38857

@@ -29,6 +29,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.0.2-remove-git-dependency.patch"
 	"${FILESDIR}/${PN}-4.3.0-add-complex-header.patch"
 	"${FILESDIR}/${PN}-5.5.0-gentoo-install-locations.patch"
+	"${FILESDIR}/${PN}-5.5.0-fix-include.patch"
 )
 
 src_prepare() {
@@ -40,7 +41,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
 		-DCMAKE_INSTALL_INCLUDEDIR="include/hipfft"
-		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake"
+		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
 		-DHIP_ROOT_DIR="${EPREFIX}/usr"
 		-DBUILD_CLIENTS_TESTS=OFF
 		-DBUILD_CLIENTS_RIDER=OFF

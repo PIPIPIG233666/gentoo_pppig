@@ -29,16 +29,18 @@ DEPEND="${RDEPEND}"
 BDEPEND="
 	$(python_gen_any_dep '
 	dev-python/CppHeaderParser[${PYTHON_USEDEP}]
+	dev-python/barectf[${PYTHON_USEDEP}]
 	')
 "
 
-PATCHES=( "${FILESDIR}/${PN}-4.3.0-nostrip.patch"
-		"${FILESDIR}/${PN}-4.3.0-no-aqlprofile.patch"
-		"${FILESDIR}/${PN}-5.1.3-remove-Werror.patch"
-		"${FILESDIR}/${PN}-5.3.3-gentoo-location.patch"
-		"${FILESDIR}/${PN}-5.3.3-remove-aql-in-cmake.patch"
-		"${FILESDIR}/${PN}-5.4.3-test-fix-build-kernel.patch"
-		"${FILESDIR}/${PN}-5.4.3-disable-tests-who-need-aqlprofile.patch" )
+PATCHES=(
+	"${FILESDIR}/${PN}-4.3.0-no-aqlprofile.patch"
+	# "${FILESDIR}/${PN}-5.3.3-gentoo-location.patch"
+	"${FILESDIR}/${PN}-5.4.3-test-fix-build-kernel.patch"
+	"${FILESDIR}/${PN}-5.4.3-disable-tests-who-need-aqlprofile.patch"
+	"${FILESDIR}/${PN}-5.5.0-remove-aql-in-cmake.patch"
+	"${FILESDIR}/${PN}-5.5.0-gcc-13-fix.patch"
+)
 
 python_check_deps() {
 	python_has_version "dev-python/CppHeaderParser[${PYTHON_USEDEP}]"
@@ -60,9 +62,11 @@ src_configure() {
 		-DCMAKE_SKIP_RPATH=On
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
 		-DCMAKE_PREFIX_PATH="${EPREFIX}/usr/include/hsa"
+		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
 		-DPROF_API_HEADER_PATH="${EPREFIX}"/usr/include/roctracer/ext
 		-DFILE_REORG_BACKWARD_COMPATIBILITY=OFF
 		-DUSE_PROF_API=1
+		-DHIP_ROOT_DIR="${EPREFIX}/usr"
 	)
 
 	use test && mycmakeargs+=( -DGPU_TARGETS="${AMDGPU_TARGETS}" )
