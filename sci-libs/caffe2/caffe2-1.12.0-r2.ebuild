@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 ROCM_VERSION=5.5.0
 inherit python-single-r1 cmake flag-o-matic rocm
 
@@ -85,10 +85,10 @@ DEPEND="
 S="${WORKDIR}"/${MYP}
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.11.0-gentoo.patch
-	"${FILESDIR}"/${PN}-1.12.0-install-dirs.patch
-	"${FILESDIR}"/${P}-glog-0.6.0.patch
-	"${FILESDIR}"/${P}-clang.patch
+	"${FILESDIR}"/${PN}-1.13.0-gentoo.patch
+	"${FILESDIR}"/${PN}-1.13.0-install-dirs.patch
+	"${FILESDIR}"/${PN}-1.12.0-glog-0.6.0.patch
+	"${FILESDIR}"/${PN}-1.12.0-clang.patch
 	"${FILESDIR}"/find-hip.patch
 	"${FILESDIR}"/specify-rocm-arch.patch
 	"${FILESDIR}"/disable-frexp.patch
