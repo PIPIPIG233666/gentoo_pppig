@@ -108,7 +108,6 @@ src_configure() {
 		-DCMAKE_SKIP_RPATH=On
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-DBUILD_CLIENTS_SAMPLES=OFF
-		-DCMAKE_INSTALL_INCLUDEDIR="include/rocsparse"
 		-DBUILD_CLIENTS_TESTS=$(usex test ON OFF)
 		-DBUILD_CLIENTS_BENCHMARKS=$(usex benchmark ON OFF)
 	)

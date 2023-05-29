@@ -82,7 +82,6 @@ pkg_setup() {
 src_prepare() {
 	sed -e "s/PREFIX rocfft//" \
 		-e "/rocm_install_symlink_subdir/d" \
-		-e "/<INSTALL_INTERFACE/s,include,include/rocFFT," \
 		-i library/src/CMakeLists.txt || die
 
 	sed -e "/rocm_install_symlink_subdir/d" \
@@ -109,7 +108,6 @@ src_configure() {
 		-DCMAKE_SKIP_RPATH=On
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-Wno-dev
-		-DCMAKE_INSTALL_INCLUDEDIR="include/rocFFT/"
 		-DBUILD_CLIENTS_TESTS=$(usex test ON OFF)
 		-DBUILD_CLIENTS_SELFTEST=$(usex test ON OFF)
 		-DPYTHON3_EXE=${EPYTHON}

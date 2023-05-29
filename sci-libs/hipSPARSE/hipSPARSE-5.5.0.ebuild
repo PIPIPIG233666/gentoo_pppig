@@ -57,7 +57,6 @@ PATCHES=(
 
 src_prepare() {
 	sed -e "s/PREFIX hipsparse//" \
-		-e "/<INSTALL_INTERFACE/s,include,include/hipsparse," \
 		-e "s:rocm_install_symlink_subdir(hipsparse):#rocm_install_symlink_subdir(hipsparse):" \
 		-i library/CMakeLists.txt || die
 
@@ -88,7 +87,6 @@ src_configure() {
 		-DHIP_RUNTIME="ROCclr"
 		-DBUILD_CLIENTS_TESTS=$(usex test ON OFF)
 		-DBUILD_CLIENTS_SAMPLES=OFF
-		-DCMAKE_INSTALL_INCLUDEDIR=include/hipsparse
 	)
 
 	cmake_src_configure
