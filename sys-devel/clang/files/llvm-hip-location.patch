@@ -1,0 +1,69 @@
+diff --git a/clang/lib/Driver/ToolChains/AMDGPU.cpp b/root/AMDGPU.cpp
+index 5849e9c..287545c 100644
+--- a/clang/lib/Driver/ToolChains/AMDGPU.cpp
++++ b/root/AMDGPU.cpp
+@@ -310,7 +310,7 @@ RocmInstallationDetector::getInstallationPathCandidates() {
+                                 /*StrictChecking=*/true);
+ 
+   Distro Dist(D.getVFS(), llvm::Triple(llvm::sys::getProcessTriple()));
+-  if (Dist.IsDebian() || Dist.IsRedhat()) {
++  if (Dist.IsDebian() || Dist.IsRedhat() || Dist.IsGentoo()) {
+     ROCmSearchDirs.emplace_back(D.SysRoot + "/usr/local",
+                                 /*StrictChecking=*/true);
+     ROCmSearchDirs.emplace_back(D.SysRoot + "/usr",
+@@ -434,54 +434,7 @@ void RocmInstallationDetector::detectDeviceLibrary() {
+ }
+ 
+ void RocmInstallationDetector::detectHIPRuntime() {
+-  SmallVector<Candidate, 4> HIPSearchDirs;
+-  if (!HIPPathArg.empty())
+-    HIPSearchDirs.emplace_back(HIPPathArg.str(), /*StrictChecking=*/true);
+-  else
+-    HIPSearchDirs.append(getInstallationPathCandidates());
+-  auto &FS = D.getVFS();
+-
+-  for (const auto &Candidate : HIPSearchDirs) {
+-    InstallPath = Candidate.Path;
+-    if (InstallPath.empty() || !FS.exists(InstallPath))
+-      continue;
+-    // HIP runtime built by SPACK is installed to
+-    // <rocm_root>/hip-<rocm_release_string>-<hash> directory.
+-    auto SPACKPath = findSPACKPackage(Candidate, "hip");
+-    InstallPath = SPACKPath.empty() ? InstallPath : SPACKPath;
+-
+-    BinPath = InstallPath;
+-    llvm::sys::path::append(BinPath, "bin");
+-    IncludePath = InstallPath;
+-    llvm::sys::path::append(IncludePath, "include");
+-    LibPath = InstallPath;
+-    llvm::sys::path::append(LibPath, "lib");
+-    SharePath = InstallPath;
+-    llvm::sys::path::append(SharePath, "share");
+-
+-    // If HIP version file can be found and parsed, use HIP version from there.
+-    for (const auto &VersionFilePath :
+-         {std::string(SharePath) + "/hip/version",
+-          std::string(BinPath) + "/.hipVersion"}) {
+-      llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> VersionFile =
+-          FS.getBufferForFile(VersionFilePath);
+-      if (!VersionFile)
+-        continue;
+-      if (HIPVersionArg.empty() && VersionFile)
+-        if (parseHIPVersionFile((*VersionFile)->getBuffer()))
+-          continue;
+-
+-      HasHIPRuntime = true;
+-      return;
+-    }
+-    // Otherwise, if -rocm-path is specified (no strict checking), use the
+-    // default HIP version or specified by --hip-version.
+-    if (!Candidate.StrictChecking) {
+-      HasHIPRuntime = true;
+-      return;
+-    }
+-  }
+-  HasHIPRuntime = false;
++  HasHIPRuntime = true;
+ }
+ 
+ void RocmInstallationDetector::print(raw_ostream &OS) const {
