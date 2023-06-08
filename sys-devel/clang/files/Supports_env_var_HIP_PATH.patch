@@ -1,0 +1,87 @@
+From 6aa74ae29ffc01b486798552672171f5a622fc2a Mon Sep 17 00:00:00 2001
+From: "Yaxun (Sam) Liu" <yaxun.liu@amd.com>
+Date: Mon, 6 Mar 2023 10:52:47 -0500
+Subject: [PATCH] [HIP] Supports env var HIP_PATH
+
+Currently HIP toolchain recognize env var ROCM_PATH and option --rocm-path
+but only recognize --hip-path.
+
+Some package management tools e.g. Spack relies on env var HIP_PATH to
+be able to load different version of HIP dynamically.
+(https://github.com/spack/spack/blob/develop/var/spack/repos/builtin/packages/hip/package.py#L446)
+Therefore add support of env var HIP_PATH.
+
+Reviewed by: Artem Belevich, Fangrui Song
+
+Differential Revision: https://reviews.llvm.org/D145391
+---
+ clang/lib/Driver/ToolChains/AMDGPU.cpp |  6 ++++-
+ clang/test/Driver/rocm-detect.hip      | 31 +++++++++++++++++++++++++-
+ 2 files changed, 35 insertions(+), 2 deletions(-)
+
+diff --git a/clang/lib/Driver/ToolChains/AMDGPU.cpp b/clang/lib/Driver/ToolChains/AMDGPU.cpp
+index 99e2fb839221..acedcfabefe1 100644
+--- a/clang/lib/Driver/ToolChains/AMDGPU.cpp
++++ b/clang/lib/Driver/ToolChains/AMDGPU.cpp
+@@ -437,7 +437,11 @@ void RocmInstallationDetector::detectHIPRuntime() {
+   SmallVector<Candidate, 4> HIPSearchDirs;
+   if (!HIPPathArg.empty())
+     HIPSearchDirs.emplace_back(HIPPathArg.str(), /*StrictChecking=*/true);
+-  else
++  else if (std::optional<std::string> HIPPathEnv =
++               llvm::sys::Process::GetEnv("HIP_PATH")) {
++    if (!HIPPathEnv->empty())
++      HIPSearchDirs.emplace_back(std::move(*HIPPathEnv));
++  } else
+     HIPSearchDirs.append(getInstallationPathCandidates());
+   auto &FS = D.getVFS();
+ 
+diff --git a/clang/test/Driver/rocm-detect.hip b/clang/test/Driver/rocm-detect.hip
+index 01837bb45065..fbb4bbc25e3c 100644
+--- a/clang/test/Driver/rocm-detect.hip
++++ b/clang/test/Driver/rocm-detect.hip
+@@ -25,6 +25,31 @@
+ // RUN:   --print-rocm-search-dirs %s 2>&1 \
+ // RUN:   | FileCheck -check-prefixes=ROCM-ENV %s
+ 
++// Test interaction between environment variables HIP_PATH and ROCM_PATH.
++// Device libs are found under ROCM_PATH. HIP include files and HIP runtime library
++// are found under HIP_PATH.
++
++// RUN: rm -rf %t/myhip
++// RUN: mkdir -p %t/myhip
++// RUN: cp -r %S/Inputs/rocm/bin %t/myhip
++// RUN: env ROCM_PATH=%S/Inputs/rocm HIP_PATH=%t/myhip \
++// RUN:   %clang -### -target x86_64-linux-gnu --offload-arch=gfx1010 --hip-link \
++// RUN:   --print-rocm-search-dirs %s 2>&1 \
++// RUN:   | FileCheck -check-prefixes=ROCM-ENV,HIP-PATH %s
++
++// Test --hip-path option overrides environment variable HIP_PATH.
++
++// RUN: rm -rf %t/myhip
++// RUN: rm -rf %t/myhip_nouse
++// RUN: mkdir -p %t/myhip
++// RUN: mkdir -p %t/myhip_nouse
++// RUN: cp -r %S/Inputs/rocm/bin %t/myhip
++// RUN: cp -r %S/Inputs/rocm/bin %t/myhip_nouse
++// RUN: env ROCM_PATH=%S/Inputs/rocm HIP_PATH=%t/myhip_nouse \
++// RUN:   %clang -### -target x86_64-linux-gnu --offload-arch=gfx1010 --hip-link \
++// RUN:   --hip-path=%t/myhip --print-rocm-search-dirs %s 2>&1 \
++// RUN:   | FileCheck -check-prefixes=ROCM-ENV,HIP-PATH %s
++
+ // Test detecting latest /opt/rocm-{release} directory.
+ // RUN: rm -rf %T/opt
+ // RUN: mkdir -p %T/opt
+@@ -75,7 +100,11 @@
+ 
+ // COMMON: "-triple" "amdgcn-amd-amdhsa"
+ 
+-// ROCM-ENV: ROCm installation search path: {{.*}}/Inputs/rocm
++// ROCM-ENV: ROCm installation search path: [[ROCM_PATH:.*/Inputs/rocm]]
++
++// HIP-PATH: "-mlink-builtin-bitcode" "[[ROCM_PATH]]/amdgcn/bitcode/oclc_isa_version_1010.bc"
++// HIP-PATH: "-idirafter" "[[HIP_PATH:.*/myhip]]/include"
++// HIP-PATH: "-L[[HIP_PATH]]/lib" "-lamdhip64"
+ 
+ // ROCM-REL: ROCm installation search path: {{.*}}/opt/rocm
+ // ROCM-REL: ROCm installation search path: {{.*}}/opt/rocm-3.10.0

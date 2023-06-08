@@ -59,7 +59,11 @@ LLVM_TEST_COMPONENTS=(
 LLVM_USE_TARGETS=llvm
 llvm.org_set_globals
 
-PATCHES=( "${FILESDIR}/llvm-hip-location.patch" )
+PATCHES=(
+"${FILESDIR}/Supports_env_var_HIP_PATH.patch"
+"${FILESDIR}/Detect_HIP_for_Ubuntu_Mint_Gentoo_etc.patch"
+"${FILESDIR}/llvm-device-lib-location.patch"
+)
 
 # Multilib notes:
 # 1. ABI_* flags control ABIs libclang* is built for only.

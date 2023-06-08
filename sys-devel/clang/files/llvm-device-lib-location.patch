@@ -1,0 +1,14 @@
+diff --git a/clang/lib/Driver/ToolChains/AMDGPU.cpp b/clang/lib/Driver/ToolChains/AMDGPU.cpp
+index 5849e9cfdb9b..c5c1fe6bc1be 100644
+--- a/clang/lib/Driver/ToolChains/AMDGPU.cpp
++++ b/clang/lib/Driver/ToolChains/AMDGPU.cpp
+@@ -426,8 +426,9 @@ void RocmInstallationDetector::detectDeviceLibrary() {
+   auto &ROCmDirs = getInstallationPathCandidates();
+   for (const auto &Candidate : ROCmDirs) {
+     LibDevicePath = Candidate.Path;
+-    llvm::sys::path::append(LibDevicePath, "amdgcn", "bitcode");
++    llvm::sys::path::append(LibDevicePath, "lib", "amdgcn", "bitcode");
+     HasDeviceLibrary = CheckDeviceLib(LibDevicePath, Candidate.StrictChecking);
+     if (HasDeviceLibrary)
+       return;
+   }
