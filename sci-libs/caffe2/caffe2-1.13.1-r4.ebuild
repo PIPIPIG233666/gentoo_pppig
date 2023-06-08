@@ -3,9 +3,8 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..10} )
-ROCM_VERSION=5.5.0
-inherit python-single-r1 cmake flag-o-matic rocm
+PYTHON_COMPAT=( python3_{9..11} )
+inherit python-single-r1 cmake cuda flag-o-matic
 
 MYPN=pytorch
 MYP=${MYPN}-${PV}
@@ -18,15 +17,16 @@ SRC_URI="https://github.com/pytorch/${MYPN}/archive/refs/tags/v${PV}.tar.gz
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="cuda ffmpeg nnpack +numpy opencl opencv openmp qnnpack rocm xnnpack"
+IUSE="cuda distributed ffmpeg mpi nnpack +numpy opencl opencv openmp qnnpack tensorpipe xnnpack"
 RESTRICT="test"
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
 	ffmpeg? ( opencv )
-	?? ( cuda rocm )
-	rocm? ( ${ROCM_REQUIRED_USE} )
-"
+	mpi? ( distributed )
+	tensorpipe? ( distributed )
+" # ?? ( cuda rocm )
 
+# CUDA 12 not supported yet: https://github.com/pytorch/pytorch/issues/91122
 RDEPEND="
 	${PYTHON_DEPS}
 	dev-cpp/gflags:=
@@ -37,45 +37,35 @@ RDEPEND="
 	dev-libs/pthreadpool
 	dev-libs/sleef
 	sci-libs/lapack
-	sci-libs/onnx
+	>=sci-libs/onnx-1.12.0
 	sci-libs/foxi
 	cuda? (
 		=dev-libs/cudnn-8*
 		dev-libs/cudnn-frontend:0/8
-		dev-util/nvidia-cuda-toolkit:=[profiler]
+		<dev-util/nvidia-cuda-toolkit-12:=[profiler]
 	)
 	ffmpeg? ( media-video/ffmpeg:= )
+	mpi? ( sys-cluster/openmpi )
 	nnpack? ( sci-libs/NNPACK )
 	numpy? ( $(python_gen_cond_dep '
 		dev-python/numpy[${PYTHON_USEDEP}]
 		') )
 	opencl? ( virtual/opencl )
 	opencv? ( media-libs/opencv:= )
-	rocm? (
-		dev-util/hip
-		dev-util/roctracer
-		dev-libs/rccl[${ROCM_USEDEP}]
-		sci-libs/hipFFT[${ROCM_USEDEP}]
-		sci-libs/hipSPARSE[${ROCM_USEDEP}]
-		sci-libs/hipCUB[${ROCM_USEDEP}]
-		sci-libs/miopen[${ROCM_USEDEP}]
-		sci-libs/rocBLAS[${ROCM_USEDEP}]
-		sci-libs/rocFFT[${ROCM_USEDEP}]
-		sci-libs/rocPRIM[${ROCM_USEDEP}]
-		sci-libs/rocRAND[${ROCM_USEDEP}]
-		sci-libs/rocThrust[${ROCM_USEDEP}]
-	)
 	qnnpack? ( sci-libs/QNNPACK )
+	tensorpipe? ( sci-libs/tensorpipe )
 	xnnpack? ( sci-libs/XNNPACK )
 "
 DEPEND="
 	${RDEPEND}
 	dev-cpp/eigen
+	cuda? ( dev-libs/cutlass )
 	dev-libs/psimd
 	dev-libs/FP16
 	dev-libs/FXdiv
 	dev-libs/pocketfft
 	dev-libs/flatbuffers
+	sci-libs/kineto
 	$(python_gen_cond_dep '
 		dev-python/pyyaml[${PYTHON_USEDEP}]
 		dev-python/pybind11[${PYTHON_USEDEP}]
@@ -85,13 +75,11 @@ DEPEND="
 S="${WORKDIR}"/${MYP}
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.11.0-gentoo.patch
-	"${FILESDIR}"/${PN}-1.12.0-install-dirs.patch
-	"${FILESDIR}"/${P}-glog-0.6.0.patch
-	"${FILESDIR}"/${P}-clang.patch
-	"${FILESDIR}"/find-hip.patch
-	"${FILESDIR}"/specify-rocm-arch.patch
-	"${FILESDIR}"/disable-frexp.patch
+	"${FILESDIR}"/${PN}-1.13.0-gentoo.patch
+	"${FILESDIR}"/${PN}-1.13.0-install-dirs.patch
+	"${FILESDIR}"/${PN}-1.12.0-glog-0.6.0.patch
+	"${FILESDIR}"/${PN}-1.12.0-clang.patch
+	"${FILESDIR}"/${P}-tensorpipe.patch
 )
 
 src_prepare() {
@@ -100,18 +88,6 @@ src_prepare() {
 	pushd torch/csrc/jit/serialization || die
 	flatc --cpp --gen-mutable --scoped-enums mobile_bytecode.fbs || die
 	popd
-
-	sed -e "s,\${ROCM_PATH}/lib,\${ROCM_PATH}/$(get_libdir),g" -i cmake/public/LoadHIP.cmake || die
-
-	if use rocm; then
-		ebegin "HIPifying cuda sources"
-		${EPYTHON} tools/amd_build/build_amd.py || die
-		eend $?
-		for rocm_lib in rocblas hipfft hipsparse; do
-			sed -e "/#include <${rocm_lib}.h>/s,${rocm_lib}.h,${rocm_lib}/${rocm_lib}.h," \
-				-i $(grep -rl "#include <${rocm_lib}.h>" .) || die
-		done
-	fi
 }
 
 src_configure() {
@@ -137,7 +113,8 @@ src_configure() {
 		-DUSE_CUDNN=$(usex cuda)
 		-DUSE_FAST_NVCC=$(usex cuda)
 		-DTORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-3.5 7.0}"
-		-DUSE_DISTRIBUTED=OFF
+		-DUSE_DISTRIBUTED=$(usex distributed)
+		-DUSE_MPI=$(usex mpi)
 		-DUSE_FAKELOWP=OFF
 		-DUSE_FBGEMM=OFF # TODO
 		-DUSE_FFMPEG=$(usex ffmpeg)
@@ -153,16 +130,20 @@ src_configure() {
 		-DUSE_QNNPACK=$(usex qnnpack)
 		-DUSE_XNNPACK=$(usex xnnpack)
 		-DUSE_SYSTEM_XNNPACK=$(usex xnnpack)
+		-DUSE_TENSORPIPE=$(usex tensorpipe)
 		-DUSE_PYTORCH_QNNPACK=OFF
 		-DUSE_NUMPY=$(usex numpy)
 		-DUSE_OPENCL=$(usex opencl)
 		-DUSE_OPENCV=$(usex opencv)
 		-DUSE_OPENMP=$(usex openmp)
-		-DUSE_ROCM=$(usex rocm)
+		-DUSE_ROCM=OFF # TODO
 		-DUSE_SYSTEM_CPUINFO=ON
-		-DUSE_SYSTEM_BIND11=ON
+		-DUSE_SYSTEM_PYBIND11=ON
+		-DUSE_UCC=OFF
+		-DUSE_VALGRIND=OFF
 		-DPYBIND11_PYTHON_VERSION="${EPYTHON#python}"
 		-DPYTHON_EXECUTABLE="${PYTHON}"
+		-DUSE_ITT=OFF
 		-DUSE_SYSTEM_EIGEN_INSTALL=ON
 		-DUSE_SYSTEM_PTHREADPOOL=ON
 		-DUSE_SYSTEM_FXDIV=ON
@@ -170,22 +151,19 @@ src_configure() {
 		-DUSE_SYSTEM_GLOO=ON
 		-DUSE_SYSTEM_ONNX=ON
 		-DUSE_SYSTEM_SLEEF=ON
-		-DUSE_TENSORPIPE=OFF
 
 		-Wno-dev
 		-DTORCH_INSTALL_LIB_DIR="${EPREFIX}"/usr/$(get_libdir)
 		-DLIBSHM_INSTALL_LIB_SUBDIR="${EPREFIX}"/usr/$(get_libdir)
 	)
-	if use rocm; then
-			mycmakeargs+=(
-			-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
-			-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
-			-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
+
+	if use cuda; then
+		addpredict "/dev/nvidiactl" # bug 867706
+
+		mycmakeargs+=(
+			-DCMAKE_CUDA_FLAGS="$(cuda_gccdir -f | tr -d \")"
 		)
 	fi
-
-	use cuda && addpredict "/dev/nvidiactl" # bug 867706
-	use rocm && export HIP_PATH="${EPREFIX}/usr"
 	cmake_src_configure
 }
 
@@ -200,6 +178,7 @@ src_install() {
 	mv "${ED}"/usr/lib/python*/site-packages/caffe2 python/ || die
 	mv "${ED}"/usr/include/torch python/torch/include || die
 	cp torch/version.py python/torch/ || die
+	rm -r "${ED}"/var/tmp || die
 	python_domodule python/caffe2
 	python_domodule python/torch
 }
