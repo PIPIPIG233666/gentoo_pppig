@@ -1,8 +1,13 @@
 diff --git a/clang/lib/Driver/ToolChains/AMDGPU.cpp b/clang/lib/Driver/ToolChains/AMDGPU.cpp
-index 5849e9cfdb9b..c5c1fe6bc1be 100644
+index 5849e9cfdb9b..a0b51da00b1a 100644
 --- a/clang/lib/Driver/ToolChains/AMDGPU.cpp
 +++ b/clang/lib/Driver/ToolChains/AMDGPU.cpp
-@@ -426,8 +426,9 @@ void RocmInstallationDetector::detectDeviceLibrary() {
+@@ -422,11 +422,11 @@ void RocmInstallationDetector::detectDeviceLibrary() {
+     return;
+ 
+   // Find device libraries in a legacy ROCm directory structure
+-  // ${ROCM_ROOT}/amdgcn/bitcode/*
++  // ${ROCM_ROOT}/lib/amdgcn/bitcode/*
    auto &ROCmDirs = getInstallationPathCandidates();
    for (const auto &Candidate : ROCmDirs) {
      LibDevicePath = Candidate.Path;
@@ -11,4 +16,3 @@ index 5849e9cfdb9b..c5c1fe6bc1be 100644
      HasDeviceLibrary = CheckDeviceLib(LibDevicePath, Candidate.StrictChecking);
      if (HasDeviceLibrary)
        return;
-   }

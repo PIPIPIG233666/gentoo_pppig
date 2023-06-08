@@ -1,0 +1,72 @@
+diff --git a/c10/util/BFloat16.h.orig b/c10/util/BFloat16.h
+index 1ada02b..fe24611 100644
+--- a/c10/util/BFloat16.h.orig
++++ b/c10/util/BFloat16.h
+@@ -6,6 +6,7 @@
+ #include <c10/macros/Macros.h>
+ #include <cmath>
+ #include <cstring>
++#include <cstdint>
+ 
+ #if defined(CUDA_VERSION) && CUDA_VERSION >= 11000
+ #include <cuda_bf16.h>
+diff --git a/aten/src/ATen/core/dynamic_type.h.orig b/aten/src/ATen/core/dynamic_type.h
+index a84644d..c4c8f9f 100644
+--- a/aten/src/ATen/core/dynamic_type.h.orig
++++ b/aten/src/ATen/core/dynamic_type.h
+@@ -2,6 +2,7 @@
+ 
+ #include <memory>
+ #include <type_traits>
++#include <cstdint>
+ 
+ #include <ATen/core/jit_type_base.h>
+ #include <c10/util/Optional.h>
+diff --git a/torch/csrc/jit/passes/quantization/quantization_type.h.orig b/torch/csrc/jit/passes/quantization/quantization_type.h
+index ea5ca10..c704f9c 100644
+--- a/torch/csrc/jit/passes/quantization/quantization_type.h.orig
++++ b/torch/csrc/jit/passes/quantization/quantization_type.h
+@@ -1,5 +1,6 @@
+ #pragma once
+ #include <ostream>
++#include <cstdint>
+ 
+ namespace torch {
+ namespace jit {
+diff --git a/torch/csrc/jit/runtime/logging.cpp.orig b/torch/csrc/jit/runtime/logging.cpp
+index 6671299..6f852d0 100644
+--- a/torch/csrc/jit/runtime/logging.cpp.orig
++++ b/torch/csrc/jit/runtime/logging.cpp
+@@ -3,6 +3,8 @@
+ #include <atomic>
+ #include <mutex>
+ #include <unordered_map>
++#include <stdexcept>
++#include <cstdint>
+ 
+ namespace torch {
+ namespace jit {
+diff --git a/torch/csrc/lazy/core/multi_wait.cpp.orig b/torch/csrc/lazy/core/multi_wait.cpp
+index 6b99335..2524420 100644
+--- a/torch/csrc/lazy/core/multi_wait.cpp.orig
++++ b/torch/csrc/lazy/core/multi_wait.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include <chrono>
+ #include <exception>
++#include <stdexcept>
+ 
+ namespace torch {
+ namespace lazy {
+diff --git a/c10/util/Registry.h.orig b/c10/util/Registry.h
+index 203fa27..d1493f5 100644
+--- a/c10/util/Registry.h.orig
++++ b/c10/util/Registry.h
+@@ -18,6 +18,7 @@
+ #include <string>
+ #include <unordered_map>
+ #include <vector>
++#include <stdexcept>
+ 
+ #include <c10/macros/Macros.h>
+ #include <c10/util/Type.h>

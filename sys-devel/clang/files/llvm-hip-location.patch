@@ -1,16 +1,7 @@
-diff --git a/clang/lib/Driver/ToolChains/AMDGPU.cpp b/root/AMDGPU.cpp
-index 5849e9c..287545c 100644
+diff --git a/clang/lib/Driver/ToolChains/AMDGPU.cpp b/clang/lib/Driver/ToolChains/AMDGPU.cpp
+index 5849e9cfdb9b..73fa3c20135c 100644
 --- a/clang/lib/Driver/ToolChains/AMDGPU.cpp
-+++ b/root/AMDGPU.cpp
-@@ -310,7 +310,7 @@ RocmInstallationDetector::getInstallationPathCandidates() {
-                                 /*StrictChecking=*/true);
- 
-   Distro Dist(D.getVFS(), llvm::Triple(llvm::sys::getProcessTriple()));
--  if (Dist.IsDebian() || Dist.IsRedhat()) {
-+  if (Dist.IsDebian() || Dist.IsRedhat() || Dist.IsGentoo()) {
-     ROCmSearchDirs.emplace_back(D.SysRoot + "/usr/local",
-                                 /*StrictChecking=*/true);
-     ROCmSearchDirs.emplace_back(D.SysRoot + "/usr",
++++ b/clang/lib/Driver/ToolChains/AMDGPU.cpp
 @@ -434,54 +434,7 @@ void RocmInstallationDetector::detectDeviceLibrary() {
  }
  

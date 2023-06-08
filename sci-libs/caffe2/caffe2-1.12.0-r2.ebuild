@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 ROCM_VERSION=5.5.0
 inherit python-single-r1 cmake flag-o-matic rocm
 
@@ -89,6 +89,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.12.0-install-dirs.patch
 	"${FILESDIR}"/${P}-glog-0.6.0.patch
 	"${FILESDIR}"/${P}-clang.patch
+	"${FILESDIR}"/${P}-gcc13.patch
 	"${FILESDIR}"/find-hip.patch
 	"${FILESDIR}"/specify-rocm-arch.patch
 	"${FILESDIR}"/disable-frexp.patch

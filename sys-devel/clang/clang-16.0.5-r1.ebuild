@@ -16,7 +16,7 @@ HOMEPAGE="https://llvm.org/"
 
 LICENSE="Apache-2.0-with-LLVM-exceptions UoI-NCSA MIT"
 SLOT="${LLVM_MAJOR}/${LLVM_SOABI}"
-KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x64-macos"
 IUSE="debug doc +extra ieee-long-double +pie +static-analyzer test xml"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
@@ -58,6 +58,13 @@ LLVM_TEST_COMPONENTS=(
 )
 LLVM_USE_TARGETS=llvm
 llvm.org_set_globals
+
+PATCHES=(
+#"${FILESDIR}/Supports_env_var_HIP_PATH.patch"
+"${FILESDIR}/Detect_HIP_for_Ubuntu_Mint_Gentoo_etc.patch"
+"${FILESDIR}/llvm-device-lib-location.patch"
+"${FILESDIR}/llvm-hip-location.patch"
+)
 
 # Multilib notes:
 # 1. ABI_* flags control ABIs libclang* is built for only.

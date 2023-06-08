@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{9..11} )
 ROCM_VERSION=5.5.0
-inherit python-single-r1 cmake cuda flag-o-matic rocm
+inherit python-single-r1 cmake flag-o-matic rocm
 
 MYPN=pytorch
 MYP=${MYPN}-${PV}
@@ -18,20 +18,15 @@ SRC_URI="https://github.com/pytorch/${MYPN}/archive/refs/tags/v${PV}.tar.gz
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="cuda distributed fbgemm ffmpeg gloo mpi nnpack +numpy opencl opencv openmp qnnpack rocm tensorpipe xnnpack"
+IUSE="cuda ffmpeg nnpack +numpy opencl opencv openmp qnnpack rocm xnnpack"
 RESTRICT="test"
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
 	ffmpeg? ( opencv )
-	mpi? ( distributed )
-	tensorpipe? ( distributed )
-	distributed? ( tensorpipe )
-	gloo? ( distributed )
 	?? ( cuda rocm )
 	rocm? ( ${ROCM_REQUIRED_USE} )
 "
 
-# CUDA 12 not supported yet: https://github.com/pytorch/pytorch/issues/91122
 RDEPEND="
 	${PYTHON_DEPS}
 	dev-cpp/gflags:=
@@ -42,24 +37,20 @@ RDEPEND="
 	dev-libs/pthreadpool
 	dev-libs/sleef
 	sci-libs/lapack
-	>=sci-libs/onnx-1.12.0
+	sci-libs/onnx
 	sci-libs/foxi
 	cuda? (
 		=dev-libs/cudnn-8*
 		dev-libs/cudnn-frontend:0/8
-		<dev-util/nvidia-cuda-toolkit-12:=[profiler]
+		dev-util/nvidia-cuda-toolkit:=[profiler]
 	)
-	fbgemm? ( dev-libs/FBGEMM )
 	ffmpeg? ( media-video/ffmpeg:= )
-	gloo? ( sci-libs/gloo[cuda?] )
-	mpi? ( sys-cluster/openmpi )
 	nnpack? ( sci-libs/NNPACK )
 	numpy? ( $(python_gen_cond_dep '
 		dev-python/numpy[${PYTHON_USEDEP}]
 		') )
 	opencl? ( virtual/opencl )
 	opencv? ( media-libs/opencv:= )
-	qnnpack? ( sci-libs/QNNPACK )
 	rocm? (
 		dev-util/hip
 		dev-util/roctracer
@@ -74,19 +65,17 @@ RDEPEND="
 		sci-libs/rocRAND[${ROCM_USEDEP}]
 		sci-libs/rocThrust[${ROCM_USEDEP}]
 	)
-	tensorpipe? ( sci-libs/tensorpipe[cuda?] )
-	xnnpack? ( >=sci-libs/XNNPACK-2022.12.22 )
+	qnnpack? ( sci-libs/QNNPACK )
+	xnnpack? ( sci-libs/XNNPACK )
 "
 DEPEND="
 	${RDEPEND}
 	dev-cpp/eigen
-	cuda? ( dev-libs/cutlass )
 	dev-libs/psimd
 	dev-libs/FP16
 	dev-libs/FXdiv
 	dev-libs/pocketfft
 	dev-libs/flatbuffers
-	sci-libs/kineto
 	$(python_gen_cond_dep '
 		dev-python/pyyaml[${PYTHON_USEDEP}]
 		dev-python/pybind11[${PYTHON_USEDEP}]
@@ -96,12 +85,10 @@ DEPEND="
 S="${WORKDIR}"/${MYP}
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.0.0-gentoo.patch
+	"${FILESDIR}"/${PN}-1.13.0-gentoo.patch
 	"${FILESDIR}"/${PN}-1.13.0-install-dirs.patch
-	"${FILESDIR}"/${PN}-1.12.0-glog-0.6.0.patch
-	"${FILESDIR}"/${PN}-1.13.1-tensorpipe.patch
-	"${FILESDIR}"/${PN}-2.0.0-gcc13.patch
-	"${FILESDIR}"/${PN}-2.0.0-cudnn_include_fix.patch
+	"${FILESDIR}"/${P}-glog-0.6.0.patch
+	"${FILESDIR}"/${P}-clang.patch
 	"${FILESDIR}"/find-hip.patch
 	"${FILESDIR}"/specify-rocm-arch.patch
 	"${FILESDIR}"/disable-frexp.patch
@@ -109,10 +96,6 @@ PATCHES=(
 
 src_prepare() {
 	filter-lto #bug 862672
-	sed -i \
-		-e "/third_party\/gloo/d" \
-		cmake/Dependencies.cmake \
-		|| die
 	cmake_src_prepare
 	pushd torch/csrc/jit/serialization || die
 	flatc --cpp --gen-mutable --scoped-enums mobile_bytecode.fbs || die
@@ -154,15 +137,13 @@ src_configure() {
 		-DUSE_CUDNN=$(usex cuda)
 		-DUSE_FAST_NVCC=$(usex cuda)
 		-DTORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-3.5 7.0}"
-		-DBUILD_NVFUSER=OFF
-		-DUSE_DISTRIBUTED=$(usex distributed)
-		-DUSE_MPI=$(usex mpi)
+		-DUSE_DISTRIBUTED=OFF
 		-DUSE_FAKELOWP=OFF
-		-DUSE_FBGEMM=$(usex fbgemm)
+		-DUSE_FBGEMM=OFF # TODO
 		-DUSE_FFMPEG=$(usex ffmpeg)
 		-DUSE_GFLAGS=ON
 		-DUSE_GLOG=ON
-		-DUSE_GLOO=$(usex gloo)
+		-DUSE_GLOO=OFF
 		-DUSE_KINETO=OFF # TODO
 		-DUSE_LEVELDB=OFF
 		-DUSE_MAGMA=OFF # TODO: In GURU as sci-libs/magma
@@ -172,21 +153,16 @@ src_configure() {
 		-DUSE_QNNPACK=$(usex qnnpack)
 		-DUSE_XNNPACK=$(usex xnnpack)
 		-DUSE_SYSTEM_XNNPACK=$(usex xnnpack)
-		-DUSE_TENSORPIPE=$(usex tensorpipe)
 		-DUSE_PYTORCH_QNNPACK=OFF
 		-DUSE_NUMPY=$(usex numpy)
 		-DUSE_OPENCL=$(usex opencl)
 		-DUSE_OPENCV=$(usex opencv)
-		-DUSE_ROCM=$(usex rocm)
 		-DUSE_OPENMP=$(usex openmp)
+		-DUSE_ROCM=$(usex rocm)
 		-DUSE_SYSTEM_CPUINFO=ON
-		-DUSE_SYSTEM_PYBIND11=ON
-		-DUSE_UCC=OFF
-		-DUSE_VALGRIND=OFF
+		-DUSE_SYSTEM_BIND11=ON
 		-DPYBIND11_PYTHON_VERSION="${EPYTHON#python}"
 		-DPYTHON_EXECUTABLE="${PYTHON}"
-		-DUSE_ITT=OFF
-		-DBLAS=Eigen # avoid the use of MKL, if found on the system
 		-DUSE_SYSTEM_EIGEN_INSTALL=ON
 		-DUSE_SYSTEM_PTHREADPOOL=ON
 		-DUSE_SYSTEM_FXDIV=ON
@@ -194,28 +170,22 @@ src_configure() {
 		-DUSE_SYSTEM_GLOO=ON
 		-DUSE_SYSTEM_ONNX=ON
 		-DUSE_SYSTEM_SLEEF=ON
+		-DUSE_TENSORPIPE=OFF
 
 		-Wno-dev
 		-DTORCH_INSTALL_LIB_DIR="${EPREFIX}"/usr/$(get_libdir)
 		-DLIBSHM_INSTALL_LIB_SUBDIR="${EPREFIX}"/usr/$(get_libdir)
 	)
-
-	if use cuda; then
-		addpredict "/dev/nvidiactl" # bug 867706
-		addpredict "/dev/char"
-
-		mycmakeargs+=(
-			-DCMAKE_CUDA_FLAGS="$(cuda_gccdir -f | tr -d \")"
+	if use rocm; then
+			mycmakeargs+=(
+			-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
+			-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
+			-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
 		)
 	fi
-	if use rocm; then
-		mycmakeargs+=(
-		-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
-		-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
-		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
-	)
-	fi
-	use rocm && export ROCM_PATH="${EPREFIX}/usr"
+
+	use cuda && addpredict "/dev/nvidiactl" # bug 867706
+	use rocm && export HIP_PATH="${EPREFIX}/usr"
 	cmake_src_configure
 }
 
@@ -230,7 +200,6 @@ src_install() {
 	mv "${ED}"/usr/lib/python*/site-packages/caffe2 python/ || die
 	mv "${ED}"/usr/include/torch python/torch/include || die
 	cp torch/version.py python/torch/ || die
-	rm -rf "${ED}"/var/tmp || die
 	python_domodule python/caffe2
 	python_domodule python/torch
 }
