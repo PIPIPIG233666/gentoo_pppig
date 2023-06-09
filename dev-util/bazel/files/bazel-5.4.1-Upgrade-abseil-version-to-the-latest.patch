@@ -1,0 +1,60 @@
+From b47aa71b21d93c9499103e9a37a6c2ffa79865b9 Mon Sep 17 00:00:00 2001
+From: Yun Peng <pcloudy@google.com>
+Date: Tue, 5 Apr 2022 04:21:29 -0700
+Subject: [PATCH] Upgrade abseil version to the latest
+
+Fixes https://github.com/bazelbuild/bazel/issues/15168
+
+Closes #15177.
+
+PiperOrigin-RevId: 439541810
+---
+ WORKSPACE        |  6 ++++++
+ distdir_deps.bzl | 11 ++++++-----
+ 2 files changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/WORKSPACE b/WORKSPACE
+index ef3f331f9a985..bd1634e2a9bf3 100644
+--- a/WORKSPACE
++++ b/WORKSPACE
+@@ -625,6 +625,12 @@ dist_http_archive(
+     name = "com_github_grpc_grpc",
+ )
+ 
++# Override the abseil-cpp version defined in grpc_deps(), which doesn't work on latest macOS
++# Fixes https://github.com/bazelbuild/bazel/issues/15168
++dist_http_archive(
++    name = "com_google_absl",
++)
++
+ # Projects using gRPC as an external dependency must call both grpc_deps() and
+ # grpc_extra_deps().
+ load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
+diff --git a/distdir_deps.bzl b/distdir_deps.bzl
+index c4659c72b048f..2ffd17f52892b 100644
+--- a/distdir_deps.bzl
++++ b/distdir_deps.bzl
+@@ -167,17 +167,18 @@ DIST_DEPS = {
+             "test_WORKSPACE_files",
+         ],
+     },
+-    "abseil-cpp": {
+-        "archive": "997aaf3a28308eba1b9156aa35ab7bca9688e9f6.tar.gz",
+-        "sha256": "35f22ef5cb286f09954b7cc4c85b5a3f6221c9d4df6b8c4a1e9d399555b366ee",
++    "com_google_absl": {
++        "archive": "20211102.0.tar.gz",
++        "sha256": "dcf71b9cba8dc0ca9940c4b316a0c796be8fab42b070bb6b7cab62b48f0e66c4",
+         "urls": [
+-            "https://mirror.bazel.build/github.com/abseil/abseil-cpp/archive/997aaf3a28308eba1b9156aa35ab7bca9688e9f6.tar.gz",
+-            "https://github.com/abseil/abseil-cpp/archive/997aaf3a28308eba1b9156aa35ab7bca9688e9f6.tar.gz",
++            "https://mirror.bazel.build/github.com/abseil/abseil-cpp/archive/refs/tags/20211102.0.tar.gz",
++            "https://github.com/abseil/abseil-cpp/archive/refs/tags/20211102.0.tar.gz",
+         ],
+         "used_in": [
+             "additional_distfiles",
+             "test_WORKSPACE_files",
+         ],
++        "strip_prefix": "abseil-cpp-20211102.0",
+     },
+     "zstd-jni": {
+         "archive": "v1.5.0-4.zip",
