@@ -142,7 +142,7 @@ BDEPEND="
 	app-arch/unzip
 	>=dev-libs/protobuf-3.8.0
 	dev-java/java-config
-	=dev-util/bazel-5*
+	dev-util/bazel
 	cuda? (
 		>=dev-util/nvidia-cuda-toolkit-9.1[profiler]
 	)
