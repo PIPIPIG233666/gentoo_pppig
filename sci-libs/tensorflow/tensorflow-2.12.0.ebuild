@@ -8,8 +8,9 @@ PYTHON_COMPAT=( python3_10 python3_11 )
 MY_PV=${PV/_rc/-rc}
 MY_P=${PN}-${MY_PV}
 DEP_VER="$(ver_cut 1-2)"
+ROCM_VERSION=5.5.0
 
-inherit bazel check-reqs cuda distutils-r1 flag-o-matic prefix toolchain-funcs
+inherit bazel check-reqs cuda distutils-r1 flag-o-matic prefix rocm toolchain-funcs
 
 DESCRIPTION="Computation framework using data flow graphs for scalable machine learning"
 HOMEPAGE="https://www.tensorflow.org/"
@@ -18,7 +19,7 @@ RESTRICT="test" # Tests need GPU access
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="cuda mpi +python xla"
+IUSE="cuda mpi +python rocm xla"
 CPU_USE_FLAGS_X86="sse sse2 sse3 sse4_1 sse4_2 avx avx2 fma3 fma4"
 for i in $CPU_USE_FLAGS_X86; do
 	IUSE+=" cpu_flags_x86_${i}"
@@ -128,7 +129,13 @@ RDEPEND="
 		>=dev-python/wrapt-1.11.1[${PYTHON_USEDEP}]
 		>=net-libs/google-cloud-cpp-0.10.0
 		>=sci-visualization/tensorboard-${DEP_VER}[${PYTHON_USEDEP}]
-	)"
+	)
+	rocm? (
+		dev-libs/rccl
+		dev-util/hip
+		sci-libs/miopen
+	)
+"
 DEPEND="${RDEPEND}
 	python? (
 		dev-python/mock
@@ -268,6 +275,9 @@ src_configure() {
 				ewarn "or by running /opt/cuda/extras/demo_suite/deviceQuery | grep 'CUDA Capability'"
 			fi
 		fi
+
+		TF_NEED_ROCM=$(usex rocm 1 0)
+		TF_ROCM_AMDGPU_TARGETS=$(get_amdgpu_flags)
 
 		# com_googlesource_code_re2 weird branch using absl, doesnt work with released re2
 		#com_github_googleapis_googleapis
