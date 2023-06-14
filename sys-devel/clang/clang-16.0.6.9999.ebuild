@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{9..11} )
 
-inherit cmake llvm llvm.org multilib multilib-minimal
+inherit cmake flag-o-matic llvm llvm.org multilib multilib-minimal
 inherit prefix python-single-r1 toolchain-funcs
 
 DESCRIPTION="C language family frontend for LLVM"
@@ -17,7 +17,7 @@ HOMEPAGE="https://llvm.org/"
 LICENSE="Apache-2.0-with-LLVM-exceptions UoI-NCSA MIT"
 SLOT="${LLVM_MAJOR}/${LLVM_SOABI}"
 KEYWORDS=""
-IUSE="+debug doc +extra ieee-long-double +pie +static-analyzer test xml"
+IUSE="debug doc +extra ieee-long-double +pie +static-analyzer test xml"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
 
@@ -52,7 +52,9 @@ LLVM_COMPONENTS=(
 )
 LLVM_MANPAGES=1
 LLVM_TEST_COMPONENTS=(
+	llvm/lib/Testing
 	llvm/utils
+	third-party
 )
 LLVM_USE_TARGETS=llvm
 llvm.org_set_globals
@@ -253,6 +255,8 @@ get_distribution_components() {
 }
 
 multilib_src_configure() {
+	tc-is-gcc && filter-lto # GCC miscompiles LLVM, bug #873670
+
 	local mycmakeargs=(
 		-DDEFAULT_SYSROOT=$(usex prefix-guest "" "${EPREFIX}")
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/llvm/${LLVM_MAJOR}"
@@ -272,22 +276,21 @@ multilib_src_configure() {
 		-DLLVM_ENABLE_EH=ON
 		-DLLVM_ENABLE_RTTI=ON
 
+		-DCMAKE_DISABLE_FIND_PACKAGE_LibXml2=$(usex !xml)
 		# libgomp support fails to find headers without explicit -I
 		# furthermore, it provides only syntax checking
 		-DCLANG_DEFAULT_OPENMP_RUNTIME=libomp
 
 		# disable using CUDA to autodetect GPU, just build for all
-		-DCMAKE_DISABLE_FIND_PACKAGE_CUDAToolkit=ON
+		-DCMAKE_DISABLE_FIND_PACKAGE_CUDA=ON
 		# disable linking to HSA to avoid automagic dep,
 		# load it dynamically instead
 		-DCMAKE_DISABLE_FIND_PACKAGE_hsa-runtime64=ON
 
 		-DCLANG_DEFAULT_PIE_ON_LINUX=$(usex pie)
 
-		-DCLANG_ENABLE_LIBXML2=$(usex xml)
 		-DCLANG_ENABLE_ARCMT=$(usex static-analyzer)
 		-DCLANG_ENABLE_STATIC_ANALYZER=$(usex static-analyzer)
-		# TODO: CLANG_ENABLE_HLSL?
 
 		-DPython3_EXECUTABLE="${PYTHON}"
 	)
