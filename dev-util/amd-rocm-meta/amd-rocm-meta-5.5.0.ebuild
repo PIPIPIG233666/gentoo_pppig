@@ -8,7 +8,7 @@ LICENSE="metapackage"
 
 SLOT="0/$(ver_cut 1-2)"
 KEYWORDS="~amd64"
-IUSE="debug-tools hip opencl profiling science"
+IUSE="debug-tools hip opencl profiling science tensorflow"
 
 # This ROCm version...
 ROCMVER="$(ver_cut 1-2)"
@@ -53,6 +53,10 @@ RDEPEND="
 	science? ( =sci-libs/rocSPARSE-${ROCMVER}* )
 	science? ( =sci-libs/rocThrust-${ROCMVER}* )
 	science? ( =sci-libs/rocSOLVER-${ROCMVER}* )
+
+	tensorflow? ( =sci-libs/miopen-${ROCMVER}* )
+	tensorflow? ( =sci-libs/miopengemm-${ROCMVER}* )
+	tensorflow? ( =dev-libs/rccl-${ROCMVER}* )
 
 	!dev-libs/rocm-sci-lib
 	!<media-libs/hsa-amd-aqlprofile-${ROCMVER} !>=media-libs/hsa-amd-aqlprofile-${ROCMNEXTVER}

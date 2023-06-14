@@ -130,11 +130,7 @@ RDEPEND="
 		>=net-libs/google-cloud-cpp-0.10.0
 		>=sci-visualization/tensorboard-${DEP_VER}[${PYTHON_USEDEP}]
 	)
-	rocm? (
-		dev-libs/rccl
-		dev-util/hip
-		sci-libs/miopen
-	)
+	rocm? ( dev-util/amd-rocm-meta[hip,science,opencl] )
 "
 DEPEND="${RDEPEND}
 	python? (
@@ -207,6 +203,7 @@ src_prepare() {
 	bazel_setup_bazelrc
 
 	eapply "${WORKDIR}"/patches/*.patch
+	use rocm && eapply "${FILESDIR}"/rocm.patch
 
 	# Relax version checks in setup.py
 	sed -i "/^    '/s/==/>=/g" tensorflow/tools/pip_package/setup.py || die
@@ -277,7 +274,15 @@ src_configure() {
 		fi
 
 		TF_NEED_ROCM=$(usex rocm 1 0)
-		TF_ROCM_AMDGPU_TARGETS=$(get_amdgpu_flags)
+		use rocm && export ROCM_PATH="${EPREFIX}/usr"
+
+		if use rocm; then
+			export GCC_HOST_COMPILER_PATH="/usr/bin/gcc"
+			export GCC_HOST_COMPILER_PREFIX="/usr/bin"
+			export ROCM_TOOLKIT_PATH="/usr"
+			export TF_ROCM_AMDGPU_TARGETS=$(get_amdgpu_flags)
+			export TF_MIOPEN_VERSION=""
+		fi
 
 		# com_googlesource_code_re2 weird branch using absl, doesnt work with released re2
 		#com_github_googleapis_googleapis
@@ -329,6 +334,7 @@ src_configure() {
 		echo 'build --define tensorflow_mkldnn_contraction_kernel=0' >> .bazelrc || die
 		echo "build --action_env=KERAS_HOME=\"${T}/.keras\"" >> .bazelrc || die
 		echo "build --host_action_env=KERAS_HOME=\"${T}/.keras\"" >> .bazelrc || die
+		sed -e "/build:linux --distinct_host_configuration=false/d" -i .bazelrc || die
 
 		for cflag in $($(tc-getPKG_CONFIG) jsoncpp --cflags)
 		do
