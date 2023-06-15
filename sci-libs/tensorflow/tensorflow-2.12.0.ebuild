@@ -41,7 +41,7 @@ bazel_external_uris="
 	https://github.com/bazelbuild/rules_cc/archive/081771d4a0e9d7d3aa0eed2ef389fa4700dfb23e.tar.gz -> bazelbuild-rules_cc-081771d4a0e9d7d3aa0eed2ef389fa4700dfb23e.tar.gz
 	https://github.com/bazelbuild/rules_closure/archive/308b05b2419edb5c8ee0471b67a40403df940149.tar.gz -> bazelbuild-rules_closure-308b05b2419edb5c8ee0471b67a40403df940149.tar.gz
 	https://github.com/bazelbuild/rules_docker/releases/download/v0.10.0/rules_docker-v0.10.0.tar.gz -> bazelbuild-rules_docker-v0.10.0.tar.gz
-	https://github.com/bazelbuild/rules_java/archive/7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip -> bazelbuild-rules_java-7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip
+	https://github.com/bazelbuild/rules_java/releases/download/5.4.1/rules_java-5.4.1.tar.gz -> bazelbuild-rules_java-5.4.1.tar.gz
 	https://github.com/bazelbuild/rules_jvm_external/archive/4.3.zip -> bazelbuild-rules_jvm_external-4.3.zip
 	https://github.com/bazelbuild/rules_pkg/releases/download/0.7.1/rules_pkg-0.7.1.tar.gz -> bazelbuild-rules_pkg-0.7.1.tar.gz
 	https://github.com/bazelbuild/rules_proto/archive/11bf7c25e666dd7ddacbcd4d4c4a9de7a25175f8.tar.gz -> bazelbuild-rules_proto-11bf7c25e666dd7ddacbcd4d4c4a9de7a25175f8.tar.gz
@@ -204,6 +204,7 @@ src_prepare() {
 
 	eapply "${WORKDIR}"/patches/*.patch
 	use rocm && eapply "${FILESDIR}"/rocm.patch
+	eapply "${FILESDIR}"/gcc13.patch
 
 	# Relax version checks in setup.py
 	sed -i "/^    '/s/==/>=/g" tensorflow/tools/pip_package/setup.py || die
@@ -335,6 +336,7 @@ src_configure() {
 		echo "build --action_env=KERAS_HOME=\"${T}/.keras\"" >> .bazelrc || die
 		echo "build --host_action_env=KERAS_HOME=\"${T}/.keras\"" >> .bazelrc || die
 		sed -e "/build:linux --distinct_host_configuration=false/d" -i .bazelrc || die
+		echo "build --incompatible_fix_package_group_reporoot_syntax=false" >> .bazelrc || die
 
 		for cflag in $($(tc-getPKG_CONFIG) jsoncpp --cflags)
 		do
