@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit cmake flag-o-matic llvm llvm.org multilib multilib-minimal
 inherit prefix python-single-r1 toolchain-funcs
@@ -16,7 +16,7 @@ HOMEPAGE="https://llvm.org/"
 
 LICENSE="Apache-2.0-with-LLVM-exceptions UoI-NCSA MIT"
 SLOT="${LLVM_MAJOR}/${LLVM_SOABI}"
-KEYWORDS="amd64 ~arm ~arm64 ~loong ~ppc ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x64-macos"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x64-macos"
 IUSE="debug doc +extra ieee-long-double +pie +static-analyzer test xml"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
@@ -56,8 +56,15 @@ LLVM_TEST_COMPONENTS=(
 	llvm/utils
 	third-party
 )
+LLVM_PATCHSET=${PV}
 LLVM_USE_TARGETS=llvm
 llvm.org_set_globals
+
+PATCHES=(
+	"${FILESDIR}/llvm-device-lib-location.patch"
+	"${FILESDIR}/llvm-hip-location.patch"
+)
+
 
 # Multilib notes:
 # 1. ABI_* flags control ABIs libclang* is built for only.
