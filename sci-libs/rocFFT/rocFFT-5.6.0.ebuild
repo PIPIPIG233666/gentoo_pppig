@@ -88,6 +88,9 @@ src_prepare() {
 		-e "$!N;s:PREFIX\n[ ]*rocfft:# PREFIX rocfft\n:;P;D" \
 		-i library/src/device/CMakeLists.txt || die
 
+	# pass hipcc rocm path
+	sed -e '40i options.push_back("--rocm-path=/usr");' -i library/src/rtc_compile.cpp
+
 	if use perfscripts; then
 		pushd scripts/perf || die
 		sed -e "/\/opt\/rocm/d" -e "/rocmversion/s,rocm_info.strip(),\"${PV}\"," -i perflib/specs.py || dir
