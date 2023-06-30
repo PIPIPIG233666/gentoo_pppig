@@ -12,8 +12,10 @@ LLVM_MAX_SLOT=16
 
 DESCRIPTION="C++ Heterogeneous-Compute Interface for Portability"
 HOMEPAGE="https://github.com/ROCm-Developer-Tools/hip"
-SRC_URI="https://github.com/ROCm-Developer-Tools/hip/archive/rocm-${PV}.tar.gz -> rocm-hip-${PV}.tar.gz
-	https://github.com/ROCm-Developer-Tools/clr/archive/rocm-${PV}.tar.gz -> rocclr-${PV}.tar.gz
+SRC_URI="
+https://github.com/ROCm-Developer-Tools/hip/archive/rocm-${PV}.tar.gz -> hip-${PV}.tar.gz
+https://github.com/ROCm-Developer-Tools/HIPCC/archive/rocm-${PV}.tar.gz -> hipcc-${PV}.tar.gz
+https://github.com/ROCm-Developer-Tools/clr/archive/rocm-${PV}.tar.gz -> clr-${PV}.tar.gz
 "
 
 KEYWORDS="~amd64"
@@ -27,21 +29,21 @@ DEPEND="
 	sys-devel/clang:${LLVM_MAX_SLOT}
 	dev-libs/rocm-comgr:${SLOT}
 	virtual/opengl
-	dev-util/hipcc
 "
 RDEPEND="${DEPEND}
 	sys-devel/clang-runtime:=
 	>=dev-libs/roct-thunk-interface-5"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.0.1-hip_vector_types.patch"
-	"${FILESDIR}/${PN}-5.0.2-set-build-id.patch"
-	"${FILESDIR}/${PN}-5.3.3-remove-cmake-doxygen-commands.patch"
-	"${FILESDIR}/${PN}-5.5.0-disable-Werror.patch"
+	# "${FILESDIR}/${PN}-5.0.1-hip_vector_types.patch"
+	# "${FILESDIR}/${PN}-5.0.2-set-build-id.patch"
+	# "${FILESDIR}/${PN}-5.3.3-remove-cmake-doxygen-commands.patch"
+	# "${FILESDIR}/${PN}-5.5.0-disable-Werror.patch"
 )
 
 S="${WORKDIR}"/clr-rocm-${PV}
-HIP_S="${WORKDIR}"/hip-rocm-${PV}
+HIP_S="${WORKDIR}"/HIP-rocm-${PV}
+HIPCC_S="${WORKDIR}/HIPCC-rocm-${PV}"
 DOCS_DIR="${HIP_S}"/docs/doxygen-input
 DOCS_CONFIG_NAME=doxy.cfg
 
@@ -60,18 +62,42 @@ src_prepare() {
 
 	# correctly find HIP_CLANG_INCLUDE_PATH using cmake
 	local LLVM_PREFIX="$(get_llvm_prefix "${LLVM_MAX_SLOT}")"
-	sed -e "/set(HIP_CLANG_ROOT/s:\"\${ROCM_PATH}/llvm\":${LLVM_PREFIX}:" -i hip-config.cmake.in || die
+
+	sed -e "/set(HIP_CLANG_ROOT/s:\"\${ROCM_PATH}/llvm\":${LLVM_PREFIX}:" -i ${S}/hipamd/hip-config.cmake.in || die
 
 	# correct libs and cmake install dir
-	sed -e "/\${HIP_COMMON_DIR}/s:cmake DESTINATION .):cmake/ DESTINATION share/cmake/Modules):" -i CMakeLists.txt || die
+	# get rid of asan
+	sed -e "/\${HIP_COMMON_DIR}/s:cmake DESTINATION .):cmake/ DESTINATION share/cmake/Modules):" -i ${S}/hipamd/CMakeLists.txt || die
 
 	sed -e "/\.hip/d" \
 		-e "/samples/d" \
-		-e "/CPACK_RESOURCE_FILE_LICENSE/d" -i packaging/CMakeLists.txt || die
+		-e '/asan/d' \
+		-e "/CPACK_RESOURCE_FILE_LICENSE/d" -i ${S}/hipamd/packaging/CMakeLists.txt || die
 
 	# change --hip-device-lib-path to "/usr/lib/amdgcn/bitcode", must align with "dev-libs/rocm-device-libs"
 	sed -e "s:\${AMD_DEVICE_LIBS_PREFIX}/lib:${EPREFIX}/usr/lib/amdgcn/bitcode:" \
-		-i "${S}/hip-config.cmake.in" || die
+		-i "${S}/hipamd/hip-config.cmake.in" || die
+
+	pushd ${HIPCC_S} || die
+	eapply ${FILESDIR}/${PN}-9999-rocm-path.patch
+	# Setting HSA_PATH to "/usr" results in setting "-isystem /usr/include"
+	# which makes "stdlib.h" not found when using "#include_next" in header files;
+	sed -e "/FLAGS .= \" -isystem \$HSA_PATH/d" \
+		-e "/HIP.*FLAGS.*isystem.*HIP_INCLUDE_PATH/d" \
+		-e "s:\$ENV{'DEVICE_LIB_PATH'}:'${EPREFIX}/usr/lib/amdgcn/bitcode':" \
+		-e "s:\$ENV{'HIP_LIB_PATH'}:'${EPREFIX}/usr/$(get_libdir)':" -i bin/hipcc.pl || die
+
+	einfo "prefixing hipcc and its utils..."
+	hprefixify $(grep -rl --exclude-dir=build/ --exclude="hip-config.cmake.in" "/usr" "${S}")
+	hprefixify $(grep -rl --exclude-dir=build/ --exclude="hipcc.pl" "/usr" "${HIP_S}")
+
+	mv bin/hipvars.pm "${T}"/
+	cp "$(prefixify_ro "${FILESDIR}"/hipvars-5.3.3.pm)" bin/hipvars.pm || die "failed to replace hipvars.pm"
+	sed -e "s,@HIP_BASE_VERSION_MAJOR@,$(ver_cut 1)," -e "s,@HIP_BASE_VERSION_MINOR@,$(ver_cut 2)," \
+		-e "s,@HIP_VERSION_PATCH@,$(ver_cut 3)," -i bin/hipvars.pm
+	sed	-e "s,@CLANG_PATH@,${LLVM_PREFIX}/bin," -i bin/hipvars.pm || die
+	
+	pushd ${S} || die
 }
 
 src_configure() {
@@ -87,7 +113,7 @@ src_configure() {
 		-DCMAKE_BUILD_TYPE=${buildtype}
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
 		-DCMAKE_SKIP_RPATH=ON
-		-DHIPCC_BIN_DIR="${EPREFIX}/usr"
+		-DHIPCC_BIN_DIR="${HIPCC_S}/bin"
 		-DHIP_CATCH_TEST=0
 		-DCLR_BUILD_HIP=ON
 		-DCLR_BUILD_OCL=OFF
