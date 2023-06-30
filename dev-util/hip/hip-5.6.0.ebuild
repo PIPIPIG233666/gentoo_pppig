@@ -28,14 +28,13 @@ DEPEND="
 	sys-devel/clang:${LLVM_MAX_SLOT}
 	dev-libs/rocm-comgr:${SLOT}
 	virtual/opengl
+	dev-util/hipcc
 "
 RDEPEND="${DEPEND}
-	dev-perl/URI-Encode
 	sys-devel/clang-runtime:=
 	>=dev-libs/roct-thunk-interface-5"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.0.1-DisableTest.patch"
 	"${FILESDIR}/${PN}-5.0.1-hip_vector_types.patch"
 	"${FILESDIR}/${PN}-5.0.2-set-build-id.patch"
 	"${FILESDIR}/${PN}-5.3.3-remove-cmake-doxygen-commands.patch"
@@ -70,34 +69,16 @@ src_prepare() {
 	sed -e "/\${HIP_COMMON_DIR}/s:cmake DESTINATION .):cmake/ DESTINATION share/cmake/Modules):" -i CMakeLists.txt || die
 
 	sed -e "/\.hip/d" \
+		-e "/samples/d" \
 		-e "/CPACK_RESOURCE_FILE_LICENSE/d" -i packaging/CMakeLists.txt || die
 
 	pushd ${HIP_S} || die
-	eapply "${FILESDIR}/${PN}-5.5.0-rocm-path.patch"
-	eapply "${FILESDIR}/${PN}-5.1.3-fno-stack-protector.patch"
-	# Setting HSA_PATH to "/usr" results in setting "-isystem /usr/include"
-	# which makes "stdlib.h" not found when using "#include_next" in header files;
-	sed -e "/FLAGS .= \" -isystem \$HSA_PATH/d" \
-		-e "/HIP.*FLAGS.*isystem.*HIP_INCLUDE_PATH/d" \
-		-e "s:\$ENV{'DEVICE_LIB_PATH'}:'${EPREFIX}/usr/lib/amdgcn/bitcode':" \
-		-e "s:\$ENV{'HIP_LIB_PATH'}:'${EPREFIX}/usr/$(get_libdir)':" -i bin/hipcc.pl || die
 
 	# change --hip-device-lib-path to "/usr/lib/amdgcn/bitcode", must align with "dev-libs/rocm-device-libs"
 	sed -e "s:\${AMD_DEVICE_LIBS_PREFIX}/lib:${EPREFIX}/usr/lib/amdgcn/bitcode:" \
 		-i "${S}/hip-config.cmake.in" || die
 
-	einfo "prefixing hipcc and its utils..."
-	hprefixify $(grep -rl --exclude-dir=build/ --exclude="hip-config.cmake.in" "/usr" "${S}")
-	hprefixify $(grep -rl --exclude-dir=build/ --exclude="hipcc.pl" "/usr" "${HIP_S}")
-
-	mv bin/hipvars.pm "${T}"/
-	cp "$(prefixify_ro "${FILESDIR}"/hipvars-5.3.3.pm)" bin/hipvars.pm || die "failed to replace hipvars.pm"
-	sed -e "s,@HIP_BASE_VERSION_MAJOR@,$(ver_cut 1)," -e "s,@HIP_BASE_VERSION_MINOR@,$(ver_cut 2)," \
-		-e "s,@HIP_VERSION_PATCH@,$(ver_cut 3)," -i bin/hipvars.pm
-	sed	-e "s,@CLANG_PATH@,${LLVM_PREFIX}/bin," -i bin/hipvars.pm || die
-
 	pushd ${CLR_S} || die
-	eapply "${FILESDIR}/rocclr-5.3.3-gcc13.patch"
 }
 
 src_configure() {

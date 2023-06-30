@@ -25,16 +25,8 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.1.3-rocm-path.patch"
 	"${FILESDIR}/0001-Specify-clang-exe-path-in-Driver-Creation.patch"
 	"${FILESDIR}/0001-Find-CLANG_RESOURCE_DIR-using-clang-print-resource-d.patch"
-	"${FILESDIR}/${PN}-5.3.3-HIPIncludePath-not-needed.patch"
-	# "${FILESDIR}/${PN}-5.3.3-fix-tests.patch"
 	"${FILESDIR}/${PN}-5.3.3-fno-stack-protector.patch"
-	"${FILESDIR}/${PN}-5.3.3-remove-h-option.patch"
-	"${FILESDIR}/${PN}-5.5.0-gcc-13-None-not-defined.patch"
 	"${FILESDIR}/${PN}-5.5.0-gcc-13-warnings.patch"
-	"${FILESDIR}/${PN}-5.5.0-gcc-13-undeclared-OPT_mrelax_relocations.patch"
-	"${FILESDIR}/${PN}-5.5.0-gcc-13-fix-lld-include.patch"
-	"${FILESDIR}/${PN}-5.5.0-gcc-13-move-to-expected.patch"
-	"${FILESDIR}/${PN}-5.5.0-gcc-13-None-deprecation.patch"
 )
 
 DESCRIPTION="Radeon Open Compute Code Object Manager"

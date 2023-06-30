@@ -37,7 +37,6 @@ BDEPEND=">=dev-util/rocm-cmake-5.5
 	"
 
 CLR_S="${WORKDIR}/ROCclr-rocm-${PV}"
-PATCHES=( "${FILESDIR}/${PN}-5.3.3-gcc13.patch" )
 
 src_unpack () {
 if [[ ${PV} == "9999" ]]; then
@@ -56,7 +55,6 @@ src_prepare() {
 	# Bug #753377
 	# patch re-enables accidentally disabled gfx800 family
 	eapply "${FILESDIR}/${PN}-5.0.2-enable-gfx800.patch"
-	eapply "${FILESDIR}/rocclr-5.3.3-gcc13.patch"
 	popd || die
 }
 
