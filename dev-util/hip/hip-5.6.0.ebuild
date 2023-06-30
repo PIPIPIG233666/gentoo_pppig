@@ -11,11 +11,10 @@ inherit cmake docs llvm prefix
 LLVM_MAX_SLOT=16
 
 DESCRIPTION="C++ Heterogeneous-Compute Interface for Portability"
-HOMEPAGE="https://github.com/ROCm-Developer-Tools/hipamd"
-SRC_URI="https://github.com/ROCm-Developer-Tools/hipamd/archive/rocm-${PV}.tar.gz -> rocm-hipamd-${PV}.tar.gz
-	https://github.com/ROCm-Developer-Tools/HIP/archive/rocm-${PV}.tar.gz -> rocm-hip-${PV}.tar.gz
-	https://github.com/ROCm-Developer-Tools/ROCclr/archive/rocm-${PV}.tar.gz -> rocclr-${PV}.tar.gz
-	https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime/archive/rocm-${PV}.tar.gz -> rocm-opencl-runtime-${PV}.tar.gz"
+HOMEPAGE="https://github.com/ROCm-Developer-Tools/hip"
+SRC_URI="https://github.com/ROCm-Developer-Tools/hip/archive/rocm-${PV}.tar.gz -> rocm-hip-${PV}.tar.gz
+	https://github.com/ROCm-Developer-Tools/clr/archive/rocm-${PV}.tar.gz -> rocclr-${PV}.tar.gz
+"
 
 KEYWORDS="~amd64"
 LICENSE="MIT"
@@ -41,10 +40,8 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.5.0-disable-Werror.patch"
 )
 
-S="${WORKDIR}/hipamd-rocm-${PV}"
-HIP_S="${WORKDIR}"/HIP-rocm-${PV}
-OCL_S="${WORKDIR}"/ROCm-OpenCL-Runtime-rocm-${PV}
-CLR_S="${WORKDIR}"/ROCclr-rocm-${PV}
+S="${WORKDIR}"/clr-rocm-${PV}
+HIP_S="${WORKDIR}"/hip-rocm-${PV}
 DOCS_DIR="${HIP_S}"/docs/doxygen-input
 DOCS_CONFIG_NAME=doxy.cfg
 
@@ -72,13 +69,9 @@ src_prepare() {
 		-e "/samples/d" \
 		-e "/CPACK_RESOURCE_FILE_LICENSE/d" -i packaging/CMakeLists.txt || die
 
-	pushd ${HIP_S} || die
-
 	# change --hip-device-lib-path to "/usr/lib/amdgcn/bitcode", must align with "dev-libs/rocm-device-libs"
 	sed -e "s:\${AMD_DEVICE_LIBS_PREFIX}/lib:${EPREFIX}/usr/lib/amdgcn/bitcode:" \
 		-i "${S}/hip-config.cmake.in" || die
-
-	pushd ${CLR_S} || die
 }
 
 src_configure() {
@@ -94,6 +87,10 @@ src_configure() {
 		-DCMAKE_BUILD_TYPE=${buildtype}
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
 		-DCMAKE_SKIP_RPATH=ON
+		-DHIPCC_BIN_DIR="${EPREFIX}/usr"
+		-DHIP_CATCH_TEST=0
+		-DCLR_BUILD_HIP=ON
+		-DCLR_BUILD_OCL=OFF
 		-DBUILD_HIPIFY_CLANG=OFF
 		-DHIP_PLATFORM=amd
 		-DHIP_COMPILER=clang
@@ -101,8 +98,7 @@ src_configure() {
 		-DUSE_PROF_API=0
 		-DFILE_REORG_BACKWARD_COMPATIBILITY=OFF
 		-DROCCLR_PATH=${CLR_S}
-		-DHIP_COMMON_DIR=${HIP_S}
-		-DAMD_OPENCL_PATH=${OCL_S}
+		-DHIP_COMMON_DIR=${HIP_S}				
 	)
 
 	cmake_src_configure
@@ -114,7 +110,6 @@ src_compile() {
 }
 
 src_install() {
-
 	cmake_src_install
 
 	rm "${ED}/usr/include/hip/hcc_detail" || die
