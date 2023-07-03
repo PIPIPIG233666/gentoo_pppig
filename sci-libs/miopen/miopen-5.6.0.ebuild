@@ -80,6 +80,7 @@ src_configure() {
 		-DMIOPEN_USE_COMPOSABLEKERNEL=OFF
 		-DBUILD_TESTS=$(usex test ON OFF)
 		-DMIOPEN_TEST_ALL=$(usex test ON OFF)
+		-DMIOPEN_ENABLE_AI_KERNEL_TUNING=OFF
 	)
 
 	if use test; then
