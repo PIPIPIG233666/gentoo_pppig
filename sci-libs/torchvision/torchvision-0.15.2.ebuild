@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-ROCM_VERSION=5.5.0
+ROCM_VERSION=5.6.0
 
 PYTHON_COMPAT=( python3_11 )
 DISTUTILS_SINGLE_IMPL=1

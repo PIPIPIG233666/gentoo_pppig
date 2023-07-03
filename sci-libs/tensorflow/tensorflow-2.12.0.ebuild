@@ -8,7 +8,7 @@ PYTHON_COMPAT=( python3_10 python3_11 )
 MY_PV=${PV/_rc/-rc}
 MY_P=${PN}-${MY_PV}
 DEP_VER="$(ver_cut 1-2)"
-ROCM_VERSION=5.5.0
+ROCM_VERSION=5.6.0
 
 inherit bazel check-reqs cuda distutils-r1 flag-o-matic prefix rocm toolchain-funcs
 

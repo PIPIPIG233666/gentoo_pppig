@@ -4,7 +4,7 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{9..11} )
-ROCM_VERSION=5.5.0
+ROCM_VERSION=5.6.0
 inherit python-single-r1 cmake flag-o-matic rocm
 
 MYPN=pytorch
