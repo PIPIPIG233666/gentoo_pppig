@@ -22,6 +22,12 @@ SLOT="0/$(ver_cut 1-2)"
 RDEPEND="dev-libs/rocr-runtime"
 DEPEND="${RDEPEND}"
 
+src_prepare() {
+	# python 3.12 does not recognize \w as regex
+	sed -e 's\python3\python3.11\' -i rocm_agent_enumerator || die
+	cmake_src_prepare
+}
+
 src_configure() {
 	local mycmakeargs=( -DROCRTST_BLD_TYPE=Release )
 	cmake_src_configure
