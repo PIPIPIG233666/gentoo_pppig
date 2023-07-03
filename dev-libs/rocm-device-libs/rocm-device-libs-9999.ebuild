@@ -5,7 +5,7 @@ EAPI=8
 
 inherit cmake llvm
 
-LLVM_MAX_SLOT=16
+LLVM_MAX_SLOT=17
 
 if [[ ${PV} == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/RadeonOpenCompute/ROCm-Device-Libs/"
@@ -30,9 +30,8 @@ DEPEND="${RDEPEND}"
 
 CMAKE_BUILD_TYPE=Release
 
-PATCHES=( "${FILESDIR}/${PN}-9999-test-bitcode-dir.patch"
-	"${FILESDIR}/${PN}-9999-Revert-Split-dot7-feature.patch"
-	"${FILESDIR}/${PN}-9999-llvm16-link.patch" )
+PATCHES=( "${FILESDIR}/${PN}-5.5.1-test-bitcode-dir.patch"
+	"${FILESDIR}/${PN}-5.5.1-llvm16-link.patch" )
 
 src_prepare() {
 	sed -e "s:amdgcn/bitcode:lib/amdgcn/bitcode:" -i "${S}/cmake/OCL.cmake" || die

@@ -5,14 +5,14 @@ EAPI=8
 
 inherit cmake flag-o-matic llvm
 
-LLVM_MAX_SLOT=16
+LLVM_MAX_SLOT=17
 
 if [[ ${PV} == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/RadeonOpenCompute/ROCR-Runtime/"
 	inherit git-r3
 	S="${WORKDIR}/${P}/src"
 else
-	SRC_URI="https://github.com/RadeonOpenCompute/ROCR-Runtime/archive/rocm-${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://codeload.github.com/RadeonOpenCompute/ROCR-Runtime/tar.gz/refs/tags/rocm-${PV} -> ${P}.tar.gz"
 	S="${WORKDIR}/ROCR-Runtime-rocm-${PV}/src"
 	KEYWORDS="~amd64"
 fi
@@ -21,9 +21,10 @@ DESCRIPTION="Radeon Open Compute Runtime"
 HOMEPAGE="https://github.com/RadeonOpenCompute/ROCR-Runtime"
 PATCHES=(
 	"${FILESDIR}/${PN}-4.3.0_no-aqlprofiler.patch"
+	"${FILESDIR}/${PN}-5.6.0-correct-license-install-dir.patch"
 )
 
-LICENSE="MIT"
+LICENSE="NCSA-AMD"
 SLOT="0/$(ver_cut 1-2)"
 IUSE="debug"
 

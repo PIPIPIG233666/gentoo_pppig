@@ -30,10 +30,9 @@ DEPEND="${RDEPEND}"
 
 CMAKE_BUILD_TYPE=Release
 
-PATCHES=(
-	"${FILESDIR}/${PN}-9999-test-bitcode-dir.patch"
-	"${FILESDIR}/${PN}-9999-llvm16-link.patch"
-)
+PATCHES=( "${FILESDIR}/${PN}-5.5.1-test-bitcode-dir.patch"
+	"${FILESDIR}/${PN}-5.5.1-llvm16-link.patch"
+	"${FILESDIR}/${P}-remove-gfx700-tests.patch" )
 
 src_prepare() {
 	sed -e "s:amdgcn/bitcode:lib/amdgcn/bitcode:" -i "${S}/cmake/OCL.cmake" || die

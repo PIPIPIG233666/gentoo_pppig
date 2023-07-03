@@ -5,7 +5,7 @@ EAPI=8
 
 inherit cmake llvm prefix
 
-LLVM_MAX_SLOT=16
+LLVM_MAX_SLOT=17
 
 if [[ ${PV} == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/RadeonOpenCompute/ROCm-CompilerSupport/"
@@ -24,7 +24,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.1.3-rocm-path.patch"
 	"${FILESDIR}/0001-Specify-clang-exe-path-in-Driver-Creation.patch"
 	"${FILESDIR}/0001-Find-CLANG_RESOURCE_DIR-using-clang-print-resource-d.patch"
-	"${FILESDIR}/${PN}-5.3.3-HIPIncludePath-not-needed.patch"
+	"${FILESDIR}/${PN}-5.6.0-HIPIncludePath-not-needed.patch"
 	"${FILESDIR}/${PN}-5.3.3-fno-stack-protector.patch"
 	"${FILESDIR}/${PN}-9999-fix-tests.patch"
 )
@@ -47,7 +47,7 @@ src_prepare() {
 	sed "/return LLVMPath;/s,LLVMPath,llvm::SmallString<128>(\"$(get_llvm_prefix ${LLVM_MAX_SLOT})\")," \
 		-i src/comgr-env.cpp || die
 	eapply $(prefixify_ro "${FILESDIR}"/${PN}-5.0-rocm_path.patch)
-	eapply $(prefixify_ro "${FILESDIR}"/${PN}-9999-hip-test-add-rocm-path.patch)
+	eapply $(prefixify_ro "${FILESDIR}"/${PN}-5.5.1-hip-test-add-rocm-path.patch)
 	cmake_src_prepare
 }
 

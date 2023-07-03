@@ -7,9 +7,10 @@ inherit cmake linux-info
 
 if [[ ${PV} == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface/"
+	EGIT_BRANCH="rocm-5.x"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface/archive/rocm-${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://codeload.github.com/RadeonOpenCompute/ROCT-Thunk-Interface/tar.gz/refs/tags/rocm-${PV} -> ${P}.tar.gz"
 	S="${WORKDIR}/ROCT-Thunk-Interface-rocm-${PV}"
 	KEYWORDS="~amd64"
 fi
@@ -28,13 +29,13 @@ CMAKE_BUILD_TYPE=Release
 
 src_prepare() {
 	sed -e "s:get_version ( \"1.0.0\" ):get_version ( \"${PV}\" ):" -i CMakeLists.txt || die
-	sed -e "s:ubuntu:gentoo:" -i CMakeLists.txt || die
 	cmake_src_prepare
 }
 
 src_configure() {
 	local mycmakeargs=(
 		-DCPACK_PACKAGING_INSTALL_PREFIX="${EPREFIX}/usr"
+		-DINCLUDE_PATH_COMPATIBILITY=OFF
 	)
 	cmake_src_configure
 }

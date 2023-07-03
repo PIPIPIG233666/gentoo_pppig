@@ -1,7 +1,7 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit cmake
 
@@ -21,3 +21,8 @@ SLOT="0/$(ver_cut 1-2)"
 
 RDEPEND="dev-libs/rocr-runtime"
 DEPEND="${RDEPEND}"
+
+src_configure() {
+	local mycmakeargs=( -DROCRTST_BLD_TYPE=Release )
+	cmake_src_configure
+}

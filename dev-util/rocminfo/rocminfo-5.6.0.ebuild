@@ -16,19 +16,11 @@ fi
 
 DESCRIPTION="ROCm Application for Reporting System Info"
 HOMEPAGE="https://github.com/RadeonOpenCompute/rocminfo"
-LICENSE="UoI-NCSA"
+LICENSE="MIT"
 SLOT="0/$(ver_cut 1-2)"
 
-RDEPEND=">=dev-libs/rocr-runtime-${PV}"
+RDEPEND="dev-libs/rocr-runtime"
 DEPEND="${RDEPEND}"
-
-src_prepare() {
-	sed -e "/CPACK_RESOURCE_FILE_LICENSE/d" -i CMakeLists.txt || die
-	sed -e "/num_change_since_prev_pkg(/cset(NUM_COMMITS 0)" -i cmake_modules/utils.cmake || die # Fix QA issue on "git not found"
-	# python 3.12 does not recognize \w as regex
-	sed -e 's\python3\python3.11\' -i rocm_agent_enumerator || die
-	cmake_src_prepare
-}
 
 src_configure() {
 	local mycmakeargs=( -DROCRTST_BLD_TYPE=Release )

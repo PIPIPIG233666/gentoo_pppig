@@ -39,7 +39,7 @@ Index: comgr/test/mangled_names_test.c
      printf("amd_populate_mangled_names Failed: "
 -           "produced %zu executable names (expected 4)\n",
 +           "produced %zu executable names (expected 6)\n",
-            numNames);
+            Count);
      exit(1);
    }
  
