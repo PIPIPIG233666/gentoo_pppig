@@ -19,8 +19,6 @@ if [[ ${PV} == *9999 ]] ; then
 	EGIT_HIP_REPO_URI="https://github.com/ROCm-Developer-Tools/HIP"
 	EGIT_OCL_REPO_URI="https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime"
 	EGIT_CLR_REPO_URI="https://github.com/ROCm-Developer-Tools/ROCclr"
-	EGIT_HIPCC_REPO_URI="https://github.com/ROCm-Developer-Tools/hipcc"
-	EGIT_HIPTEST_REPO_URI="https://github.com/ROCm-Developer-Tools/hiptest"
 	EGIT_BRANCH="develop"
 	S="${WORKDIR}/${P}"
 else
@@ -28,17 +26,13 @@ else
 	SRC_URI="https://github.com/ROCm-Developer-Tools/hipamd/archive/rocm-${PV}.tar.gz -> rocm-hipamd-${PV}.tar.gz
 		https://github.com/ROCm-Developer-Tools/HIP/archive/rocm-${PV}.tar.gz -> rocm-hip-${PV}.tar.gz
 		https://github.com/ROCm-Developer-Tools/ROCclr/archive/rocm-${PV}.tar.gz -> rocclr-${PV}.tar.gz
-		https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime/archive/rocm-${PV}.tar.gz -> rocm-opencl-runtime-${PV}.tar.gz
-		https://github.com/ROCm-Developer-Tools/HIPCC/archive/refs/tags/rocm-${PV}.tar.gz -> rocm-hipcc-${PV}.tar.gz
-		https://github.com/ROCm-Developer-Tools/hip-tests/archive/refs/tags/rocm-${PV}.tar.gz -> rocm-hip-tests-${PV}.tar.gz"
+		https://github.com/RadeonOpenCompute/ROCm-OpenCL-Runtime/archive/rocm-${PV}.tar.gz -> rocm-opencl-runtime-${PV}.tar.gz"
 	S="${WORKDIR}/hipamd-rocm-${PV}"
 fi
 
 HIP_S="${WORKDIR}"/HIP-rocm-${PV}
 OCL_S="${WORKDIR}"/ROCm-OpenCL-Runtime-rocm-${PV}
 CLR_S="${WORKDIR}"/ROCclr-rocm-${PV}
-HIPCC_S="${WORKDIR}"/HIPCC-rocm-${PV}
-HIPTEST_S="${WORKDIR}"/hip-tests-rocm-${PV}
 
 LICENSE="MIT"
 SLOT="0/$(ver_cut 1-2)"
@@ -63,7 +57,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.3.3-remove-cmake-doxygen-commands.patch"
 	"${FILESDIR}/${PN}-5.5.1-disable-Werror.patch"
 	"${FILESDIR}/${PN}-5.4.3-make-test-switchable.patch"
-	"${FILESDIR}/${PN}-5.6.0-enable-build-catch-test.patch"
 )
 
 DOCS_DIR="${HIP_S}"/docs/doxygen-input
@@ -87,10 +80,6 @@ src_unpack () {
 	else
 		default
 	fi
-
-	cp ${HIPCC_S}/bin/* ${HIP_S}/bin || die # move back hipcc scripts
-	cp -a ${HIPTEST_S}/{catch,perftests} ${HIP_S}/tests || die # move back hip tests
-	cp -a ${HIPTEST_S}/samples ${HIP_S} || die # move back hip tests
 }
 
 src_prepare() {
@@ -115,16 +104,15 @@ src_prepare() {
 		-e "/CPACK_RESOURCE_FILE_LICENSE/d" -i packaging/CMakeLists.txt || die
 
 	pushd ${HIP_S} || die
-	eapply "${FILESDIR}/${PN}-5.6.0-rocm-path.patch"
+	eapply "${FILESDIR}/${PN}-5.5.1-rocm-path.patch"
 	eapply "${FILESDIR}/${PN}-5.1.3-fno-stack-protector.patch"
 	eapply "${FILESDIR}/${PN}-5.5.1-hipcc-hip-version.patch"
 	eapply "${FILESDIR}/${PN}-5.5.1-hipvars-FHS-path.patch"
 	eapply "${FILESDIR}/${PN}-5.4.3-fix-test-build.patch"
 	eapply "${FILESDIR}/${PN}-5.4.3-fix-HIP_CLANG_PATH-detection.patch"
-	eapply "${FILESDIR}/${PN}-5.6.0-rename-hit-test-target.patch"
-	eapply "${FILESDIR}/${PN}-5.6.0-remove-test-Werror.patch"
 
 	# Removing incompatible tests
+	eapply "${FILESDIR}/${PN}-5.5.1-remove-incompatible-tests.patch"
 	rm tests/src/deviceLib/hipLaunchKernelFunc.cpp || die
 	rm tests/src/deviceLib/hipMathFunctions.cpp || die
 
@@ -145,6 +133,9 @@ src_prepare() {
 	# Remove problematic test which leaks processes, see
 	# https://github.com/ROCm-Developer-Tools/HIP/issues/2457
 	rm tests/src/ipc/hipMultiProcIpcMem.cpp || die
+
+	pushd ${CLR_S} || die
+	eapply "${FILESDIR}/rocclr-5.3.3-gcc13.patch"
 }
 
 src_configure() {
@@ -173,13 +164,10 @@ src_configure() {
 		-DHIP_COMMON_DIR=${HIP_S}
 		-DAMD_OPENCL_PATH=${OCL_S}
 		-DBUILD_TESTS=$(usex test ON OFF)
-		-DHIP_CATCH_TEST=$(usex test 1 0)
+		-DHIP_CATCH_TEST=$(usex test ON OFF)
 	)
 
 	cmake_src_configure
-
-	# do not rerun cmake and the build process in src_install
-	sed '/RERUN/,+1d' -i "${BUILD_DIR}"/build.ninja || die
 }
 
 src_compile() {
@@ -187,11 +175,7 @@ src_compile() {
 	cmake_src_compile
 	# Compile test binaries; when linking, `-lamdhip64` is used, thus need
 	# LIBRARY_PATH pointing to libamdhip64.so located at ${BUILD_DIR}/lib
-	if use test; then
-		export LIBRARY_PATH="${BUILD_DIR}/lib"
-		cmake_src_compile build_tests
-		cmake_src_compile build_hit_tests
-	fi
+	use test && LIBRARY_PATH="${BUILD_DIR}/lib" cmake_src_compile build_tests
 }
 
 # Copied from rocm.eclass. This ebuild does not need amdgpu_targets

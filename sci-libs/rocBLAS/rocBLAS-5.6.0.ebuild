@@ -24,6 +24,7 @@ RESTRICT="!test? ( test )"
 BDEPEND="
 	>=dev-util/rocm-cmake-5.5
 	dev-util/Tensile:${SLOT}
+	dev-python/joblib
 "
 
 DEPEND="
