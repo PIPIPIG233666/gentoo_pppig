@@ -36,14 +36,6 @@ PATCHES=(
 src_prepare() {
 	rmdir hipRAND || die
 	mv -v ../hipRAND-${HIPRAND_COMMIT_HASH} hipRAND || die
-	# change installed include and lib dir, and avoid symlink overwrite the installed headers
-	# avoid setting RPATH
-	sed -r -e "s:(hip|roc)rand/lib:\${CMAKE_INSTALL_LIBDIR}:" \
-		-e '/\$\{INSTALL_SYMLINK_COMMAND\}/d' \
-		-e "/INSTALL_RPATH/d" -i library/CMakeLists.txt || die
-
-	# remove GIT dependency
-	sed -e "/find_package(Git/,+4d" -i cmake/Dependencies.cmake || die
 
 	eapply_user
 	cmake_src_prepare
