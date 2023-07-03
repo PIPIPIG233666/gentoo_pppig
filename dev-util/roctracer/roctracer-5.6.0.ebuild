@@ -30,9 +30,10 @@ BDEPEND="
 	')
 "
 
-PATCHES=( "${FILESDIR}"/roctracer-5.3.3-flat-lib-layout.patch
+PATCHES=( 
 	"${FILESDIR}"/roctracer-5.3.3-do-not-install-test-files.patch
-	"${FILESDIR}"/roctracer-5.3.3-Werror.patch )
+	"${FILESDIR}"/roctracer-5.3.3-Werror.patch
+)
 
 python_check_deps() {
 	python_has_version "dev-python/CppHeaderParser[${PYTHON_USEDEP}]" \
