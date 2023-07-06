@@ -236,4 +236,8 @@ src_install() {
 	# Handle hipvars.pm
 	rm "${ED}/usr/bin/hipvars.pm" || die
 	perl_domodule "${HIPCC_S}"/bin/hipvars.pm
+
+	# Delete bad batch files
+	rm "${ED}/usr/bin/hipcc.bat" || die
+	rm "${ED}/usr/bin/hipconfig.bat" || die
 }
