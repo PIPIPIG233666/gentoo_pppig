@@ -89,7 +89,7 @@ src_prepare() {
 		-i library/src/device/CMakeLists.txt || die
 
 	# pass hipcc rocm path
-	sed -e '40i options.push_back("--rocm-path=/usr");' -i library/src/rtc_compile.cpp
+	# sed -e '40i options.push_back("--rocm-path=/usr");' -i library/src/rtc_compile.cpp
 
 	if use perfscripts; then
 		pushd scripts/perf || die
