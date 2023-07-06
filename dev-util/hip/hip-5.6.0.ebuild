@@ -235,5 +235,5 @@ src_install() {
 
 	# Handle hipvars.pm
 	rm "${ED}/usr/bin/hipvars.pm" || die
-	perl_domodule "${HIP_S}"/bin/hipvars.pm
+	perl_domodule "${HIPCC_S}"/bin/hipvars.pm
 }
