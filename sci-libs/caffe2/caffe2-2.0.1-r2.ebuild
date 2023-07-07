@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 ROCM_VERSION=5.6.0
 inherit python-single-r1 cmake flag-o-matic rocm
 
@@ -200,6 +200,7 @@ src_configure() {
 		-DLIBSHM_INSTALL_LIB_SUBDIR="${EPREFIX}"/usr/$(get_libdir)
 	)
 	if use rocm; then
+			export HIP_CLANG_PATH="/usr/lib/llvm/16/bin"
 			mycmakeargs+=(
 			-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
 			-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
@@ -208,6 +209,7 @@ src_configure() {
 	fi
 
 	use cuda && addpredict "/dev/nvidiactl" # bug 867706
+
 	use rocm && export HIP_PATH="${EPREFIX}/usr"
 	cmake_src_configure
 }
