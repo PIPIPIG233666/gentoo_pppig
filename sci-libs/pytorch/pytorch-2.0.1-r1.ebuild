@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{9..12} )
+PYTHON_COMPAT=( python3_{10..12} )
 ROCM_VERSION=5.6.0
 DISTUTILS_SINGLE_IMPL=1
 DISTUTILS_EXT=1
@@ -91,6 +91,7 @@ src_configure() {
 		-DUSE_ROCM=? $(usex rocm) 1 : 0
 	)
 	if use rocm; then
+			export HIP_CLANG_PATH="/usr/lib/llvm/16/bin"
 			mycmakeargs+=(
 			-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
 			-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
