@@ -42,6 +42,10 @@ BDEPEND="
 
 distutils_enable_tests pytest
 
+PATCHES=(
+"${FILESDIR}/"FFMPEG_6_Cap.patch
+)
+
 src_compile() {
 	addpredict /dev/kfd
 	addpredict /dev/dri/
