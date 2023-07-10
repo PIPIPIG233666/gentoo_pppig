@@ -28,7 +28,8 @@ RDEPEND="${PYTHON_DEPS}
 	>=dev-cpp/msgpack-cxx-6.0.0
 	dev-python/pyyaml[${PYTHON_USEDEP}]
 	dev-python/msgpack[${PYTHON_USEDEP}]
-	dev-util/hip
+	dev-python/joblib[${PYTHON_USEDEP}]
+	>=dev-util/hip-5.6
 	>=dev-util/rocm-smi-4.3.0
 	sys-devel/clang:${LLVM_MAX_SLOT}
 "
@@ -37,10 +38,9 @@ DEPEND="${RDEPEND}"
 PATCHES=(
 	"${FILESDIR}"/${PN}-change-cmake-name-for-msgpack-cxx-6-release.patch
 	"${FILESDIR}"/${PN}-4.3.0-output-commands.patch
-	# "${FILESDIR}"/${PN}-5.4.2-gfx1031.patch
 	"${FILESDIR}"/${PN}-5.4.2-fix-arch-parse.patch
 	"${FILESDIR}"/${PN}-5.4.2-use-ninja.patch
-	"${FILESDIR}"/${PN}-5.5.0-revert-TensileCreateLibrary-removal.patch
+	"${FILESDIR}"/${PN}-5.6.0-expand-isa-compatibility.patch
 )
 
 CMAKE_USE_DIR="${S}/${PN}/Source"
@@ -48,7 +48,7 @@ CMAKE_USE_DIR="${S}/${PN}/Source"
 src_prepare() {
 	distutils-r1_src_prepare
 	sed -e "s,\@LLVM_PATH\@,$(get_llvm_prefix ${LLVM_MAX_SLOT}),g" \
-		"${FILESDIR}"/${PN}-5.5.0-gentoopath.patch > "${S}"/gentoopath.patch || die
+		"${FILESDIR}"/${PN}-5.6.0-gentoopath.patch > "${S}"/gentoopath.patch || die
 	eapply $(prefixify_ro "${S}"/gentoopath.patch)
 
 	pushd ${PN} || die
@@ -57,10 +57,6 @@ src_prepare() {
 		-i Source/cmake/FindROCmSMI.cmake || die
 	sed -r -e "/TENSILE_USE_LLVM/s/ON/OFF/" \
 		-i Source/CMakeLists.txt || die
-	sed -e "/chmod 755/d" -i Source/TensileCreateLibrary.cmake || die # remove chmod 755 on
-
-	# ${Tensile_ROOT}/bin does not exists; call command directly
-	sed -e "s,\${Tensile_ROOT}/bin/,,g" -i Source/TensileCreateLibrary.cmake cmake/TensileConfig.cmake || die
 
 	local Tensile_share_dir="\"${EPREFIX}/usr/share/${PN}\""
 	sed -e "/HipClangVersion/s/0.0.0/$(hipconfig -v)/" -i Common.py || die

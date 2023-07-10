@@ -63,6 +63,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.6.0-enable-build-catch-test.patch"
 	"${FILESDIR}/${PN}-5.6.0-remove-.hipInfo.patch"
 	"${FILESDIR}/0001-Install-.hipVersion-into-datadir-for-linux.patch"
+	"${FILESDIR}/${PN}-5.6.0-extend-hip-isa-compatibility.patch"
 )
 
 DOCS_DIR="${HIP_S}"/docs/doxygen-input
@@ -115,7 +116,7 @@ src_prepare() {
 	sed -e "s:\${AMD_DEVICE_LIBS_PREFIX}/lib:${EPREFIX}/usr/lib/amdgcn/bitcode:" \
 		-i hip-config.cmake.in || die
 
-	pushd ${HIP_S} || die
+	pushd "${HIP_S}" || die
 	eapply "${FILESDIR}/${PN}-5.4.3-fix-test-build.patch"
 	eapply "${FILESDIR}/${PN}-5.4.3-fix-HIP_CLANG_PATH-detection.patch"
 	eapply "${FILESDIR}/${PN}-5.6.0-rename-hit-test-target.patch"
@@ -136,7 +137,7 @@ src_prepare() {
 	hprefixify $(grep -rl --exclude-dir=build/ "/usr" "${HIP_S}")
 	hprefixify $(grep -rl --exclude-dir=build/ --exclude="hipcc.pl" "/usr" "${HIPCC_S}")
 
-	pushd ${HIPCC_S} || die
+	pushd "${HIPCC_S}" || die
 	eapply "${FILESDIR}/${PN}-5.1.3-fno-stack-protector.patch"
 	eapply "${FILESDIR}/${PN}-5.5.1-hipcc-hip-version.patch"
 	eapply "${FILESDIR}/${PN}-5.6.0-rocm-path.patch"
@@ -148,6 +149,9 @@ src_prepare() {
 		-e "s:\$ENV{'HIP_LIB_PATH'}:'${EPREFIX}/usr/$(get_libdir)':" -i bin/hipcc.pl || die
 
 	sed -e "s,@CLANG_PATH@,${LLVM_PREFIX}/bin," -i bin/hipvars.pm || die
+
+	pushd "${CLR_S}" || die
+	eapply "${FILESDIR}/rocclr-5.6.0-improve-isa-compatibility.patch"
 }
 
 src_configure() {
@@ -237,7 +241,5 @@ src_install() {
 	rm "${ED}/usr/bin/hipvars.pm" || die
 	perl_domodule "${HIPCC_S}"/bin/hipvars.pm
 
-	# Delete bad batch files
-	rm "${ED}/usr/bin/hipcc.bat" || die
-	rm "${ED}/usr/bin/hipconfig.bat" || die
+	rm "${ED}"/usr/bin/*.bat || die # remove window .bat scripts
 }
