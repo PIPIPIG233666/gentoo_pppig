@@ -8,7 +8,7 @@ inherit bash-completion-r1 bazel java-pkg-2 multiprocessing
 DESCRIPTION="Fast and correct automated build system"
 HOMEPAGE="https://bazel.build/"
 
-SRC_URI="https://github.com/bazelbuild/bazel/releases/download/${PV}-pre.20230524.3/${P}-pre.20230524.3-dist.zip"
+SRC_URI="https://github.com/bazelbuild/bazel/releases/download/${PV}-pre.20230530.3/${P}-pre.20230530.3-dist.zip"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -34,7 +34,7 @@ pkg_setup() {
 
 src_unpack() {
 	# Only unpack the main distfile
-	unpack ${P}-pre.20230524.3-dist.zip
+	unpack ${P}-pre.20230530.3-dist.zip
 }
 
 src_prepare() {
