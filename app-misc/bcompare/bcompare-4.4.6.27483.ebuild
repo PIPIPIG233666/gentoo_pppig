@@ -6,8 +6,8 @@ EAPI=7
 DESCRIPTION="Beyond Compare -- Compare, sync, and merge files and folders"
 HOMEPAGE="http://www.scootersoftware.com/"
 SRC_URI="
-	x86? ( http://www.scootersoftware.com/bcompare-${PV}.i386.tar.gz )
-	amd64? ( http://www.scootersoftware.com/bcompare-${PV}.x86_64.tar.gz )"
+	x86? ( https://www.scootersoftware.com/bcompare-${PV}.i386.tar.gz )
+	amd64? ( https://www.scootersoftware.com/bcompare-${PV}.x86_64.tar.gz )"
 
 LICENSE="Bcompare"
 SLOT="0"
