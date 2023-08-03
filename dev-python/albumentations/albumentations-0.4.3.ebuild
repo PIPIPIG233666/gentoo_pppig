@@ -3,7 +3,7 @@
 
 EAPI=8
 
-DISTUTILS_USE_PEP517=hatchling
+DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..11} )
 
 inherit distutils-r1 pypi
@@ -16,3 +16,11 @@ HOMEPAGE="
 LICENSE=""
 SLOT="0"
 KEYWORDS="~amd64"
+
+RDEPENS="
+>=dev-python/numpy-1.11.1
+>=dev-python/scipy-1.1.0
+>=/dev-python/scikit-image-0.16.1
+dev-python/PyYAML
+>=/dev-python/qudida-0.0.4
+"
