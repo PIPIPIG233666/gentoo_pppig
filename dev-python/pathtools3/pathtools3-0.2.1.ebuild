@@ -10,14 +10,9 @@ inherit distutils-r1 pypi
 
 DESCRIPTION=""
 HOMEPAGE="
-	https://pypi.org/project/test-tube/
+	https://pypi.org/project/pathtools3/
 "
 
 LICENSE=""
 SLOT="0"
 KEYWORDS="~amd64"
-
-src_prepare() {
-        default
-        rm -r "examples" || die "rm failed"
-}
