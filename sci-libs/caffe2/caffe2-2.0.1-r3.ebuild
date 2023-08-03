@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-
-PYTHON_COMPAT=( python3_{9..11} )
-inherit python-single-r1 cmake cuda flag-o-matic prefix
+ROCM_VERSION=5.6.0
+PYTHON_COMPAT=( python3_{10..12} )
+inherit python-single-r1 cmake cuda flag-o-matic prefix rocm
 
 MYPN=pytorch
 MYP=${MYPN}-${PV}
@@ -17,7 +17,7 @@ SRC_URI="https://github.com/pytorch/${MYPN}/archive/refs/tags/v${PV}.tar.gz
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="cuda distributed fbgemm ffmpeg gloo mpi nnpack +numpy opencl opencv openmp qnnpack tensorpipe xnnpack"
+IUSE="cuda distributed fbgemm ffmpeg gloo mpi nnpack +numpy opencl opencv openmp qnnpack rocm tensorpipe xnnpack"
 RESTRICT="test"
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
@@ -26,7 +26,9 @@ REQUIRED_USE="
 	tensorpipe? ( distributed )
 	distributed? ( tensorpipe )
 	gloo? ( distributed )
-" # ?? ( cuda rocm )
+	rocm? ( ${ROCM_REQUIRED_USE} )
+	?? ( cuda rocm )
+"
 
 # CUDA 12 not supported yet: https://github.com/pytorch/pytorch/issues/91122
 RDEPEND="
@@ -56,6 +58,20 @@ RDEPEND="
 		') )
 	opencl? ( virtual/opencl )
 	opencv? ( media-libs/opencv:= )
+	rocm? (
+		dev-util/hip
+		dev-util/roctracer
+		dev-libs/rccl[${ROCM_USEDEP}]
+		sci-libs/hipFFT[${ROCM_USEDEP}]
+		sci-libs/hipSPARSE[${ROCM_USEDEP}]
+		sci-libs/hipCUB[${ROCM_USEDEP}]
+		sci-libs/miopen[${ROCM_USEDEP}]
+		sci-libs/rocBLAS[${ROCM_USEDEP}]
+		sci-libs/rocFFT[${ROCM_USEDEP}]
+		sci-libs/rocPRIM[${ROCM_USEDEP}]
+		sci-libs/rocRAND[${ROCM_USEDEP}]
+		sci-libs/rocThrust[${ROCM_USEDEP}]
+	)
 	qnnpack? ( sci-libs/QNNPACK )
 	tensorpipe? ( sci-libs/tensorpipe[cuda?] )
 	xnnpack? ( >=sci-libs/XNNPACK-2022.12.22 )
@@ -85,6 +101,9 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.13.1-tensorpipe.patch
 	"${FILESDIR}"/${PN}-2.0.0-gcc13.patch
 	"${FILESDIR}"/${PN}-2.0.0-cudnn_include_fix.patch
+	"${FILESDIR}"/find-hip.patch
+	"${FILESDIR}"/specify-rocm-arch.patch
+	"${FILESDIR}"/disable-frexp.patch
 )
 
 src_prepare() {
@@ -111,6 +130,23 @@ src_prepare() {
 		cmake/Dependencies.cmake \
 		torch/CMakeLists.txt \
 		CMakeLists.txt
+
+
+	sed -e "s,\${ROCM_PATH}/lib,\${ROCM_PATH}/$(get_libdir),g" -i cmake/public/LoadHIP.cmake || die
+
+	if use rocm; then
+		ebegin "HIPifying cuda sources"
+		${EPYTHON} tools/amd_build/build_amd.py || die
+		eend $?
+		for rocm_lib in rocblas hipfft hipsparse; do
+			sed -e "/#include <${rocm_lib}.h>/s,${rocm_lib}.h,${rocm_lib}/${rocm_lib}.h," \
+				-i $(grep -rl "#include <${rocm_lib}.h>" .) || die
+
+		done
+
+		sed -e "/#include <hipfftXt.h>/s,hipfftXt.h,hipfft/hipfftXt.h," \
+			-i $(grep -rl "#include <hipfftXt.h>" .) || die
+	fi
 }
 
 src_configure() {
@@ -160,7 +196,7 @@ src_configure() {
 		-DUSE_OPENCL=$(usex opencl)
 		-DUSE_OPENCV=$(usex opencv)
 		-DUSE_OPENMP=$(usex openmp)
-		-DUSE_ROCM=OFF # TODO
+		-DUSE_ROCM=$(usex rocm)
 		-DUSE_SYSTEM_CPUINFO=ON
 		-DUSE_SYSTEM_PYBIND11=ON
 		-DUSE_UCC=OFF
@@ -190,6 +226,18 @@ src_configure() {
 			-DCMAKE_CUDA_FLAGS="$(cuda_gccdir -f | tr -d \")"
 		)
 	fi
+
+
+	if use rocm; then
+		export HIP_PATH="${EPREFIX}/usr"
+		export HIP_CLANG_PATH="/usr/lib/llvm/16/bin"
+		mycmakeargs+=(
+			-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
+			-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
+			-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
+		)
+	fi
+
 	cmake_src_configure
 }
 
