@@ -4,12 +4,13 @@
 EAPI=8
 
 DISTUTILS_OPTIONAL=1
-PYTHON_COMPAT=( python3_10 )
+PYTHON_COMPAT=( python3_10 python3_11 )
 MY_PV=${PV/_rc/-rc}
 MY_P=${PN}-${MY_PV}
 DEP_VER="$(ver_cut 1-2)"
+ROCM_VERSION=5.6.0
 
-inherit bazel check-reqs cuda distutils-r1 flag-o-matic prefix toolchain-funcs
+inherit bazel check-reqs cuda distutils-r1 flag-o-matic prefix rocm toolchain-funcs
 
 DESCRIPTION="Computation framework using data flow graphs for scalable machine learning"
 HOMEPAGE="https://www.tensorflow.org/"
@@ -18,7 +19,7 @@ RESTRICT="test" # Tests need GPU access
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="cuda mpi +python xla"
+IUSE="cuda mpi +python rocm xla"
 CPU_USE_FLAGS_X86="sse sse2 sse3 sse4_1 sse4_2 avx avx2 fma3 fma4"
 for i in $CPU_USE_FLAGS_X86; do
 	IUSE+=" cpu_flags_x86_${i}"
@@ -28,52 +29,55 @@ done
 # pkgcheck complains but do NOT change the .zip to .tar.gz, bazel requires the exact tarball (basename and sha256).
 # the build will fail if different archives are used.
 bazel_external_uris="
-	https://github.com/bazelbuild/platforms/releases/download/0.0.5/platforms-0.0.5.tar.gz -> bazelbuild-platforms-0.0.5.tar.gz
-	https://github.com/bazelbuild/apple_support/releases/download/0.12.1/apple_support.0.12.1.tar.gz
-	https://github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz
-	https://github.com/bazelbuild/bazel-toolchains/archive/ea243d43269df23de03a797cff2347e1fc3d02bb.tar.gz -> bazel-toolchains-ea243d43269df23de03a797cff2347e1fc3d02bb.tar.gz
+	https://github.com/Maratyszcza/FP16/archive/4dfe081cf6bcd15db339cf2680b9281b8451eeb3.zip -> FP16-4dfe081cf6bcd15db339cf2680b9281b8451eeb3.zip
+	https://github.com/Maratyszcza/FXdiv/archive/63058eff77e11aa15bf531df5dd34395ec3017c8.zip -> FXdiv-63058eff77e11aa15bf531df5dd34395ec3017c8.zip
+	https://github.com/Maratyszcza/pthreadpool/archive/b8374f80e42010941bda6c85b0e3f1a1bd77a1e0.zip -> pthreadpool-b8374f80e42010941bda6c85b0e3f1a1bd77a1e0.zip
+	https://github.com/bazelbuild/apple_support/releases/download/1.1.0/apple_support.1.1.0.tar.gz
+	https://github.com/bazelbuild/bazel-skylib/releases/download/1.3.0/bazel-skylib-1.3.0.tar.gz
+	https://github.com/bazelbuild/bazel-toolchains/archive/8c717f8258cd5f6c7a45b97d974292755852b658.tar.gz -> bazel-toolchains-8c717f8258cd5f6c7a45b97d974292755852b658.tar.gz
+	https://github.com/bazelbuild/platforms/releases/download/0.0.6/platforms-0.0.6.tar.gz -> bazelbuild-platforms-0.0.6.tar.gz
 	https://github.com/bazelbuild/rules_android/archive/v0.1.1.zip -> bazelbuild-rules_android-v0.1.1.zip
-	https://github.com/bazelbuild/rules_apple/releases/download/0.33.0/rules_apple.0.33.0.tar.gz
+	https://github.com/bazelbuild/rules_apple/releases/download/1.0.1/rules_apple.1.0.1.tar.gz
 	https://github.com/bazelbuild/rules_cc/archive/081771d4a0e9d7d3aa0eed2ef389fa4700dfb23e.tar.gz -> bazelbuild-rules_cc-081771d4a0e9d7d3aa0eed2ef389fa4700dfb23e.tar.gz
 	https://github.com/bazelbuild/rules_closure/archive/308b05b2419edb5c8ee0471b67a40403df940149.tar.gz -> bazelbuild-rules_closure-308b05b2419edb5c8ee0471b67a40403df940149.tar.gz
 	https://github.com/bazelbuild/rules_docker/releases/download/v0.10.0/rules_docker-v0.10.0.tar.gz -> bazelbuild-rules_docker-v0.10.0.tar.gz
-	https://github.com/bazelbuild/rules_java/archive/7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip -> bazelbuild-rules_java-7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip
-	https://github.com/bazelbuild/rules_pkg/releases/download/0.7.0/rules_pkg-0.7.0.tar.gz -> bazelbuild-rules_pkg-0.7.0.tar.gz
+	https://github.com/bazelbuild/rules_java/releases/download/5.4.1/rules_java-5.4.1.tar.gz -> bazelbuild-rules_java-5.4.1.tar.gz
+	https://github.com/bazelbuild/rules_jvm_external/archive/4.3.zip -> bazelbuild-rules_jvm_external-4.3.zip
+	https://github.com/bazelbuild/rules_pkg/releases/download/0.7.1/rules_pkg-0.7.1.tar.gz -> bazelbuild-rules_pkg-0.7.1.tar.gz
 	https://github.com/bazelbuild/rules_proto/archive/11bf7c25e666dd7ddacbcd4d4c4a9de7a25175f8.tar.gz -> bazelbuild-rules_proto-11bf7c25e666dd7ddacbcd4d4c4a9de7a25175f8.tar.gz
 	https://github.com/bazelbuild/rules_python/releases/download/0.0.1/rules_python-0.0.1.tar.gz -> bazelbuild-rules_python-0.0.1.tar.gz
-	https://github.com/bazelbuild/rules_swift/releases/download/0.25.0/rules_swift.0.25.0.tar.gz -> bazelbuild-rules_swift.0.25.0.tar.gz
+	https://github.com/bazelbuild/rules_swift/releases/download/1.0.0/rules_swift.1.0.0.tar.gz -> bazelbuild-rules_swift.1.0.0.tar.gz
 	https://github.com/dmlc/dlpack/archive/9351cf542ab478499294864ff3acfdab5c8c5f3d.tar.gz -> dlpack-9351cf542ab478499294864ff3acfdab5c8c5f3d.tar.gz
+	https://github.com/google/XNNPACK/archive/659147817805d17c7be2d60bd7bbca7e780f9c82.zip -> XNNPACK-659147817805d17c7be2d60bd7bbca7e780f9c82.zip
 	https://github.com/google/farmhash/archive/0d859a811870d10f53a594927d0d0b97573ad06d.tar.gz -> farmhash-0d859a811870d10f53a594927d0d0b97573ad06d.tar.gz
 	https://github.com/google/gemmlowp/archive/e844ffd17118c1e17d94e1ba4354c075a4577b88.zip -> gemmlowp-e844ffd17118c1e17d94e1ba4354c075a4577b88.zip
 	https://github.com/google/highwayhash/archive/c13d28517a4db259d738ea4886b1f00352a3cc33.tar.gz -> highwayhash-c13d28517a4db259d738ea4886b1f00352a3cc33.tar.gz
 	https://github.com/google/re2/archive/a276a8c738735a0fe45a6ee590fe2df69bcf4502.tar.gz -> re2-a276a8c738735a0fe45a6ee590fe2df69bcf4502.tar.gz
-	https://github.com/google/ruy/archive/841ea4172ba904fe3536789497f9565f2ef64129.zip -> ruy-841ea4172ba904fe3536789497f9565f2ef64129.zip
+	https://github.com/google/ruy/archive/3286a34cc8de6149ac6844107dfdffac91531e72.zip -> ruy-3286a34cc8de6149ac6844107dfdffac91531e72.zip
 	https://github.com/joe-kuo/sobol_data/archive/835a7d7b1ee3bc83e575e302a985c66ec4b65249.tar.gz -> sobol_data-835a7d7b1ee3bc83e575e302a985c66ec4b65249.tar.gz
-	https://github.com/llvm/llvm-project/archive/0538e5431afdb1fa05bdcedf70ee502ccfcd112a.tar.gz -> llvm-project-0538e5431afdb1fa05bdcedf70ee502ccfcd112a.tar.gz
+	https://github.com/llvm/llvm-project/archive/10939d1d580b9d3c9c2f3539c6bdb39f408179c0.tar.gz -> llvm-project-10939d1d580b9d3c9c2f3539c6bdb39f408179c0.tar.gz
 	https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.1/openmp-10.0.1.src.tar.xz -> llvmorg-10.0.1-openmp-10.0.1.src.tar.xz
 	https://github.com/mborgerding/kissfft/archive/131.1.0.tar.gz -> kissfft-131.1.0.tar.gz
-	https://github.com/oneapi-src/oneDNN/archive/refs/tags/v2.6.1.tar.gz -> oneDNN-v2.6.1.tar.gz
+	https://github.com/oneapi-src/oneDNN/archive/refs/tags/v2.7.3.tar.gz -> oneDNN-v2.7.3.tar.gz
+	https://github.com/openxla/stablehlo/archive/51f005f0a8ff6e28f535adfec4de936cb4097aa4.zip -> openxla-stablehlo-51f005f0a8ff6e28f535adfec4de936cb4097aa4.zip
+	https://github.com/openxla/triton/archive/2c3853269281da6742cf469a5ca5772947d271ce.tar.gz -> openxla-triton-2c3853269281da6742cf469a5ca5772947d271ce.tar.gz
 	https://github.com/petewarden/OouraFFT/archive/v1.0.tar.gz -> OouraFFT-v1.0.tar.gz
-	https://github.com/pytorch/cpuinfo/archive/5916273f79a21551890fd3d56fc5375a78d1598d.zip -> pytorch-cpuinfo-5916273f79a21551890fd3d56fc5375a78d1598d.zip
-	https://github.com/pytorch/cpuinfo/archive/5e63739504f0f8e18e941bd63b2d6d42536c7d90.tar.gz -> pytorch-cpuinfo-5e63739504f0f8e18e941bd63b2d6d42536c7d90.tar.gz
-	https://github.com/tensorflow/runtime/archive/6ca793b5d862ef6c50f242d77a811f06cce9b60a.tar.gz -> tensorflow-runtime-6ca793b5d862ef6c50f242d77a811f06cce9b60a.tar.gz
-	https://gitlab.com/libeigen/eigen/-/archive/0e187141679fdb91da33249d18cb79a011c0e2ea/eigen-0e187141679fdb91da33249d18cb79a011c0e2ea.tar.gz
-	https://github.com/google/XNNPACK/archive/6b409ac0a3090ebe74d0cdfb494c4cd91485ad39.zip -> XNNPACK-6b409ac0a3090ebe74d0cdfb494c4cd91485ad39.zip
-	https://github.com/Maratyszcza/pthreadpool/archive/b8374f80e42010941bda6c85b0e3f1a1bd77a1e0.zip -> pthreadpool-b8374f80e42010941bda6c85b0e3f1a1bd77a1e0.zip
-	https://github.com/Maratyszcza/FP16/archive/4dfe081cf6bcd15db339cf2680b9281b8451eeb3.zip -> FP16-4dfe081cf6bcd15db339cf2680b9281b8451eeb3.zip
-	https://github.com/Maratyszcza/FXdiv/archive/63058eff77e11aa15bf531df5dd34395ec3017c8.zip -> FXdiv-63058eff77e11aa15bf531df5dd34395ec3017c8.zip
+	https://github.com/pytorch/cpuinfo/archive/3dc310302210c1891ffcfb12ae67b11a3ad3a150.tar.gz -> pytorch-cpuinfo-3dc310302210c1891ffcfb12ae67b11a3ad3a150.tar.gz
+	https://github.com/pytorch/cpuinfo/archive/3dc310302210c1891ffcfb12ae67b11a3ad3a150.zip -> pytorch-cpuinfo-3dc310302210c1891ffcfb12ae67b11a3ad3a150.zip
+	https://github.com/tensorflow/runtime/archive/91d765cad5599f9710973d3e34d4dc22583e2e79.tar.gz -> tensorflow-runtime-91d765cad5599f9710973d3e34d4dc22583e2e79.tar.gz
+	https://gitlab.com/libeigen/eigen/-/archive/3460f3558e7b469efb8a225894e21929c8c77629/eigen-3460f3558e7b469efb8a225894e21929c8c77629.tar.gz
 	cuda? (
-		https://github.com/NVIDIA/cudnn-frontend/archive/v0.6.2.zip -> cudnn-frontend-v0.6.2.zip
+		https://github.com/NVIDIA/cudnn-frontend/archive/refs/tags/v0.7.3.zip -> cudnn-frontend-v0.7.3.zip
 		https://github.com/NVlabs/cub/archive/1.9.9.zip -> cub-1.9.9.zip
-		https://github.com/nvidia/nccl/archive/v2.12.12-1.tar.gz -> nvidia-nccl-v2.12.12-1.tar.gz
+		https://github.com/nvidia/nccl/archive/v2.16.2-1.tar.gz -> nvidia-nccl-v2.16.2-1.tar.gz
 	)
 	python? (
-		https://github.com/intel/ARM_NEON_2_x86_SSE/archive/1200fe90bb174a6224a525ee60148671a786a71f.tar.gz -> ARM_NEON_2_x86_SSE-1200fe90bb174a6224a525ee60148671a786a71f.tar.gz
+		https://github.com/intel/ARM_NEON_2_x86_SSE/archive/a15b489e1222b2087007546b4912e21293ea86ff.tar.gz -> ARM_NEON_2_x86_SSE-a15b489e1222b2087007546b4912e21293ea86ff.tar.gz
 		https://storage.googleapis.com/mirror.tensorflow.org/docs.python.org/2.7/_sources/license.rst.txt -> tensorflow-1.15.0-python-license.rst.txt
 	)"
 
 SRC_URI="https://github.com/${PN}/${PN}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz
-		https://dev.gentoo.org/~perfinion/patches/tensorflow-patches-${PVR}.tar.bz2
+		https://dev.gentoo.org/~perfinion/patches/tensorflow-patches-2.12.0.tar.bz2
 		${bazel_external_uris}"
 
 # abseil-cpp-20211102.0-r0 does not work with NVCC
@@ -97,7 +101,7 @@ RDEPEND="
 	sys-libs/zlib
 	>=sys-apps/hwloc-2:=
 	cuda? (
-		<dev-util/nvidia-cuda-toolkit-11.8_pre:=[profiler]
+		<dev-util/nvidia-cuda-toolkit-11.9_pre:=[profiler]
 		=dev-libs/cudnn-8*
 	)
 	mpi? ( virtual/mpi )
@@ -125,21 +129,23 @@ RDEPEND="
 		>=dev-python/wrapt-1.11.1[${PYTHON_USEDEP}]
 		>=net-libs/google-cloud-cpp-0.10.0
 		>=sci-visualization/tensorboard-${DEP_VER}[${PYTHON_USEDEP}]
-	)"
+	)
+	rocm? ( dev-util/amd-rocm-meta[hip,science,opencl] )
+"
 DEPEND="${RDEPEND}
 	python? (
 		dev-python/mock
 		dev-python/setuptools
 	)"
 PDEPEND="python? (
-		>=sci-libs/keras-${DEP_VER}[${PYTHON_USEDEP}]
+		>=sci-libs/keras-${DEP_VER}.1[${PYTHON_USEDEP}]
 		>=sci-libs/tensorflow-estimator-${DEP_VER}[${PYTHON_USEDEP}]
 	)"
 BDEPEND="
 	app-arch/unzip
 	>=dev-libs/protobuf-3.8.0
 	dev-java/java-config
-	>=dev-util/bazel-5.1.1
+	dev-util/bazel
 	cuda? (
 		>=dev-util/nvidia-cuda-toolkit-9.1[profiler]
 	)
@@ -197,6 +203,8 @@ src_prepare() {
 	bazel_setup_bazelrc
 
 	eapply "${WORKDIR}"/patches/*.patch
+	use rocm && eapply "${FILESDIR}"/rocm.patch
+	eapply "${FILESDIR}"/gcc13.patch
 
 	# Relax version checks in setup.py
 	sed -i "/^    '/s/==/>=/g" tensorflow/tools/pip_package/setup.py || die
@@ -266,6 +274,17 @@ src_configure() {
 			fi
 		fi
 
+		TF_NEED_ROCM=$(usex rocm 1 0)
+		use rocm && export ROCM_PATH="${EPREFIX}/usr"
+
+		if use rocm; then
+			export GCC_HOST_COMPILER_PATH="/usr/bin/gcc"
+			export GCC_HOST_COMPILER_PREFIX="/usr/bin"
+			export ROCM_TOOLKIT_PATH="/usr"
+			export TF_ROCM_AMDGPU_TARGETS=$(get_amdgpu_flags)
+			export TF_MIOPEN_VERSION=""
+		fi
+
 		# com_googlesource_code_re2 weird branch using absl, doesnt work with released re2
 		#com_github_googleapis_googleapis
 		local SYSLIBS=(
@@ -316,6 +335,8 @@ src_configure() {
 		echo 'build --define tensorflow_mkldnn_contraction_kernel=0' >> .bazelrc || die
 		echo "build --action_env=KERAS_HOME=\"${T}/.keras\"" >> .bazelrc || die
 		echo "build --host_action_env=KERAS_HOME=\"${T}/.keras\"" >> .bazelrc || die
+		sed -e "/build:linux --distinct_host_configuration=false/d" -i .bazelrc || die
+		echo "build --incompatible_fix_package_group_reporoot_syntax=false" >> .bazelrc || die
 
 		for cflag in $($(tc-getPKG_CONFIG) jsoncpp --cflags)
 		do
