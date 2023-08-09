@@ -4,7 +4,7 @@
 EAPI=8
 
 MY_PV=$(ver_rs 2 -)
-PYTHON_COMPAT=( python3_{9..10} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit cmake python-single-r1
 

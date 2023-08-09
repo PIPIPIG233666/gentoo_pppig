@@ -3,7 +3,7 @@
 
 EAPI="8"
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 # DISTUTILS_USE_PEP517=setuptools broken, installs files to /usr/CXX
 DISTUTILS_USE_SETUPTOOLS=no
 

@@ -35,7 +35,7 @@ RDEPEND="
 	>=dev-python/pexpect-4.8.0[${PYTHON_USEDEP}]
 	>=dev-python/ptyprocess-0.7.0[${PYTHON_USEDEP}]
 	dev-python/pyparsing[${PYTHON_USEDEP}]
-	$(python_gen_cond_dep ' dev-python/tomli[${PYTHON_USEDEP}] ' python3_{9..10})
+	$(python_gen_cond_dep ' dev-python/tomli[${PYTHON_USEDEP}] ' python3_{10..12})
 	>=dev-python/python-dateutil-2.8.2[${PYTHON_USEDEP}]
 	>=dev-python/python-dotenv-0.21.0[${PYTHON_USEDEP}]
 	>=dev-python/virtualenv-20.0.35[${PYTHON_USEDEP}]

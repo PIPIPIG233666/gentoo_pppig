@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 inherit cmake distutils-r1
 
 TESTVER="abb579e00f2deeede91cb485e53512efab9c6474"
