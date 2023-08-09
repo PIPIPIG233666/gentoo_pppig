@@ -8,12 +8,16 @@ DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..12} )
 PYTHON_REQ_USE="xml(+)"
 
-inherit distutils-r1 pypi virtualx
+inherit distutils-r1 virtualx
 
 DESCRIPTION="Library for manipulating TrueType, OpenType, AFM and Type1 fonts"
 HOMEPAGE="
 	https://github.com/fonttools/fonttools/
 	https://pypi.org/project/fonttools/
+"
+SRC_URI="
+	https://github.com/fonttools/fonttools/archive/${PV}.tar.gz
+		-> ${P}.gh.tar.gz
 "
 
 LICENSE="BSD"
@@ -33,3 +37,31 @@ BDEPEND="
 
 distutils_enable_tests pytest
 
+python_prepare_all() {
+	# When dev-python/pytest-shutil is installed, we get weird import errors.
+	# This is due to incomplete nesting in the Tests/ tree:
+	#
+	#   Tests/feaLib/__init__.py
+	#   Tests/ufoLib/__init__.py
+	#   Tests/svgLib/path/__init__.py
+	#   Tests/otlLib/__init__.py
+	#   Tests/varLib/__init__.py
+	#
+	# This tree requires an __init__.py in Tests/svgLib/ too, bug #701148.
+	touch Tests/svgLib/__init__.py || die
+
+	distutils-r1_python_prepare_all
+}
+
+src_configure() {
+	export FONTTOOLS_WITH_CYTHON=1
+}
+
+src_test() {
+	# virtualx used when matplotlib is installed causing plot module tests to run
+	virtx distutils-r1_src_test
+}
+
+python_test() {
+	epytest Tests fontTools || die "Tests failed with ${EPYTHON}"
+}
