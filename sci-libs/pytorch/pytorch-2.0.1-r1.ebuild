@@ -94,10 +94,9 @@ src_configure() {
 			export HIP_PATH="${EPREFIX}/usr"
 			export HIP_CLANG_PATH="/usr/lib/llvm/16/bin"
 			mycmakeargs+=(
-			-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
-			-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
-			-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
-			-DTORCH_USE_HIP_DSA
+				-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
+				-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
+				-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
 		)
 	fi
 
