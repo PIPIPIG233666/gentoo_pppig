@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 ROCM_VERSION=${PV}
 
 inherit cmake edo python-any-r1 toolchain-funcs rocm

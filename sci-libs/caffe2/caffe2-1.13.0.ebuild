@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 ROCM_VERSION=5.6.0
 inherit python-single-r1 cmake flag-o-matic rocm
 
