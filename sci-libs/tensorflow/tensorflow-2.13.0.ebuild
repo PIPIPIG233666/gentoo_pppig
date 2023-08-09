@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_OPTIONAL=1
-PYTHON_COMPAT=( python3_10 python3_11 )
+PYTHON_COMPAT=( python3_{10..12} )
 MY_PV=${PV/_rc/-rc}
 MY_P=${PN}-${MY_PV}
 DEP_VER="$(ver_cut 1-2)"
@@ -76,8 +76,9 @@ bazel_external_uris="
 		https://storage.googleapis.com/mirror.tensorflow.org/docs.python.org/2.7/_sources/license.rst.txt -> tensorflow-1.15.0-python-license.rst.txt
 	)"
 
+# Reuse 2.12 patches
 SRC_URI="https://github.com/${PN}/${PN}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz
-		https://dev.gentoo.org/~perfinion/patches/tensorflow-patches-2.12.0.tar.bz2
+		https://dev.gentoo.org/~perfinion/patches/tensorflow-patches-2.12.0.tar.bz2 -> tensorflow-patches-${PVR}.tar.bz2
 		${bazel_external_uris}"
 
 # abseil-cpp-20211102.0-r0 does not work with NVCC

@@ -3,8 +3,8 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_10 python3_11 )
-inherit bazel distutils-r1
+PYTHON_COMPAT=( python3_{10..12} )
+inherit bazel distutils-r1 pypi
 
 DESCRIPTION="Deep Learning for humans"
 HOMEPAGE="https://keras.io/"
@@ -13,14 +13,14 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
-
-bazel_external_uris="
-	https://github.com/bazelbuild/rules_cc/archive/b1c40e1de81913a3c40e5948f78719c28152486d.zip -> bazelbuild-rules_cc-b1c40e1de81913a3c40e5948f78719c28152486d.zip
-	https://github.com/bazelbuild/rules_java/archive/7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip -> bazelbuild-rules_java-7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip"
-
-SRC_URI="https://github.com/keras-team/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz
-	${bazel_external_uris}"
-
+#
+# bazel_external_uris="
+	# https://github.com/bazelbuild/rules_cc/archive/b1c40e1de81913a3c40e5948f78719c28152486d.zip -> bazelbuild-rules_cc-b1c40e1de81913a3c40e5948f78719c28152486d.zip
+	# https://github.com/bazelbuild/rules_java/archive/7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip -> bazelbuild-rules_java-7cf3cefd652008d0a64a419c34c13bdca6c8f178.zip"
+#
+# SRC_URI="https://github.com/keras-team/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz
+	# ${bazel_external_uris}"
+#
 RDEPEND="
 	>=dev-libs/protobuf-3.13.0:=
 	dev-python/absl-py[${PYTHON_USEDEP}]
@@ -47,39 +47,39 @@ DOCS=( CONTRIBUTING.md README.md )
 PATCHES=(
 	"${FILESDIR}/keras-2.12.0-0001-bazel-Use-system-protobuf.patch"
 )
-
-src_unpack() {
-	unpack "${P}.tar.gz"
-	bazel_load_distfiles "${bazel_external_uris}"
-}
-
-src_prepare() {
-	bazel_setup_bazelrc
-	default
-	python_copy_sources
-}
-
-python_compile() {
-	pushd "${BUILD_DIR}" >/dev/null || die
-
-	ebazel build //keras/tools/pip_package:build_pip_package
-	ebazel shutdown
-
-	local srcdir="${T}/src-${EPYTHON/./_}"
-	mkdir -p "${srcdir}" || die
-	bazel-bin/keras/tools/pip_package/build_pip_package --src "${srcdir}" || die
-
-	popd || die
-}
-
-src_compile() {
-	export JAVA_HOME=$(java-config --jre-home)
-	distutils-r1_src_compile
-}
-
-python_install() {
-	pushd "${T}/src-${EPYTHON/./_}" >/dev/null || die
-	esetup.py install
-	python_optimize
-	popd || die
-}
+#
+# src_unpack() {
+	# unpack "${P}.tar.gz"
+	# bazel_load_distfiles "${bazel_external_uris}"
+# }
+#
+# src_prepare() {
+	# bazel_setup_bazelrc
+	# default
+	# python_copy_sources
+# }
+#
+# python_compile() {
+	# pushd "${BUILD_DIR}" >/dev/null || die
+#
+	# ebazel build //keras/tools/pip_package:build_pip_package
+	# ebazel shutdown
+#
+	# local srcdir="${T}/src-${EPYTHON/./_}"
+	# mkdir -p "${srcdir}" || die
+	# bazel-bin/keras/tools/pip_package/build_pip_package --src "${srcdir}" || die
+#
+	# popd || die
+# }
+#
+# src_compile() {
+	# export JAVA_HOME=$(java-config --jre-home)
+	# distutils-r1_src_compile
+# }
+#
+# python_install() {
+	# pushd "${T}/src-${EPYTHON/./_}" >/dev/null || die
+	# esetup.py install
+	# python_optimize
+	# popd || die
+# }

@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_10 python3_11 )
+PYTHON_COMPAT=( python3_{10..12} )
 MY_PN="estimator"
 MY_PV=${PV/_rc/-rc}
 MY_P=${MY_PN}-${MY_PV}
@@ -12,7 +12,7 @@ inherit bazel distutils-r1 pypi
 
 DESCRIPTION="A high-level TensorFlow API that greatly simplifies machine learning programming"
 HOMEPAGE="https://www.tensorflow.org/
-https://pypi.org/project/tensorflow-estimato
+https://pypi.org/project/tensorflow-estimator
 "
 
 SRC_URI="https://github.com/tensorflow/estimator/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
