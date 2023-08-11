@@ -13,7 +13,8 @@ inherit bash-completion-r1 python-r1
 
 DESCRIPTION="Google tool for managing git, particularly multiple repos"
 HOMEPAGE="https://gerrit.googlesource.com/git-repo"
-SRC_URI="https://gerrit.googlesource.com/git-repo/+archive/v${PV}.tar.gz -> ${P}.tar.gz"
+COMMIT_HASH="c657844efe40b97700c3654989bdbe3a33e409d7"
+SRC_URI="https://gerrit.googlesource.com/git-repo/+/archive/${COMMIT_HASH}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -25,10 +26,10 @@ RDEPEND="${PYTHON_DEPS}
 	!app-admin/radmind
 "
 
-S="${WORKDIR}/git-${P}"
+S="${WORKDIR}"
 
 src_install() {
-	python_foreach_impl python_newscript "${DISTDIR}/${P}" ${PN}
+	python_foreach_impl python_newscript "${S}/${PN}" ${PN}
 	newbashcomp completion.bash ${PN}
 	doman man/*.[0-9]
 }
