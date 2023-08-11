@@ -5,16 +5,14 @@
 # of the repo project.  The launcher only gets a new update when changes are
 # made in it.
 
-EAPI="7"
-
-PYTHON_COMPAT=( python3_{10..11} )
+EAPI=8
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit bash-completion-r1 python-r1
 
 DESCRIPTION="Google tool for managing git, particularly multiple repos"
 HOMEPAGE="https://gerrit.googlesource.com/git-repo"
-COMMIT_HASH="c657844efe40b97700c3654989bdbe3a33e409d7"
-SRC_URI="https://gerrit.googlesource.com/git-repo/+/archive/${COMMIT_HASH}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://gerrit.googlesource.com/git-repo/+archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -27,6 +25,16 @@ RDEPEND="${PYTHON_DEPS}
 "
 
 S="${WORKDIR}"
+
+src_prepare() {
+	# Fix py312 deprecated warning
+	# /usr/lib/python-exec/python3.12/repo:711: DeprecationWarning: datetime.utcnow()
+	# is deprecated and scheduled for removal in a future version. Use timezone-aware
+	# objects to represent datetimes in UTC: datetime.now(datetime.UTC). 
+	# now = datetime.datetime.utcnow()
+	sed -e "s,datetime.datetime.utcnow(),datetime.datetime.now(datetime.UTC),g" -i "${S}/${PN}" || die
+	default
+}
 
 src_install() {
 	python_foreach_impl python_newscript "${S}/${PN}" ${PN}
