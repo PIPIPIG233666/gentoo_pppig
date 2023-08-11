@@ -37,9 +37,9 @@ BDEPEND="
 	app-arch/unzip
 	${PYTHON_DEPS}
 "
-PDEPEND="
-	sci-libs/tensorflow[python,${PYTHON_USEDEP}]
-"
+# PDEPEND="
+	# sci-libs/tensorflow[python,${PYTHON_USEDEP}]
+# "
 
 src_prepare() {
 	eapply_user

@@ -128,10 +128,11 @@ RDEPEND="
 		>=dev-python/grpcio-1.28[${PYTHON_USEDEP}]
 		>=dev-python/wrapt-1.11.1[${PYTHON_USEDEP}]
 		>=net-libs/google-cloud-cpp-0.10.0
-		>=sci-visualization/tensorboard-${DEP_VER}[${PYTHON_USEDEP}]
 	)
 	rocm? ( dev-util/amd-rocm-meta[hip,science,opencl] )
 "
+		# >=sci-visualization/tensorboard-${DEP_VER}[${PYTHON_USEDEP}]
+
 DEPEND="${RDEPEND}
 	python? (
 		dev-python/mock
