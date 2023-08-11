@@ -30,7 +30,7 @@ index cd64efe6495..4c73a14e6da 100644
 -
    rocm_config = {
 -      "rocm_version_number": _get_composite_version_number(major, minor, patch)
-+      "rocm_version_number": _get_composite_version_number(5, 5, 0)
++      "rocm_version_number": _get_composite_version_number(5, 6, 0)
    }
  
    return rocm_config
