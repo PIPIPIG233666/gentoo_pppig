@@ -3,13 +3,14 @@
 
 EAPI=8
 
+DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1
 
 PARENT_PN="${PN/-python/}"
-PARENT_PV="${PV}"
+PARENT_PV="$(ver_cut 2-)"
 PARENT_P="${PARENT_PN}-${PARENT_PV}"
 
 if [[ "${PV}" == *9999 ]]; then
@@ -23,7 +24,7 @@ else
 		https://github.com/protocolbuffers/protobuf/archive/v${PARENT_PV}.tar.gz
 			-> ${PARENT_P}.tar.gz
 	"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86 ~amd64-linux ~x86-linux ~x64-macos"
 fi
 
 DESCRIPTION="Google's Protocol Buffers - Python bindings"
@@ -38,15 +39,13 @@ SLOT="0/32"
 S="${WORKDIR}/${PARENT_P}/python"
 
 BDEPEND="
-	dev-libs/protobuf:${SLOT}
-	dev-python/six[${PYTHON_USEDEP}]
 "
 DEPEND="
 	${PYTHON_DEPS}
-	dev-libs/protobuf:${SLOT}
 "
 RDEPEND="
 	${BDEPEND}
+	dev-libs/protobuf:${SLOT}
 "
 
 distutils_enable_tests setup.py
@@ -59,6 +58,7 @@ PARENT_PATCHES=(
 
 # Here for patches within "python/" subdirectory.
 PATCHES=(
+	"${FILESDIR}"/${PN}-3.20.3-python311.patch
 )
 
 python_prepare_all() {

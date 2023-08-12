@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_EXT=1
-PYTHON_COMPAT=( python3_{10..12} pypy3 )
+PYTHON_COMPAT=( python3_{9..11} pypy3 )
 PYTHON_REQ_USE="threads(+)"
 
 FORTRAN_NEEDED=lapack
@@ -110,7 +110,6 @@ python_prepare_all() {
 	gawk -i inplace -v "enabled_flags=${enabled_flags[*]}" \
 		-f "${FILESDIR}"/replace_cpuflags.awk \
 		numpy/distutils/ccompiler_opt.py || die
-	rm -f numpy/distutils/tests/test_ccompiler_opt.py || die
 
 	distutils-r1_python_prepare_all
 }

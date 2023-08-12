@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1 virtualx
 
@@ -21,7 +21,7 @@ IUSE="aesara examples imaging ipython latex mathml opengl pdf png pyglet symengi
 RDEPEND="
 	dev-python/mpmath[${PYTHON_USEDEP}]
 	dev-python/pexpect[${PYTHON_USEDEP}]
-	aesara? ( $(python_gen_cond_dep 'dev-python/aesara[${PYTHON_USEDEP}]' python3_{10..12}) )
+	aesara? ( $(python_gen_cond_dep 'dev-python/aesara[${PYTHON_USEDEP}]' python3_{9..10}) )
 	imaging? ( dev-python/pillow[${PYTHON_USEDEP}] )
 	ipython? ( dev-python/ipython[${PYTHON_USEDEP}] )
 	latex? (
