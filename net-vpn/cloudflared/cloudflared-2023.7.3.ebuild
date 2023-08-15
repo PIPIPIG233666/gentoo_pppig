@@ -14,6 +14,8 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 RESTRICT="test" # needs net
 
+BDEPEND="<=dev-lang/go-1.20.7"
+
 RDEPEND="acct-user/cloudflared"
 
 DOCS=( {CHANGES,README}.md RELEASE_NOTES )
