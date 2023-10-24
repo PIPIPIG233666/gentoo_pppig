@@ -13,7 +13,7 @@ HOMEPAGE="https://github.com/nmeum/android-tools/ https://developer.android.com/
 MY_PV="${PV//_/}"
 SRC_URI="https://github.com/nmeum/android-tools/releases/download/${MY_PV}/${PN}-${MY_PV}.tar.xz
 	https://dev.gentoo.org/~zmedico/dist/${PN}-31.0.3-no-gtest.patch
-	https://github.com/PIPIPIG233666/gentoo_pppig/raw/main/${PN}-dep-go-${PV}.tar.gz -> ${PN}-dep-go-${PV}.tar.gz
+	https://gitlab.com/pig.priv/gentoo_pppig/-/raw/main/${PN}-dep-go-${PV}.tar.gz -> ${PN}-dep-go-${PV}.tar.gz
 "
 S="${WORKDIR}/${PN}-${MY_PV}"
 
