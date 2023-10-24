@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{10..12} )
 
-inherit cmake python-r1
+inherit cmake go-module python-r1
 
 DESCRIPTION="Android platform tools (adb, fastboot, and mkbootimg)"
 HOMEPAGE="https://github.com/nmeum/android-tools/ https://developer.android.com/"
