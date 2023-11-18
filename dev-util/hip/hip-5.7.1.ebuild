@@ -140,6 +140,7 @@ src_prepare() {
 	eapply "${FILESDIR}/${PN}-5.1.3-fno-stack-protector.patch"
 	eapply "${FILESDIR}/${PN}-5.5.1-hipcc-hip-version.patch"
 	eapply "${FILESDIR}/${PN}-5.6.0-rocm-path.patch"
+	eapply "${FILESDIR}/${PN}-5.7.1-hipvars-FHS-path.patch"
 
 	sed -e "/HIP.*FLAGS.*isystem.*HIP_INCLUDE_PATH/d" \
 		-e "s:\$ENV{'DEVICE_LIB_PATH'}:'${EPREFIX}/usr/lib/amdgcn/bitcode':" \
