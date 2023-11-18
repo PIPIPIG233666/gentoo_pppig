@@ -21,7 +21,6 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.1.3-clang-fix-include.patch"
 	"${FILESDIR}/${PN}-5.1.3-rocm-path.patch"
 	"${FILESDIR}/0001-Specify-clang-exe-path-in-Driver-Creation.patch"
 	"${FILESDIR}/0001-Find-CLANG_RESOURCE_DIR-using-clang-print-resource-d.patch"
@@ -29,6 +28,11 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.3.3-fno-stack-protector.patch"
 	"${FILESDIR}/${PN}-5.5.1-fix-tests.patch"
 	"${FILESDIR}/${PN}-5.6.0-correct-license-install-dir.patch"
+	"${FILESDIR}/${PN}-5.7.1-clang17.patch"
+	"${FILESDIR}/${PN}-5.7.1-join.patch"
+	"${FILESDIR}/${PN}-5.7.1-lld.patch"
+	"${FILESDIR}/${PN}-5.7.1-metadata.patch"
+	"${FILESDIR}/${PN}-5.7.1-symbolizer.patch"
 )
 
 DESCRIPTION="Radeon Open Compute Code Object Manager"
