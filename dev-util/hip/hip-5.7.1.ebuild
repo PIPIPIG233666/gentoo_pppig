@@ -57,12 +57,11 @@ RDEPEND="${DEPEND}
 PATCHES=(
 	"${FILESDIR}/${PN}-5.0.1-hip_vector_types.patch"
 	"${FILESDIR}/${PN}-5.0.2-set-build-id.patch"
-	"${FILESDIR}/${PN}-5.6.0-remove-cmake-doxygen-commands.patch"
+	"${FILESDIR}/${PN}-5.7.1-remove-cmake-doxygen-commands.patch"
 	"${FILESDIR}/${PN}-5.5.1-disable-Werror.patch"
 	"${FILESDIR}/${PN}-5.4.3-make-test-switchable.patch"
 	"${FILESDIR}/${PN}-5.6.0-enable-build-catch-test.patch"
 	"${FILESDIR}/${PN}-5.6.0-remove-.hipInfo.patch"
-	"${FILESDIR}/0001-Install-.hipVersion-into-datadir-for-linux.patch"
 	"${FILESDIR}/${PN}-5.6.0-extend-hip-isa-compatibility.patch"
 )
 
@@ -141,8 +140,6 @@ src_prepare() {
 	eapply "${FILESDIR}/${PN}-5.1.3-fno-stack-protector.patch"
 	eapply "${FILESDIR}/${PN}-5.5.1-hipcc-hip-version.patch"
 	eapply "${FILESDIR}/${PN}-5.6.0-rocm-path.patch"
-	eapply "${FILESDIR}/${PN}-5.6.0-hipconfig-clang-include-path.patch"
-	eapply "${FILESDIR}/${PN}-5.6.0-hipvars-FHS-path.patch"
 
 	sed -e "/HIP.*FLAGS.*isystem.*HIP_INCLUDE_PATH/d" \
 		-e "s:\$ENV{'DEVICE_LIB_PATH'}:'${EPREFIX}/usr/lib/amdgcn/bitcode':" \
