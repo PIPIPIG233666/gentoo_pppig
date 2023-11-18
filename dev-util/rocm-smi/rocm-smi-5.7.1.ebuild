@@ -33,12 +33,12 @@ PATCHES=(
 	# "${FILESDIR}"/${PN}-5.0.2-gcc12-memcpy.patch
 	"${FILESDIR}"/${PN}-5.4.2-detect-builtin-amdgpu.patch
 )
-#
-# src_prepare() {
-	# sed -e "/^path_librocm = /c\path_librocm = '${EPREFIX}/usr/lib64/librocm_smi64.so'" \
-		# -i python_smi_tools/rsmiBindings.py || die
-	# cmake_src_prepare
-# }
+
+src_prepare() {
+	sed -e "/^path_librocm = /c\path_librocm = '${EPREFIX}/usr/lib64/librocm_smi64.so.5.0'" \
+		-i python_smi_tools/rsmiBindings.py.in || die
+	cmake_src_prepare
+}
 
 src_configure() {
 	local mycmakeargs=(
