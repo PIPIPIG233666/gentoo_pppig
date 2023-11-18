@@ -32,7 +32,6 @@ CMAKE_BUILD_TYPE=Release
 
 PATCHES=( "${FILESDIR}/${PN}-5.5.1-test-bitcode-dir.patch"
 	"${FILESDIR}/${PN}-5.5.1-llvm16-link.patch"
-	"${FILESDIR}/${PN}-5.7.1-rollback-to-dot7.patch"
 	"${FILESDIR}/${PN}-5.5.1-remove-gfx700-tests.patch" )
 
 src_prepare() {
