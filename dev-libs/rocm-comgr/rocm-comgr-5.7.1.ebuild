@@ -8,12 +8,12 @@ inherit cmake llvm prefix
 LLVM_MAX_SLOT=17
 
 if [[ ${PV} == *9999 ]] ; then
-	EGIT_REPO_URI="https://github.com/RadeonOpenCompute/ROCm-CompilerSupport/"
+	EGIT_REPO_URI="https://github.com/RadeonOpenCompute/llvm-project/"
 	inherit git-r3
-	S="${WORKDIR}/${P}/lib/comgr"
+	S="${WORKDIR}/${P}/amd/comgr"
 else
-	SRC_URI="https://github.com/RadeonOpenCompute/ROCm-CompilerSupport/archive/rocm-${PV}.tar.gz -> ${P}.tar.gz"
-	S="${WORKDIR}/ROCm-CompilerSupport-rocm-${PV}/lib/comgr"
+	SRC_URI="https://github.com/RadeonOpenCompute/llvm-project/archive/rocm-${PV}.tar.gz -> ${P}.tar.gz"
+	S="${WORKDIR}/ROCm-CompilerSupport-rocm-${PV}/amd/comgr"
 	KEYWORDS="~amd64"
 fi
 
