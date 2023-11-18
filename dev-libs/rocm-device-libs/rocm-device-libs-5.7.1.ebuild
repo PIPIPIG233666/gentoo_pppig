@@ -5,7 +5,7 @@ EAPI=8
 
 inherit cmake llvm
 
-LLVM_MAX_SLOT=16
+LLVM_MAX_SLOT=17
 
 if [[ ${PV} == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/RadeonOpenCompute/ROCm-Device-Libs/"

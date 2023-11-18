@@ -8,7 +8,7 @@ ROCM_VERSION=${PV}
 
 inherit cmake edo llvm python-any-r1 rocm
 
-LLVM_MAX_SLOT=16
+LLVM_MAX_SLOT=17
 
 DESCRIPTION="Callback/Activity Library for Performance tracing AMD GPU's"
 HOMEPAGE="https://github.com/ROCm-Developer-Tools/rocprofiler.git"

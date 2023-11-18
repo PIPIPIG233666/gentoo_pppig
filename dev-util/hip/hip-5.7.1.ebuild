@@ -8,7 +8,7 @@ DOCS_DEPEND="media-gfx/graphviz"
 
 inherit cmake docs llvm perl-functions prefix
 
-LLVM_MAX_SLOT=16
+LLVM_MAX_SLOT=17
 
 DESCRIPTION="C++ Heterogeneous-Compute Interface for Portability"
 HOMEPAGE="https://github.com/ROCm-Developer-Tools/hipamd"
