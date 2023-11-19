@@ -30,11 +30,6 @@ BDEPEND="
 	')
 "
 
-PATCHES=( 
-	"${FILESDIR}"/roctracer-5.3.3-do-not-install-test-files.patch
-	"${FILESDIR}"/roctracer-5.3.3-Werror.patch
-)
-
 python_check_deps() {
 	python_has_version "dev-python/CppHeaderParser[${PYTHON_USEDEP}]" \
 		"dev-python/ply[${PYTHON_USEDEP}]"
@@ -53,6 +48,7 @@ src_configure() {
 		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/lib64/cmake/hip"
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-DFILE_REORG_BACKWARD_COMPATIBILITY=OFF
+		-DHIP_CLANG_PATH="$(hipconfig -l)"
 		-DHIP_CXX_COMPILER=hipcc
 	)
 
