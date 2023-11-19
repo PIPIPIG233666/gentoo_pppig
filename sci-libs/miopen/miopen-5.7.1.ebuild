@@ -81,6 +81,7 @@ src_configure() {
 		-DBUILD_TESTS=$(usex test ON OFF)
 		-DMIOPEN_TEST_ALL=$(usex test ON OFF)
 		-DMIOPEN_ENABLE_AI_KERNEL_TUNING=OFF
+		-DMIOPEN_ENABLE_AI_IMMED_MODE_FALLBACK=OFF
 	)
 
 	if use test; then
