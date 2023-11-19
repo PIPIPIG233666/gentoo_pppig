@@ -30,12 +30,14 @@ HIPIFY_S="${WORKDIR}/HIPIFY-rocm-${PV}"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-5.5.0-remove-chrpath.patch"
+	"${FILESDIR}/${PN}-5.7.1-fix.patch"
 )
 
 src_prepare(){
 	cmake_src_prepare
 	# Add hipify dir to path
-	sed -e "s|find_program( hipify-perl_executable hipify-perl )|find_program( hipify-perl_executable hipify-perl ${HIPIFY_S}/bin )|" -i CMakeLists.txt
+	sed -e "s|find_program(hipify-perl_executable hipify-perl)|find_program( hipify-perl_executable hipify-perl ${HIPIFY_S}/bin )|" -i CMakeLists.txt
+	sed '/parallel-jobs/d' -i CMakeLists.txt
 }
 
 src_configure() {
