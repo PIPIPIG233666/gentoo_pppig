@@ -37,7 +37,6 @@ src_prepare(){
 	cmake_src_prepare
 	# Add hipify dir to path
 	sed -e "s|find_program(hipify-perl_executable hipify-perl)|find_program( hipify-perl_executable hipify-perl ${HIPIFY_S}/bin )|" -i CMakeLists.txt
-	sed '/parallel-jobs/d' -i CMakeLists.txt
 }
 
 src_configure() {

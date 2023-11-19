@@ -1,0 +1,32 @@
+From d19ced9742e691e05f6b5f8c6dd75ec5540c1998 Mon Sep 17 00:00:00 2001
+From: "Yaxun (Sam) Liu" <yaxun.liu@amd.com>
+Date: Sun, 13 Sep 2020 22:25:03 -0400
+Subject: [PATCH] Fix -parallel-jobs random behavior for failed compilation
+
+Clang driver should record failed command before setting job state as JS_FAIL
+since the job may be preempted by the main thread and the main thread will
+fail to get the failing command.
+
+This causes random behavior when compilation failures happen, e.g. clang
+may not capture the failure due to missing -lpthreads.
+
+Fixes: SWDEV-252146
+Change-Id: I4d5de34ec616269a8f5b0c110c5069a8a00a66bd
+---
+ clang/lib/Driver/Compilation.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/clang/lib/Driver/Compilation.cpp b/clang/lib/Driver/Compilation.cpp
+index 33cde8f3f600245..08a7dad12aef5ee 100644
+--- a/clang/lib/Driver/Compilation.cpp
++++ b/clang/lib/Driver/Compilation.cpp
+@@ -365,8 +365,8 @@ void Compilation::ExecuteJobs(const JobList &Jobs,
+     auto Work = [&, Next]() {
+       const Command *FailingCommand = nullptr;
+       if (int Res = ExecuteCommand(*Next, FailingCommand)) {
+-        JS.setJobState(Next, JobScheduler::JS_FAIL);
+         FailingCommands.push_back(std::make_pair(Res, FailingCommand));
++        JS.setJobState(Next, JobScheduler::JS_FAIL);
+       } else {
+         JS.setJobState(Next, JobScheduler::JS_DONE);
+       }
