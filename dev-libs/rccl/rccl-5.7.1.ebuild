@@ -37,6 +37,8 @@ src_prepare(){
 	cmake_src_prepare
 	# Add hipify dir to path
 	sed -e "s|find_program(hipify-perl_executable hipify-perl)|find_program( hipify-perl_executable hipify-perl ${HIPIFY_S}/bin )|" -i CMakeLists.txt
+	sed '/parallel-jobs=16/d' -i CMakeLists.txt
+	sed -e 's/parallel-jobs=12/parallel-jobs=24/g' -i CMakeLists.txt
 }
 
 src_configure() {
@@ -46,6 +48,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DSKIP_RPATH=On
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
+		-DBUILD_LOCAL_GPU_TARGET_ONLY=ON
 		-DBUILD_TESTS=$(usex test ON OFF)
 		-Wno-dev
 	)
