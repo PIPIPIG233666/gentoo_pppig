@@ -44,8 +44,8 @@ DEPEND="
 QA_FLAGS_IGNORED="/usr/lib64/rocblas/library/.*"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-5.4.2-cpp_lib_filesystem.patch
-	"${FILESDIR}"/${PN}-5.4.2-unbundle-Tensile.patch
+	# "${FILESDIR}"/${PN}-5.4.2-cpp_lib_filesystem.patch
+	"${FILESDIR}"/${PN}-5.7.1-unbundle-Tensile.patch
 	"${FILESDIR}"/${PN}-5.4.2-add-missing-header.patch
 	"${FILESDIR}"/${PN}-5.4.2-link-cblas.patch
 	)
