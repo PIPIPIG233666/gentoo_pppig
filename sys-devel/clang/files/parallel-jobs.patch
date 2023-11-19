@@ -1,4 +1,4 @@
-From f83c20484f35fb59417b6c68205f5476269e4d8d Mon Sep 17 00:00:00 2001
+From 4a52b5720d22dc0db17bcac0d52083ce819f6fec Mon Sep 17 00:00:00 2001
 From: "Yaxun (Sam) Liu" <yaxun.liu@amd.com>
 Date: Tue, 29 Oct 2019 13:13:36 -0400
 Subject: [PATCH] Let clang driver support parallel jobs
@@ -67,14 +67,14 @@ index df9449463c53bd1..97ac4f58eacf75e 100644
  
  /// Use the CC1 tool callback when available, to avoid creating a new process
 diff --git a/clang/include/clang/Driver/Options.td b/clang/include/clang/Driver/Options.td
-index e04f67bdb1fa568..34b78edeec5ac8f 100644
+index e04f67bdb1fa568..3f64e549fbef850 100644
 --- a/clang/include/clang/Driver/Options.td
 +++ b/clang/include/clang/Driver/Options.td
 @@ -795,6 +795,8 @@ def Ofast : Joined<["-"], "Ofast">, Group<O_Group>, Flags<[CC1Option, FlangOptio
  def P : Flag<["-"], "P">, Flags<[CC1Option,FlangOption,FC1Option]>, Group<Preprocessor_Group>,
    HelpText<"Disable linemarker output in -E mode">,
    MarshallingInfoNegativeFlag<PreprocessorOutputOpts<"ShowLineMarkers">>;
-+def parallel_jobs_EQ : Joined<["-"], "parallel-jobs=">, Flags<[DriverOption]>,
++def parallel_jobs_EQ : Joined<["-"], "parallel-jobs=">, Flags<[NoXarchOption]>,
 +  HelpText<"Number of parallel jobs">;
  def Qy : Flag<["-"], "Qy">, Flags<[CC1Option]>,
    HelpText<"Emit metadata containing compiler name and version">;
