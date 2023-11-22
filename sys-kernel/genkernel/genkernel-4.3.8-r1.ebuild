@@ -202,6 +202,8 @@ src_prepare() {
 		-e "s:VERSION_ZSTD:${VERSION_ZSTD}:"\
 		"${S}"/defaults/software.sh \
 		|| die "Could not adjust versions"
+	sed -e "s,CONFIG_MICROCODE_AMD,CONFIG_CPU_SUP_AMD,g" -i ${S}/gen_configkernel.sh||die
+	sed -e "s,CONFIG_MICROCODE_AMD,CONFIG_CPU_SUP_AMD,g" -i ${S}/gen_initramfs.sh||die
 }
 
 src_compile() {
