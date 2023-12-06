@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-ROCM_VERSION=5.6.0
+ROCM_VERSION=5.7.1
 PYTHON_COMPAT=( python3_{10..12} )
 inherit python-single-r1 cmake cuda flag-o-matic prefix rocm
 
