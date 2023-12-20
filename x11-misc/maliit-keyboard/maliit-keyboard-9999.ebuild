@@ -22,11 +22,9 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE="test"
 
-		#dev-qt/qtfeedback
 DEPEND="x11-misc/maliit-framework
 		media-fonts/noto-emoji
 		dev-qt/qtmultimedia
-		dev-qt/qtfeedback
 		app-text/hunspell
 		app-text/presage[sqlite]
 		app-i18n/libchewing
