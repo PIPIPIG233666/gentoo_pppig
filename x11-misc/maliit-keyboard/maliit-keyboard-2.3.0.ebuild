@@ -20,7 +20,6 @@ BDEPEND="sys-devel/gettext"
 
 DEPEND="
 	dev-libs/glib
-	=dev-qt/qtfeedback-5*
 	dev-qt/qtmultimedia:5
 	x11-misc/maliit-framework
 	anthy? ( app-i18n/anthy )
