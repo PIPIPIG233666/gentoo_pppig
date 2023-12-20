@@ -1,0 +1,16 @@
+BDEPEND=app-doc/doxygen media-gfx/graphviz app-alternatives/ninja >=dev-util/cmake-3.20.5 >=dev-vcs/git-1.8.2.1[curl]
+DEFINED_PHASES=compile configure install prepare test unpack
+DEPEND=dbus? ( sys-apps/dbus ) gtk? ( x11-libs/gtk+ ) dev-qt/qtdeclarative kde-frameworks/kwayland dev-libs/wayland-protocols
+DESCRIPTION=A flexible and cross platform input method framework
+EAPI=7
+HOMEPAGE=https://github.com/maliit/framework
+INHERIT=cmake git-r3
+IUSE=+dbus doc +gtk test
+KEYWORDS=~amd64 ~x86 ~arm64 ~arm
+LICENSE=LGPL-2.1
+PROPERTIES=live
+RDEPEND=dbus? ( sys-apps/dbus ) gtk? ( x11-libs/gtk+ ) dev-qt/qtdeclarative kde-frameworks/kwayland dev-libs/wayland-protocols
+RESTRICT=test
+SLOT=0
+_eclasses_=toolchain-funcs	eed10cf5e5a06916e654d31f5a1925cc	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	c816c598969cbaf38cc02d2496ad2e98	multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	ninja-utils	c8951c1dfcc1d43e3f967f61fd0ec59c	xdg-utils	baea6080dd821f5562d715887954c9d3	cmake	0f2e0c197fad0312f3c4765c9cf36271	git-r3	5133e393e8717a3a093660f990801dc1
+_md5_=23f2af8943ae2856a8c4ac3b2313bb38
