@@ -29,8 +29,6 @@ DEPEND="
 	dbus? ( sys-apps/dbus )
 	gtk? ( x11-libs/gtk+ )
 	dev-qt/qtdeclarative
-	kde-frameworks/kwayland
-	dev-libs/wayland-protocols
 "
 
 RDEPEND="${DEPEND}"
