@@ -47,3 +47,13 @@ src_configure() {
 	)
 	cmake_src_configure
 }
+
+pkg_postinst() {
+	xdg_pkg_postinst
+	gnome2_schemas_update
+}
+
+pkg_postrm() {
+	xdg_pkg_postrm
+	gnome2_schemas_update
+}
