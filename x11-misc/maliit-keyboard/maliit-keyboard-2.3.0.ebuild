@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit cmake xdg
+inherit cmake gnome2-utils xdg
 
 DESCRIPTION="A free software virtual keyboard for Linux based on Maliit framework"
 HOMEPAGE="https://maliit.github.io/"
