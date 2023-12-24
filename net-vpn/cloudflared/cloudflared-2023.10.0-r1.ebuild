@@ -14,11 +14,15 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 RESTRICT="test" # needs net
 
-BDEPEND="<=dev-lang/go-1.20.7"
+BDEPEND="dev-lang/go"
 
 RDEPEND="acct-user/cloudflared"
 
 DOCS=( {CHANGES,README}.md RELEASE_NOTES )
+
+PATCHES=(
+	"${FILESDIR}"/update_to_go_1.21.5.patch
+)
 
 src_prepare() {
 	default
