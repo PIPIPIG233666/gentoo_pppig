@@ -5,6 +5,18 @@ EAPI=8
 
 inherit go-module
 
+# downloading go mods to vendor
+# GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
+
+# downloading node modules
+# npm install
+
+# uploading to gh rel
+# tar -zcvf node-modules.tar.gz frontend/node_modules
+# tar -zcvf go-vendor.tar.gz go-mod
+# gh release upload filebrowser-2.26.0 ~/filebrowser/node-modules.tar.gz
+# gh release upload filebrowser-2.26.0 ~/filebrowser/go-vendor.tar.gz
+
 MY_NODE_N="node_modules"
 MY_NODE_DIR="${S}/frontend/${MY_NODE_N}/"
 
@@ -26,7 +38,7 @@ BDEPEND=""
 src_prepare() {
 	default
 	# We will use pre-generated npm stuff.
-	mv "${WORKDIR}/${MY_NODE_N}" "${MY_NODE_DIR}" || die "couldn't move node_modules"
+	mv "${WORKDIR}/frontend/${MY_NODE_N}" "${MY_NODE_DIR}" || die "couldn't move node_modules"
 }
 
 src_configure() {
