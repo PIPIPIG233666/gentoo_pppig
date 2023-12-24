@@ -11,8 +11,8 @@ MY_NODE_DIR="${S}/frontend/${MY_NODE_N}/"
 DESCRIPTION="Web File Browser"
 HOMEPAGE="https://filebrowser.org/"
 SRC_URI="https://github.com/filebrowser/filebrowser/archive/v${PV}.tar.gz -> ${P}.tar.gz
-https://media.githubusercontent.com/media/PIPIPIG233666/gentoo_pppig/main/${PN}-dep-node-${PV}.tar.gz -> ${PN}-dep-node-${PV}.tar.gz
-https://github.com/PIPIPIG233666/gentoo_pppig/raw/main/${PN}-dep-go-${PV}.tar.gz -> ${PN}-dep-go-${PV}.tar.gz
+https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/go-vendor.tar.gz -> ${PN}-dep-go-${PV}.tar.gz
+https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/node-modules.tar.gz -> ${PN}-dep-node-${PV}.tar.gz
 "
 
 LICENSE="Apache 2.0"
