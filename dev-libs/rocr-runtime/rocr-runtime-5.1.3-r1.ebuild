@@ -1,11 +1,11 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit cmake flag-o-matic llvm
+inherit cmake llvm
 
-LLVM_MAX_SLOT=17
+LLVM_MAX_SLOT=15
 
 if [[ ${PV} == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/RadeonOpenCompute/ROCR-Runtime/"
@@ -20,41 +20,31 @@ fi
 DESCRIPTION="Radeon Open Compute Runtime"
 HOMEPAGE="https://github.com/RadeonOpenCompute/ROCR-Runtime"
 PATCHES=(
+	"${FILESDIR}/${PN}-5.0.1-cmake-install-paths.patch"
 	"${FILESDIR}/${PN}-4.3.0_no-aqlprofiler.patch"
 )
 
 LICENSE="MIT"
 SLOT="0/$(ver_cut 1-2)"
-IUSE="debug"
 
-COMMON_DEPEND="dev-libs/elfutils
-	x11-libs/libdrm"
+COMMON_DEPEND="dev-libs/elfutils"
+RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}
 	>=dev-libs/roct-thunk-interface-${PV}
 	>=dev-libs/rocm-device-libs-${PV}
 	sys-devel/clang
 	sys-devel/lld"
-RDEPEND="${DEPEND}"
 BDEPEND="app-editors/vim-core"
 	# vim-core is needed for "xxd"
 
+CMAKE_BUILD_TYPE=Release
+
 src_prepare() {
 	# ... otherwise system llvm/clang is used ...
-	sed -e "s:find_package(Clang REQUIRED HINTS \${CMAKE_INSTALL_PREFIX}/llvm \${CMAKE_PREFIX_PATH}/llvm PATHS /opt/rocm/llvm ):find_package(Clang REQUIRED HINTS /usr/lib/llvm/roc ):" -i image/blit_src/CMakeLists.txt || die
+	sed -e "/find_package(Clang REQUIRED HINTS /s:\${CMAKE_INSTALL_PREFIX}/llvm \${CMAKE_PREFIX_PATH}/llvm PATHS /opt/rocm/llvm:$(get_llvm_prefix ${LLVM_MAX_SLOT}):" -i image/blit_src/CMakeLists.txt || die
 
 	# Gentoo installs "*.bc" to "/usr/lib" instead of a "[path]/bitcode" directory ...
-	sed -e "s:-O2:--rocm-path=${EPREFIX}/usr/lib/ -O2:" -i image/blit_src/CMakeLists.txt || die
-
-	# internal version depends on git being present and random weird magic, otherwise fallback to incoherent default value
-	# fix default value to be more better
-
-	sed -i -e "s:1.7.0:${PV}:" CMakeLists.txt || die
+	sed -e "s:/opt/rocm/amdgcn/bitcode:${EPREFIX}/usr/lib/amdgcn/bitcode:" -i image/blit_src/CMakeLists.txt || die
 
 	cmake_src_prepare
-}
-
-src_configure() {
-	use debug || append-cxxflags "-DNDEBUG"
-	local mycmakeargs=( -DINCLUDE_PATH_COMPATIBILITY=OFF )
-	cmake_src_configure
 }
