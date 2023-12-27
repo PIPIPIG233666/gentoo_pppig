@@ -32,7 +32,6 @@ BDEPEND=""
 S="${WORKDIR}/rocm_smi_lib-rocm-${PV}"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-5.7.1-set-soversion.patch
 	"${FILESDIR}"/${PN}-5.7.1-no-strip.patch
 	"${FILESDIR}"/${PN}-5.7.1-remove-example.patch
 )
@@ -43,6 +42,8 @@ src_prepare() {
 
 	sed "s/\${PKG_VERSION_STR}/${PV}/g" \
 		-i CMakeLists.txt -i oam/CMakeLists.txt -i rocm_smi/CMakeLists.txt || die
+	sed -e "s,/opt,/usr,g" \
+		-i python_smi_tools/rsmiBindings.py.in || die
 }
 
 src_configure() {
