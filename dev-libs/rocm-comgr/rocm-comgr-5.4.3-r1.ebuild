@@ -5,7 +5,7 @@ EAPI=8
 
 inherit cmake llvm prefix
 
-LLVM_MAX_SLOT=17
+LLVM_MAX_SLOT=15
 
 if [[ ${PV} == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/RadeonOpenCompute/ROCm-CompilerSupport/"
@@ -21,16 +21,14 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 PATCHES=(
+	"${FILESDIR}/${PN}-5.1.3-clang-fix-include.patch"
 	"${FILESDIR}/${PN}-5.1.3-rocm-path.patch"
 	"${FILESDIR}/0001-Specify-clang-exe-path-in-Driver-Creation.patch"
 	"${FILESDIR}/0001-Find-CLANG_RESOURCE_DIR-using-clang-print-resource-d.patch"
-	"${FILESDIR}/${PN}-5.7.0-optional.patch"
-	"${FILESDIR}/${PN}-5.7.0-lld.patch"
-	"${FILESDIR}/${PN}-5.7.0-disassembly.patch"
-	"${FILESDIR}/${PN}-5.7.0-metadata.patch"
-	"${FILESDIR}/${PN}-5.7.0-symbolizer.patch"
-	"${FILESDIR}/${PN}-5.7.1-fix-tests.patch"
-	"${FILESDIR}/${PN}-5.7.1-correct-license-install-dir.patch"
+	"${FILESDIR}/${PN}-5.3.3-HIPIncludePath-not-needed.patch"
+	"${FILESDIR}/${PN}-5.3.3-fix-tests.patch"
+	"${FILESDIR}/${PN}-5.3.3-fno-stack-protector.patch"
+	"${FILESDIR}/${PN}-5.3.3-remove-h-option.patch"
 )
 
 DESCRIPTION="Radeon Open Compute Code Object Manager"
