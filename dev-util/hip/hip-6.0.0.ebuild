@@ -141,12 +141,12 @@ src_test() {
 src_install() {
 	cmake_src_install
 
-	rm "${ED}/usr/include/hip/hcc_detail" || die
-
 	# files already installed by hipcc, which is a build dep
 	rm "${ED}/usr/bin/hipconfig.pl" || die
 	rm "${ED}/usr/bin/hipcc.pl" || die
 	rm "${ED}/usr/bin/hipcc" || die
+	rm "${ED}/usr/bin/hipcc.bin" || die
 	rm "${ED}/usr/bin/hipconfig" || die
+	rm "${ED}/usr/bin/hipconfig.bin" || die
 	rm "${ED}/usr/bin/hipvars.pm" || die
 }
