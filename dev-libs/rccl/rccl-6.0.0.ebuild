@@ -30,7 +30,6 @@ RESTRICT="!test? ( test )"
 S="${WORKDIR}/rccl-rocm-${PV}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.7.1-remove-chrpath.patch"
 )
 
 src_prepare() {
