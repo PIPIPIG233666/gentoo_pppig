@@ -1,0 +1,16 @@
+BDEPEND=>=dev-util/rocm-cmake-5.3 dev-util/Tensile:0/6.0 dev-python/joblib test? ( dev-cpp/gtest ) app-alternatives/ninja >=dev-util/cmake-3.20.5 doc? ( app-doc/doxygen media-gfx/graphviz )
+DEFINED_PHASES=compile configure install prepare test
+DEPEND=>=dev-cpp/msgpack-cxx-6.0.0 dev-util/hip test? ( virtual/blas dev-cpp/gtest sys-libs/libomp ) benchmark? ( virtual/blas sys-libs/libomp )
+DESCRIPTION=AMD's library for BLAS on ROCm
+EAPI=8
+HOMEPAGE=https://github.com/ROCmSoftwarePlatform/rocBLAS
+INHERIT=cmake docs edo multiprocessing rocm
+IUSE=benchmark test doc +amdgpu_targets_gfx906 +amdgpu_targets_gfx908 +amdgpu_targets_gfx90a +amdgpu_targets_gfx942 +amdgpu_targets_gfx1030 +amdgpu_targets_gfx1100 +amdgpu_targets_gfx1101 +amdgpu_targets_gfx1102 amdgpu_targets_gfx803 amdgpu_targets_gfx900 amdgpu_targets_gfx1010 amdgpu_targets_gfx1011 amdgpu_targets_gfx1012 amdgpu_targets_gfx1031
+KEYWORDS=~amd64
+LICENSE=BSD
+REQUIRED_USE=|| ( amdgpu_targets_gfx906 amdgpu_targets_gfx908 amdgpu_targets_gfx90a amdgpu_targets_gfx942 amdgpu_targets_gfx1030 amdgpu_targets_gfx1100 amdgpu_targets_gfx1101 amdgpu_targets_gfx1102 amdgpu_targets_gfx803 amdgpu_targets_gfx900 amdgpu_targets_gfx1010 amdgpu_targets_gfx1011 amdgpu_targets_gfx1012 amdgpu_targets_gfx1031 )
+RESTRICT=test
+SLOT=0/6.0
+SRC_URI=https://github.com/ROCmSoftwarePlatform/rocBLAS/archive/rocm-6.0.0.tar.gz -> rocm-rocBLAS-6.0.0.tar.gz
+_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	78cf3cc2d5572fddf5e5e10c70f7c81a	multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	ninja-utils	c8951c1dfcc1d43e3f967f61fd0ec59c	xdg-utils	baea6080dd821f5562d715887954c9d3	cmake	0f2e0c197fad0312f3c4765c9cf36271	docs	74475974eae5130ba3e19b31b8ae46b8	edo	c0eb9cbe6b0bd01fcb4918f12598a4d3	rocm	a8ebeb25f94f6858679eb327db4ef943
+_md5_=e121c10295a538aef9f62085e8e2faa3
