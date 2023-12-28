@@ -1,4 +1,4 @@
-DEFINED_PHASES=install
+DEFINED_PHASES=configure
 DESCRIPTION=Half-precision floating-point library
 EAPI=7
 HOMEPAGE=http://half.sourceforge.net/
@@ -6,4 +6,4 @@ KEYWORDS=~amd64
 LICENSE=MIT
 SLOT=0/6
 SRC_URI=https://github.com/ROCm/half/archive/rocm-6.0.0.tar.gz -> half-6.0.0.tar.gz
-_md5_=e1f067305745feadc50166669718de9b
+_md5_=4581b5762e452891107788580deb4ecc

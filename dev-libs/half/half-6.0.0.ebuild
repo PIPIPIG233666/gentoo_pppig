@@ -13,7 +13,10 @@ LICENSE="MIT"
 KEYWORDS="~amd64"
 SLOT="0/$(ver_cut 1)"
 
-src_install() {
-	cd include/half || die
-	doheader half.hpp
+src_configure() {
+	local mycmakeargs=(
+		-DCMAKE_INSTALL_INCLUDEDIR="${EPREFIX}/usr"
+	)
+	cmake_src_configure
 }
+
