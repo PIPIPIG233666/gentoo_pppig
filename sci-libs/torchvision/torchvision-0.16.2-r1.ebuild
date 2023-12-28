@@ -47,15 +47,16 @@ PATCHES=(
 )
 
 src_compile() {
-	addpredict /dev/kfd
-	addpredict /dev/dri/
-
 	if use rocm; then
+		addpredict /dev/kfd
+		addpredict /dev/dri/
+
 		# echo $(get_amdgpu_flags) > "${T}/gpu.list" || die
 		# sed -e 's/;/\n/g' -i "${T}/gpu.list" || die
 		export FORCE_CUDA=1
 		# export ROCM_TARGET_LST="${T}/gpu.list"
 		export PYTORCH_ROCM_ARCH=$(get_amdgpu_flags)
 	fi
-	MAKEOPTS="-j1" distutils-r1_src_compile
+	distutils-r1_src_compile
+	#MAKEOPTS="-j1" distutils-r1_src_compile
 }
