@@ -63,7 +63,7 @@ src_configure() {
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
 		-DBUILD_TESTS=$(usex test ON OFF)
 		-DINSTANCES_ONLY=ON
-		-DDTYPES="fp16;fp32"
+		-DDTYPES="fp16;fp32;fp8;bf8"
 	)
 
 	if use test; then
