@@ -21,6 +21,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="dev-util/hip"
 DEPEND="${RDEPEND}
 dev-util/rocm-cmake
+>=sci-libs/rocRAND-6.0.0
 test? ( dev-cpp/gtest )"
 BDEPEND="dev-util/rocm-cmake
 >=dev-util/cmake-3.22"
