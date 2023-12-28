@@ -62,6 +62,7 @@ src_configure() {
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
 		-DBUILD_TESTS=$(usex test ON OFF)
+		-DINSTANCES_ONLY=ON
 	)
 
 	if use test; then
