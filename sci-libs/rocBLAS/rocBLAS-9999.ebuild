@@ -11,27 +11,33 @@ inherit cmake docs edo multiprocessing rocm
 
 DESCRIPTION="AMD's library for BLAS on ROCm"
 HOMEPAGE="https://github.com/ROCmSoftwarePlatform/rocBLAS"
-SRC_URI="https://github.com/ROCmSoftwarePlatform/rocBLAS/archive/rocm-${PV}.tar.gz -> rocm-${P}.tar.gz"
-S="${WORKDIR}/${PN}-rocm-${PV}"
+
+SRC_URI="https://media.githubusercontent.com/media/littlewu2508/littlewu2508.github.io/main/gentoo-distfiles/${PN}-5.5.0-Tensile-asm_full-navi22.tar.gz"
+if [[ ${PV} == *9999 ]] ; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/ROCmSoftwarePlatform/rocBLAS.git"
+	S="${WORKDIR}/${P}"
+else
+	S="${WORKDIR}/${PN}-rocm-${PV}"
+	SRC_URI+="
+	https://github.com/ROCmSoftwarePlatform/rocBLAS/archive/rocm-${PV}.tar.gz -> rocm-${P}.tar.gz"
+	KEYWORDS="~amd64"
+fi
 
 LICENSE="BSD"
-KEYWORDS="~amd64"
 SLOT="0/$(ver_cut 1-2)"
 IUSE="benchmark test"
 REQUIRED_USE="${ROCM_REQUIRED_USE}"
-
-RESTRICT="test" # Tests fail
+RESTRICT="!test? ( test )"
 
 BDEPEND="
 	>=dev-util/rocm-cmake-5.3
 	dev-util/Tensile:${SLOT}
-	dev-python/joblib
-	test? ( dev-cpp/gtest )
 "
 
 DEPEND="
-	>=dev-cpp/msgpack-cxx-6.0.0
 	dev-util/hip
+	dev-cpp/msgpack-cxx
 	test? (
 		virtual/blas
 		dev-cpp/gtest
@@ -47,14 +53,26 @@ QA_FLAGS_IGNORED="/usr/lib64/rocblas/library/.*"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.4.2-cpp_lib_filesystem.patch
+	"${FILESDIR}"/${PN}-5.4.2-unbundle-Tensile.patch
 	"${FILESDIR}"/${PN}-5.4.2-add-missing-header.patch
 	"${FILESDIR}"/${PN}-5.4.2-link-cblas.patch
-	"${FILESDIR}"/${PN}-5.7.1-expand-isa-compatibility.patch
 	)
+
+src_unpack() {
+	if [[ ${PV} == *9999 ]]; then
+		unpack ${PN}-5.5.0-Tensile-asm_full-navi22.tar.gz
+		git-r3_src_unpack
+	else
+		default
+	fi
+}
 
 src_prepare() {
 	cmake_src_prepare
+	cp -a "${WORKDIR}/asm_full/" library/src/blas3/Tensile/Logic/ || die
 	sed -e "s:,-rpath=.*\":\":" -i clients/CMakeLists.txt || die
+	# do not install test binary and data
+	sed '/rocm_install(/ {:r;/)/!{N;br}; s,.*,,}' -i clients/gtest/CMakeLists.txt || die
 }
 
 src_configure() {
@@ -70,16 +88,14 @@ src_configure() {
 		-DTensile_LOGIC="asm_full"
 		-DTensile_COMPILER="hipcc"
 		-DTensile_LIBRARY_FORMAT="msgpack"
-		-DTensile_CODE_OBJECT_VERSION="default"
+		-DTensile_TEST_LOCAL_PATH="${EPREFIX}/usr/share/Tensile"
 		-DTensile_ROOT="${EPREFIX}/usr/share/Tensile"
 		-DBUILD_WITH_TENSILE=ON
 		-DCMAKE_INSTALL_INCLUDEDIR="include/rocblas"
 		-DBUILD_CLIENTS_SAMPLES=OFF
 		-DBUILD_CLIENTS_TESTS=$(usex test ON OFF)
-		-DTensile_TEST_LOCAL_PATH="${EPREFIX}/usr/share/Tensile"
 		-DBUILD_CLIENTS_BENCHMARKS=$(usex benchmark ON OFF)
 		-DTensile_CPU_THREADS=$(makeopts_jobs)
-		-DBUILD_WITH_PIP=OFF
 	)
 
 	CXX=hipcc cmake_src_configure

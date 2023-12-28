@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -18,7 +18,7 @@ SLOT="0/$(ver_cut 1-2)"
 
 RESTRICT="test"
 
-RDEPEND="dev-util/hip
+RDEPEND="dev-util/hip:${SLOT}
 	sci-libs/rocFFT:${SLOT}[${ROCM_USEDEP}]"
 DEPEND="${RDEPEND}"
 BDEPEND=""
@@ -28,20 +28,24 @@ S="${WORKDIR}/hipFFT-rocm-${PV}"
 PATCHES=(
 	"${FILESDIR}/${PN}-5.0.2-remove-git-dependency.patch"
 	"${FILESDIR}/${PN}-4.3.0-add-complex-header.patch"
-	"${FILESDIR}/${PN}-5.7.1_hip-config.patch"
+	"${FILESDIR}/${PN}-5.5.0-fix-include.patch"
 )
+
+src_prepare() {
+	sed -e "/CMAKE_INSTALL_LIBDIR/d" -i CMakeLists.txt || die
+	cmake_src_prepare
+}
 
 src_configure() {
 	local mycmakeargs=(
-		-DHIP_ROOT_DIR="${EPREFIX}/usr"
-		-DCMAKE_INSTALL_INCLUDEDIR="include/hipfft"
-		-DCMAKE_MODULE_PATH="${EPREFIX}"/usr/$(get_libdir)/cmake/hip
-		-DHIP_ROOT_DIR="${EPREFIX}/usr"
+		-DBUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
 		-DROCM_SYMLINK_LIBS=OFF
+		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
+		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr"
+		-DHIP_ROOT_DIR="${EPREFIX}/usr"
 		-DBUILD_CLIENTS_TESTS=OFF
 		-DBUILD_CLIENTS_RIDER=OFF
-		-DBUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
 	)
 
-	CXX=hipcc cmake_src_configure
+	ROCM_PATH="${EPREFIX}/usr" CXX=hipcc cmake_src_configure
 }

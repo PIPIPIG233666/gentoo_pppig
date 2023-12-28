@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..12} )
+PYTHON_COMPAT=( python3_{10..12} )
 ROCM_VERSION=${PV}
 
 inherit cmake edo python-any-r1 toolchain-funcs rocm
@@ -61,6 +61,9 @@ RESTRICT="!test? ( test )"
 S="${WORKDIR}/rocSPARSE-rocm-${PV}"
 
 PATCHES=(
+	"${FILESDIR}/${PN}-5.5.0-fix-include.patch"
+	"${FILESDIR}/${PN}-5.5.0-fma-ambiguities.patch"
+	"${FILESDIR}/${PN}-5.5.0-gcc-13-cstdint-cstddef.patch"
 )
 
 python_check_deps() {
@@ -70,17 +73,11 @@ python_check_deps() {
 }
 
 src_prepare() {
-	sed -e "s/PREFIX rocsparse//" \
-		-e "/<INSTALL_INTERFACE/s,include,include/rocsparse," \
-		-e "/rocm_install_symlink_subdir(rocsparse)/d" \
-		-e "s:rocsparse/include:include/rocsparse:" \
+	sed -e "/rocm_install_symlink_subdir(rocsparse)/d" \
 		-i "${S}/library/CMakeLists.txt" || die
 
 	# remove GIT dependency
 	sed -e "/find_package(Git/d" -i cmake/Dependencies.cmake || die
-
-	# Fix install path
-	sed -i -e "s.set(CMAKE_INSTALL_LIBDIR.#set(CMAKE_INSTALL_LIBDIR." CMakeLists.txt || die
 
 	# use python interpreter specifyied by python-any-r1
 	sed -e "/COMMAND ..\/common\/rocsparse_gentest.py/s,COMMAND ,COMMAND ${EPYTHON} ," -i clients/tests/CMakeLists.txt || die
@@ -111,8 +108,6 @@ src_configure() {
 		-DCMAKE_SKIP_RPATH=On
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-DBUILD_CLIENTS_SAMPLES=OFF
-		-DBUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
-		-DCMAKE_INSTALL_INCLUDEDIR="include/rocsparse"
 		-DBUILD_CLIENTS_TESTS=$(usex test ON OFF)
 		-DBUILD_CLIENTS_BENCHMARKS=$(usex benchmark ON OFF)
 	)
@@ -128,9 +123,6 @@ src_test() {
 
 src_install() {
 	cmake_src_install
-
-	# rm unwanted copy
-	rm -rf "${ED}/usr/rocsparse" || die
 
 	if use benchmark; then
 		cd "${BUILD_DIR}" || die

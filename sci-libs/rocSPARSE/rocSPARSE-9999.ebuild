@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..12} )
+PYTHON_COMPAT=( python3_{10..12} )
 ROCM_VERSION=${PV}
 
 inherit cmake edo python-any-r1 toolchain-funcs rocm
@@ -11,8 +11,7 @@ inherit cmake edo python-any-r1 toolchain-funcs rocm
 DESCRIPTION="Basic Linear Algebra Subroutines for sparse computation"
 HOMEPAGE="https://github.com/ROCmSoftwarePlatform/rocSPARSE"
 
-SRC_URI="https://github.com/ROCmSoftwarePlatform/rocSPARSE/archive/rocm-${PV}.tar.gz -> rocSPARSE-${PV}.tar.gz
-test? (
+SRC_URI="test? (
 https://sparse.tamu.edu/MM/SNAP/amazon0312.tar.gz -> ${PN}_amazon0312.tar.gz
 https://sparse.tamu.edu/MM/Muite/Chebyshev4.tar.gz -> ${PN}_Chebyshev4.tar.gz
 https://sparse.tamu.edu/MM/FEMLAB/sme3Dc.tar.gz -> ${PN}_sme3Dc.tar.gz
@@ -39,8 +38,18 @@ https://sparse.tamu.edu/MM/Chevron/Chevron3.tar.gz -> ${PN}_Chevron3.tar.gz
 https://sparse.tamu.edu/MM/Chevron/Chevron4.tar.gz -> ${PN}_Chevron4.tar.gz
 )"
 
+if [[ ${PV} == *9999 ]] ; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/ROCmSoftwarePlatform/rocSPARSE.git"
+	S="${WORKDIR}/${P}"
+else
+	S="${WORKDIR}/${PN}-rocm-${PV}"
+	SRC_URI+="
+	https://github.com/ROCmSoftwarePlatform/rocSPARSE/archive/rocm-${PV}.tar.gz -> rocSPARSE-${PV}.tar.gz"
+	KEYWORDS="~amd64"
+fi
+
 LICENSE="MIT"
-KEYWORDS="~amd64"
 IUSE="benchmark test"
 REQUIRED_USE="${ROCM_REQUIRED_USE}"
 SLOT="0/$(ver_cut 1-2)"
@@ -53,15 +62,11 @@ BDEPEND="test? (
 	>=dev-util/cmake-3.22
 	$(python_gen_any_dep 'dev-python/pyyaml[${PYTHON_USEDEP}]')
 )
-benchmark? ( app-admin/chrpath )
 "
 
 RESTRICT="!test? ( test )"
 
-S="${WORKDIR}/rocSPARSE-rocm-${PV}"
-
-PATCHES=(
-)
+PATCHES=( "${FILESDIR}"/rocSPARSE-9999-fix-compile.patch )
 
 python_check_deps() {
 	if use test; then
@@ -69,21 +74,22 @@ python_check_deps() {
 	fi
 }
 
+src_unpack() {
+	if [[ ${PV} == *9999 ]]; then
+		if [[ -n ${A} ]]; then
+			unpack ${A}
+		fi
+		git-r3_src_unpack
+	else
+		default
+	fi
+}
+
 src_prepare() {
-	sed -e "s/PREFIX rocsparse//" \
-		-e "/<INSTALL_INTERFACE/s,include,include/rocsparse," \
-		-e "/rocm_install_symlink_subdir(rocsparse)/d" \
-		-e "s:rocsparse/include:include/rocsparse:" \
-		-i "${S}/library/CMakeLists.txt" || die
-
-	# remove GIT dependency
-	sed -e "/find_package(Git/d" -i cmake/Dependencies.cmake || die
-
-	# Fix install path
-	sed -i -e "s.set(CMAKE_INSTALL_LIBDIR.#set(CMAKE_INSTALL_LIBDIR." CMakeLists.txt || die
-
 	# use python interpreter specifyied by python-any-r1
-	sed -e "/COMMAND ..\/common\/rocsparse_gentest.py/s,COMMAND ,COMMAND ${EPYTHON} ," -i clients/tests/CMakeLists.txt || die
+	sed -e "/set(python /s,\"python3\",\"${EPYTHON}\"," -i toolchain-linux.cmake || die
+	# do not install test binary and data
+	sed '/rocm_install(/ {:r;/)/!{N;br}; s,.*,,}' -i clients/tests/CMakeLists.txt clients/CMakeLists.txt || die
 
 	cmake_src_prepare
 
@@ -92,8 +98,8 @@ src_prepare() {
 	if use test; then
 		mkdir -p "${BUILD_DIR}"/clients/matrices
 		# compile and use the mtx2csr converter. Do not use any optimization flags, because it causes error!
-		edo $(tc-getCXX) deps/convert.cpp -o deps/convert
-		find "${WORKDIR}" -maxdepth 2 -regextype grep -E -regex ".*/(.*)/\1\.mtx" -print0 |
+		edo $(tc-getCXX) -O2 deps/convert.cpp -o deps/convert
+		find "${WORKDIR}" -maxdepth 2 -regextype egrep -regex ".*/(.*)/\1\.mtx" -print0 |
 			while IFS= read -r -d '' mtxfile; do
 				destination=${BUILD_DIR}/clients/matrices/$(basename -s '.mtx' ${mtxfile}).csr
 				ebegin "Converting ${mtxfile} to ${destination}"
@@ -109,11 +115,12 @@ src_configure() {
 
 	local mycmakeargs=(
 		-DCMAKE_SKIP_RPATH=On
+		-DBUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
+		-DROCM_SYMLINK_LIBS=OFF
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-DBUILD_CLIENTS_SAMPLES=OFF
-		-DBUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
-		-DCMAKE_INSTALL_INCLUDEDIR="include/rocsparse"
 		-DBUILD_CLIENTS_TESTS=$(usex test ON OFF)
+		-DCMAKE_MATRICES_DIR="${BUILD_DIR}/clients/matrices"
 		-DBUILD_CLIENTS_BENCHMARKS=$(usex benchmark ON OFF)
 	)
 
@@ -124,16 +131,4 @@ src_test() {
 	check_amdgpu
 	cd "${BUILD_DIR}/clients/staging" || die
 	LD_LIBRARY_PATH="${BUILD_DIR}/library" edob ./${PN,,}-test
-}
-
-src_install() {
-	cmake_src_install
-
-	# rm unwanted copy
-	rm -rf "${ED}/usr/rocsparse" || die
-
-	if use benchmark; then
-		cd "${BUILD_DIR}" || die
-		dobin clients/staging/rocsparse-bench
-	fi
 }

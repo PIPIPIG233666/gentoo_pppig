@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -26,8 +26,6 @@ DEPEND="${RDEPEND}"
 S="${WORKDIR}/rocPRIM-rocm-${PV}"
 
 RESTRICT="!test? ( test )"
-
-PATCHES=( "${FILESDIR}"/${PN}-5.7.1-expand-isa-compatibility.patch )
 
 src_prepare() {
 	# "hcc" is depcreated, new platform ist "rocclr"
@@ -61,12 +59,10 @@ src_configure() {
 	addpredict /dev/dri/
 
 	local mycmakeargs=(
-		-DCMAKE_SKIP_RPATH=ON
+		-DSKIP_RPATH=On
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-DBUILD_TEST=$(usex test ON OFF)
 		-DBUILD_BENCHMARK=$(usex benchmark ON OFF)
-		-DBUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
-		-DROCM_SYMLINK_LIBS=OFF
 	)
 
 	CXX=hipcc cmake_src_configure
@@ -74,6 +70,5 @@ src_configure() {
 
 src_test() {
 	check_amdgpu
-	# uses HMM to fit tests to default <512M iGPU VRAM
-	MAKEOPTS="-j1" ROCPRIM_USE_HMM="1" cmake_src_test
+	MAKEOPTS="-j1" cmake_src_test
 }

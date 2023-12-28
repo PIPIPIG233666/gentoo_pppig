@@ -9,10 +9,17 @@ inherit cmake edo rocm
 
 DESCRIPTION="Implementation of a subset of LAPACK functionality on the ROCm platform"
 HOMEPAGE="https://github.com/ROCmSoftwarePlatform/rocSOLVER"
-SRC_URI="https://github.com/ROCmSoftwarePlatform/rocSOLVER/archive/rocm-${PV}.tar.gz -> rocSOLVER-${PV}.tar.gz"
+if [[ ${PV} == *9999 ]] ; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/ROCmSoftwarePlatform/rocSOLVER.git"
+	S="${WORKDIR}/${P}"
+else
+	SRC_URI="https://github.com/ROCmSoftwarePlatform/rocSOLVER/archive/rocm-${PV}.tar.gz -> rocSOLVER-${PV}.tar.gz"
+	S="${WORKDIR}/${PN}-rocm-${PV}"
+	KEYWORDS="~amd64"
+fi
 
 LICENSE="BSD"
-KEYWORDS="~amd64"
 SLOT="0/$(ver_cut 1-2)"
 
 IUSE="test benchmark"
@@ -20,8 +27,7 @@ REQUIRED_USE="${ROCM_REQUIRED_USE}"
 
 RDEPEND="dev-util/hip
 	sci-libs/rocBLAS:${SLOT}[${ROCM_USEDEP}]
-	sci-libs/rocSPARSE:${SLOT}[${ROCM_USEDEP}]
-	dev-libs/libfmt
+	=dev-libs/libfmt-8*
 	benchmark? ( virtual/blas )"
 DEPEND="${RDEPEND}"
 BDEPEND="test? ( dev-cpp/gtest
@@ -30,7 +36,12 @@ BDEPEND="test? ( dev-cpp/gtest
 
 RESTRICT="!test? ( test )"
 
-S=${WORKDIR}/${PN}-rocm-${PV}
+src_prepare() {
+	# do not install test binary
+	sed '/rocm_install(/ {:r;/)/!{N;br}; s,.*,,}' -i clients/gtest/CMakeLists.txt || die
+
+	cmake_src_prepare
+}
 
 src_configure() {
 	# avoid sandbox violation
@@ -38,11 +49,10 @@ src_configure() {
 	addpredict /dev/dri/
 
 	local mycmakeargs=(
-		-DCMAKE_SKIP_RPATH=On
-		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
-		-Wno-dev
 		-DBUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
 		-DROCM_SYMLINK_LIBS=OFF
+		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
+		-Wno-dev
 		-DBUILD_CLIENTS_SAMPLES=NO
 		-DBUILD_CLIENTS_TESTS=$(usex test ON OFF)
 		-DBUILD_CLIENTS_BENCHMARKS=$(usex benchmark ON OFF)
@@ -54,14 +64,5 @@ src_configure() {
 src_test() {
 	check_amdgpu
 	cd "${BUILD_DIR}"/clients/staging || die
-	LD_LIBRARY_PATH="${BUILD_DIR}/library/src" edob ./rocsolver-test
-}
-
-src_install() {
-	cmake_src_install
-
-	if use benchmark; then
-		cd "${BUILD_DIR}" || die
-		dobin clients/staging/rocsolver-bench
-	fi
+	edob ./rocsolver-test
 }

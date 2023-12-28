@@ -19,14 +19,12 @@ KEYWORDS="~amd64"
 SLOT="0/$(ver_cut 1-2)"
 IUSE="benchmark test"
 REQUIRED_USE="${ROCM_REQUIRED_USE}"
-
-RESTRICT="test" # Tests fail
+RESTRICT="!test? ( test )"
 
 BDEPEND="
-	>=dev-util/rocm-cmake-5.3
+	>=dev-util/rocm-cmake-5.5
 	dev-util/Tensile:${SLOT}
 	dev-python/joblib
-	test? ( dev-cpp/gtest )
 "
 
 DEPEND="
@@ -46,10 +44,10 @@ DEPEND="
 QA_FLAGS_IGNORED="/usr/lib64/rocblas/library/.*"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-5.4.2-cpp_lib_filesystem.patch
+	# "${FILESDIR}"/${PN}-5.4.2-cpp_lib_filesystem.patch
+	"${FILESDIR}"/${PN}-5.7.1-unbundle-Tensile.patch
 	"${FILESDIR}"/${PN}-5.4.2-add-missing-header.patch
 	"${FILESDIR}"/${PN}-5.4.2-link-cblas.patch
-	"${FILESDIR}"/${PN}-5.7.1-expand-isa-compatibility.patch
 	)
 
 src_prepare() {
@@ -70,16 +68,15 @@ src_configure() {
 		-DTensile_LOGIC="asm_full"
 		-DTensile_COMPILER="hipcc"
 		-DTensile_LIBRARY_FORMAT="msgpack"
-		-DTensile_CODE_OBJECT_VERSION="default"
+		-DTensile_CODE_OBJECT_VERSION="V4"
+		-DTensile_TEST_LOCAL_PATH="${EPREFIX}/usr/share/Tensile"
 		-DTensile_ROOT="${EPREFIX}/usr/share/Tensile"
 		-DBUILD_WITH_TENSILE=ON
 		-DCMAKE_INSTALL_INCLUDEDIR="include/rocblas"
 		-DBUILD_CLIENTS_SAMPLES=OFF
 		-DBUILD_CLIENTS_TESTS=$(usex test ON OFF)
-		-DTensile_TEST_LOCAL_PATH="${EPREFIX}/usr/share/Tensile"
 		-DBUILD_CLIENTS_BENCHMARKS=$(usex benchmark ON OFF)
 		-DTensile_CPU_THREADS=$(makeopts_jobs)
-		-DBUILD_WITH_PIP=OFF
 	)
 
 	CXX=hipcc cmake_src_configure
