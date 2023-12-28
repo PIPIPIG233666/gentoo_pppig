@@ -115,15 +115,15 @@
    append_cxx_flag_if_supported("-Werror=non-virtual-dtor" CMAKE_CXX_FLAGS)
    append_cxx_flag_if_supported("-Werror=braced-scalar-init" CMAKE_CXX_FLAGS)
    append_cxx_flag_if_supported("-Werror=range-loop-construct" CMAKE_CXX_FLAGS)
-@@ -912,8 +911,6 @@
+@@ -916,8 +916,6 @@
    string(APPEND CMAKE_LINKER_FLAGS_DEBUG " -fno-omit-frame-pointer -O0")
    append_cxx_flag_if_supported("-fno-math-errno" CMAKE_CXX_FLAGS)
    append_cxx_flag_if_supported("-fno-trapping-math" CMAKE_CXX_FLAGS)
 -  append_cxx_flag_if_supported("-Werror=format" CMAKE_CXX_FLAGS)
 -  append_cxx_flag_if_supported("-Werror=cast-function-type" CMAKE_CXX_FLAGS)
- endif()
- 
- if(USE_ASAN)
+ else()
+   # skip unwanted includes from windows.h
+   add_compile_definitions(WIN32_LEAN_AND_MEAN)
 --- a/cmake/public/utils.cmake
 +++ b/cmake/public/utils.cmake
 @@ -507,8 +507,6 @@
@@ -157,22 +157,6 @@
    if(NOT TARGET fxdiv)
      set(FXDIV_BUILD_TESTS OFF CACHE BOOL "")
      set(FXDIV_BUILD_BENCHMARKS OFF CACHE BOOL "")
-@@ -533,7 +533,6 @@
- if(NOT MSVC)
-   set_source_files_properties(${TORCH_SRC_DIR}/csrc/jit/tensorexpr/llvm_jit.cpp PROPERTIES COMPILE_FLAGS -Wno-noexcept-type)
-   # Force -Werror on several files
--  set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/../aten/src/ATen/native/mkldnn/Pooling.cpp PROPERTIES COMPILE_FLAGS "-Werror")
- endif()
- # Disable certain warnings for GCC-9.X
- if(CMAKE_COMPILER_IS_GNUCXX AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 9.0.0))
-@@ -811,7 +812,6 @@
- torch_compile_options(torch_cpu)  # see cmake/public/utils.cmake
- if(HAS_WERROR_SIGN_COMPARE AND WERROR)
-   # target_compile_options(torch_cpu PRIVATE "-Werror=sign-compare")
--  set_property(SOURCE ${ATen_CORE_SRCS} ${ATen_CPU_SRCS} APPEND PROPERTY COMPILE_OPTIONS "-Werror=sign-compare")
- endif()
- 
- set_property(SOURCE ${ATen_CORE_SRCS} APPEND
 @@ -975,7 +977,6 @@
  endif()
  
