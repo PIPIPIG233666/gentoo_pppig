@@ -26,8 +26,6 @@ BDEPEND=""
 S="${WORKDIR}/hipFFT-rocm-${PV}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.0.2-remove-git-dependency.patch"
-	"${FILESDIR}/${PN}-4.3.0-add-complex-header.patch"
 	"${FILESDIR}/${PN}-5.5.0-fix-include.patch"
 )
 
