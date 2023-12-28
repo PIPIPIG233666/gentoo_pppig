@@ -37,7 +37,7 @@ RDEPEND="
 
 DEPEND="${RDEPEND}"
 
-BDEPEND="dev-libs/half:0/1
+BDEPEND=">=dev-libs/half-6.0.0
 	dev-util/rocm-cmake
 "
 
