@@ -28,7 +28,6 @@ RDEPEND="
 	=dev-libs/rccl-${ROCMVER}*
 
 	opencl? ( =dev-libs/rocm-opencl-runtime-${ROCMVER}* )
-	opencl? ( =dev-util/rocm-clang-ocl-${ROCMVER}* )
 
 	hip? ( =dev-util/hip-${ROCMVER}* )
 
