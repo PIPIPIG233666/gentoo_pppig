@@ -54,7 +54,6 @@ RDEPEND="
 	science? ( =sci-libs/rocSOLVER-${ROCMVER}* )
 
 	tensorflow? ( =sci-libs/miopen-${ROCMVER}* )
-	tensorflow? ( =sci-libs/miopengemm-${ROCMVER}* )
 	tensorflow? ( =dev-libs/rccl-${ROCMVER}* )
 
 	!dev-libs/rocm-sci-lib
