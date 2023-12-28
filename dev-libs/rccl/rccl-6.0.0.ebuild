@@ -71,9 +71,3 @@ src_test() {
 	LD_LIBRARY_PATH="${BUILD_DIR}" edob test/rccl-UnitTests
 }
 
-src_install() {
-	cmake_src_install
-
-	# remove extra copy of headers
-	rm -r "${ED}"/usr/rccl || die
-}
