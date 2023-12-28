@@ -115,7 +115,7 @@ src_install() {
 
 	pushd ${PN} || die
 	insinto /usr/share/${PN}
-	doins -r Configs Perf ReplacementKernels-cov3 Source CustomKernels
+	doins -r Configs Perf Source
 	insinto /usr/$(get_libdir)/cmake/${PN}
 	doins cmake/*.cmake
 
