@@ -43,7 +43,6 @@ BDEPEND="dev-libs/half:0/1
 S="${WORKDIR}/composable_kernel-rocm-${PV}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.7.1-enable-test-examples.patch"
 )
 
 src_configure() {
