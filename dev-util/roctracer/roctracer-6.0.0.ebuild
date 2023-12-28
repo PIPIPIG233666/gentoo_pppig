@@ -21,7 +21,9 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND=">=dev-libs/rocr-runtime-5.5.0
-	>=dev-util/hip-5.5.0"
+	>=dev-util/hip-5.5.0
+	dev-util/Tensile:${SLOT}[${ROCM_USEDEP}]
+"
 DEPEND="${RDEPEND}"
 BDEPEND="
 	$(python_gen_any_dep '
@@ -45,7 +47,7 @@ src_prepare() {
 src_configure() {
 	export ROCM_PATH="$(hipconfig -p)"
 	local mycmakeargs=(
-		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/lib64/cmake/hip"
+		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/lib64/cmake/hip:${EPREFIX}/usr/share/Tensile/Source/"
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-DFILE_REORG_BACKWARD_COMPATIBILITY=OFF
 		-DHIP_CLANG_PATH="$(hipconfig -l)"
