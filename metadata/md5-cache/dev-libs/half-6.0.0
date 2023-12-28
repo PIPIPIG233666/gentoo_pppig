@@ -6,4 +6,4 @@ KEYWORDS=~amd64
 LICENSE=MIT
 SLOT=0/6
 SRC_URI=https://github.com/ROCm/half/archive/rocm-6.0.0.tar.gz -> half-6.0.0.tar.gz
-_md5_=490753d9098f013857eef4528ae71c5f
+_md5_=e1f067305745feadc50166669718de9b
