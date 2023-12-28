@@ -37,9 +37,9 @@ PATCHES=(
 src_prepare() {
 	cmake_src_prepare
 
-	# Disable lld parallel linking, bump clang parallel jobs to 24
+	# Disable lld parallel linking - not supported
+	# https://github.com/ROCm/rccl/pull/199/files#r417539612
 	sed '/parallel-jobs=16/d' -i CMakeLists.txt
-	sed -e 's/parallel-jobs=12/parallel-jobs=24/g' -i CMakeLists.txt
 
 	# https://github.com/ROCmSoftwarePlatform/rccl/pull/860 - bad escape
 	sed -i 's/\\%/%/' src/include/msccl/msccl_struct.h || die
