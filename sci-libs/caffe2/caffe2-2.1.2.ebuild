@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-ROCM_VERSION=5.6.0
+ROCM_VERSION=6.0.0
 PYTHON_COMPAT=( python3_{10..12} )
 inherit python-single-r1 cmake cuda flag-o-matic prefix rocm
 
@@ -132,20 +132,32 @@ src_prepare() {
 		CMakeLists.txt
 
 
-	sed -e "s,\${ROCM_PATH}/lib,\${ROCM_PATH}/$(get_libdir),g" -i cmake/public/LoadHIP.cmake || die
 
 	if use rocm; then
+		# ebegin "HIPifying cuda sources"
+		# ${EPYTHON} tools/amd_build/build_amd.py || die
+		# eend $?
+		# for rocm_lib in rocblas hipfft hipsparse; do
+			# sed -e "/#include <${rocm_lib}.h>/s,${rocm_lib}.h,${rocm_lib}/${rocm_lib}.h," \
+				# -i $(grep -rl "#include <${rocm_lib}.h>" .) || die
+#
+		# done
+#
+		# sed -e "/#include <hipfftXt.h>/s,hipfftXt.h,hipfft/hipfftXt.h," \
+			# -i $(grep -rl "#include <hipfftXt.h>" .) || die
+		local HIP_VERSION="$(hipconfig -v)"
+		local HIP_VERSION="${HIP_VERSION/-}"
+		sed -e "/rocm_version = /s:(0, 0, 0):(${HIP_VERSION//./, }):" -i torch/utils/hipify/cuda_to_hip_mappings.py || die
+		sed -e "/set(roctracer_INCLUDE_DIRS/s,\${ROCTRACER_PATH}/include,${EPREFIX}/usr/include/roctracer," \
+			-e "/PYTORCH_HIP_HCC_LIBRARIES/s,\${HIP_PATH}/lib,${EPREFIX}/usr/$(get_libdir)," \
+			-e "/set(roctracer_INCLUDE_DIRS/a\  set(thrust_INCLUDE_DIRS ${EPREFIX}/usr/include/rocthrust)" \
+			-e "s,\${ROCTRACER_PATH}/lib,${EPREFIX}/usr/lib64/roctracer," \
+			-e "/READ.*\.info\/version-dev/c\  set(ROCM_VERSION_DEV_RAW ${HIP_VERSION})" \
+			-i cmake/public/LoadHIP.cmake || die
+			# sed -r -e '/^if\(USE_ROCM/{:a;N;/\nendif/!ba; s,\{([^\{]*)_PATH\}(/include)?,\{\L\1_\UINCLUDE_DIRS\},g}' -i cmake/Dependencies.cmake || die
 		ebegin "HIPifying cuda sources"
 		${EPYTHON} tools/amd_build/build_amd.py || die
 		eend $?
-		for rocm_lib in rocblas hipfft hipsparse; do
-			sed -e "/#include <${rocm_lib}.h>/s,${rocm_lib}.h,${rocm_lib}/${rocm_lib}.h," \
-				-i $(grep -rl "#include <${rocm_lib}.h>" .) || die
-
-		done
-
-		sed -e "/#include <hipfftXt.h>/s,hipfftXt.h,hipfft/hipfftXt.h," \
-			-i $(grep -rl "#include <hipfftXt.h>" .) || die
 	fi
 }
 
@@ -227,17 +239,36 @@ src_configure() {
 		)
 	fi
 
-
 	if use rocm; then
-		export HIP_PATH="${EPREFIX}/usr"
-		export HIP_CLANG_PATH="/usr/lib/llvm/16/bin"
+		export HIPCUB_PATH="${EPREFIX}"/usr
+		export HIPFFT_PATH="${EPREFIX}"/usr
+		export HIPRAND_PATH="${EPREFIX}"/usr
+		export HIPSPARSE_PATH="${EPREFIX}"/usr
+		export HIP_CLANG_PATH="${EPREFIX}/usr/$(get_libdir)/llvm/17/bin"
+		export HIP_PATH="${EPREFIX}"/usr
+		export HSA_PATH="${EPREFIX}"/usr
+		export MIOPEN_PATH="${EPREFIX}"/usr
+		export PYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
+		export RCCL_PATH="${EPREFIX}"/usr
+		export ROCBLAS_PATH="${EPREFIX}"/usr
+		export ROCFFT_PATH="${EPREFIX}"/usr
+		export ROCM_PATH="${EPREFIX}"/usr
+		export ROCPRIM_PATH="${EPREFIX}"/usr
+		export ROCRAND_PATH="${EPREFIX}"/usr
+		export ROCSPARSE_PATH="${EPREFIX}"/usr
+		export ROCTHRUST_PATH="${EPREFIX}"/usr
+		export ROCTRACER_PATH="${EPREFIX}"/usr
+		export THRUST_PATH="${EPREFIX}"/usr
 		mycmakeargs+=(
-			-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
 			-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
 			-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
 		)
 	fi
 
+	if use rocm; then
+		addpredict /dev/kfd
+		addpredict /dev/dri/
+	fi
 	cmake_src_configure
 }
 
