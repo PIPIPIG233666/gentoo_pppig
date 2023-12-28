@@ -24,6 +24,7 @@ DEPEND="${RDEPEND}
 BDEPEND="
 	>=dev-util/cmake-3.22
 	>=dev-util/rocm-cmake-5.0.2-r1
+	>=dev-util/hipify-clang-6.0.0
 	test? ( dev-cpp/gtest )"
 
 RESTRICT="!test? ( test )"
@@ -36,8 +37,9 @@ PATCHES=(
 src_prepare() {
 	cmake_src_prepare
 
-	# https://reviews.llvm.org/D69582 - clang does not support parallel jobs
-	sed -i 's/-parallel-jobs=[0-9][0-9]//g' CMakeLists.txt || die
+	# Disable lld parallel linking, bump clang parallel jobs to 24
+	sed '/parallel-jobs=16/d' -i CMakeLists.txt
+	sed -e 's/parallel-jobs=12/parallel-jobs=24/g' -i CMakeLists.txt
 
 	# https://github.com/ROCmSoftwarePlatform/rccl/pull/860 - bad escape
 	sed -i 's/\\%/%/' src/include/msccl/msccl_struct.h || die
