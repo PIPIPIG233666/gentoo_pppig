@@ -50,7 +50,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-4.3.0-enable-test.patch"
 	"${FILESDIR}/${PN}-5.1.3-no-strip.patch"
 	"${FILESDIR}/${PN}-5.1.3-include-array.patch"
-	"${FILESDIR}/${PN}-5.7.1-fix-miopendriver-gemm.patch"
 )
 
 src_prepare() {
