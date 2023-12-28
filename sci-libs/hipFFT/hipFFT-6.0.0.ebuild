@@ -32,7 +32,7 @@ PATCHES=(
 
 src_prepare() {
 	sed -e "/CMAKE_INSTALL_LIBDIR/d" -i CMakeLists.txt || die
-	sed -e "s,../../../clients/rocFFT/shared,../../../clients/rocFFT-rocm-6.0.0/shared,g" -i library/src/amd_detail/hipfft.cpp || die
+	sed -e "s,../../../clients/rocFFT/shared,../../../../clients/rocFFT-rocm-6.0.0/shared,g" -i library/src/amd_detail/hipfft.cpp || die
 	cmake_src_prepare
 }
 
