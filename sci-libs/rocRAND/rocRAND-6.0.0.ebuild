@@ -9,9 +9,8 @@ inherit cmake rocm
 
 DESCRIPTION="Generate pseudo-random and quasi-random numbers"
 HOMEPAGE="https://github.com/ROCmSoftwarePlatform/rocRAND"
-HIPRAND_COMMIT_HASH=8babdbe0cf4dc330c9ec5a0231ac059187a7bc8a
-SRC_URI="https://github.com/ROCmSoftwarePlatform/${PN}/archive/rocm-${PV}.tar.gz -> ${P}.tar.gz
-https://github.com/ROCmSoftwarePlatform/hipRAND/archive/${HIPRAND_COMMIT_HASH}.tar.gz -> hipRAND-${HIPRAND_COMMIT_HASH}.tar.gz"
+HIPRAND_COMMIT_HASH=cbcb27076c13dca7633e3ee0610adb3f317902f8
+SRC_URI="https://github.com/ROCmSoftwarePlatform/${PN}/archive/rocm-${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"
 KEYWORDS="~amd64"
@@ -32,14 +31,6 @@ S="${WORKDIR}/rocRAND-rocm-${PV}"
 PATCHES=(
 	"${FILESDIR}/${PN}-5.5.0-gcc-13-cstdint.patch"
 )
-
-src_prepare() {
-	rmdir hipRAND || die
-	mv -v ../hipRAND-${HIPRAND_COMMIT_HASH} hipRAND || die
-
-	eapply_user
-	cmake_src_prepare
-}
 
 src_configure() {
 	addpredict /dev/kfd
