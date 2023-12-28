@@ -27,6 +27,7 @@ RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-util/hip
+	dev-util/roctracer-${SLOT}[${ROCM_USEDEP}]
 	>=dev-db/sqlite-3.17
 	sci-libs/rocBLAS:${SLOT}[${ROCM_USEDEP}]
 	sci-libs/composable-kernel:${SLOT}[${ROCM_USEDEP}]
