@@ -49,10 +49,6 @@ RESTRICT="!test? ( test )"
 S="${WORKDIR}/rocFFT-rocm-${PV}"
 
 PATCHES=(
-	# "${FILESDIR}/${PN}-4.2.0-add-functional-header.patch"
-	# "${FILESDIR}/${PN}-5.1.3-unbundle-sqlite.patch"
-	# "${FILESDIR}/${PN}-5.0.2-add-math-header.patch"
-	# "${FILESDIR}/${PN}-5.1.3-add-stdexcept-header.patch"
 	"${FILESDIR}/${PN}-5.5.0-gcc-13-cstdint.patch"
 )
 
@@ -114,7 +110,7 @@ src_configure() {
 		-DBUILD_CLIENTS_TESTS=$(usex test ON OFF)
 		-DBUILD_CLIENTS_SELFTEST=$(usex test ON OFF)
 		-DPYTHON3_EXE=${EPYTHON}
-		-DBUILD_CLIENTS_RIDER=$(usex benchmark ON OFF)
+		-DBUILD_CLIENTS_BENCH=$(usex benchmark ON OFF)
 		-DSQLITE_USE_SYSTEM_PACKAGE=ON
 	)
 
