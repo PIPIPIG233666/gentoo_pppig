@@ -40,6 +40,7 @@ RDEPEND="
 	hip? ( science? ( =sci-libs/hipCUB-${ROCMVER}* ) )
 	hip? ( science? ( =sci-libs/hipFFT-${ROCMVER}* ) )
 	hip? ( science? ( =sci-libs/hipSPARSE-${ROCMVER}* ) )
+	hip? ( science? ( =sci-libs/hipSOLVER-${ROCMVER}* ) )
 
 	science? ( =sci-libs/hipBLAS-${ROCMVER}* )
 	science? ( =sci-libs/rocBLAS-${ROCMVER}* )

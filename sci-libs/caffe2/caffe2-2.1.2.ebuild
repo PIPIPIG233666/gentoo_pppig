@@ -62,14 +62,17 @@ RDEPEND="
 		dev-util/hip
 		dev-util/roctracer
 		dev-libs/rccl[${ROCM_USEDEP}]
-		sci-libs/hipFFT[${ROCM_USEDEP}]
-		sci-libs/hipSPARSE[${ROCM_USEDEP}]
 		sci-libs/hipCUB[${ROCM_USEDEP}]
+		sci-libs/hipFFT[${ROCM_USEDEP}]
+		sci-libs/hipSOLVER[${ROCM_USEDEP}]
+		sci-libs/hipSPARSE[${ROCM_USEDEP}]
 		sci-libs/miopen[${ROCM_USEDEP}]
 		sci-libs/rocBLAS[${ROCM_USEDEP}]
 		sci-libs/rocFFT[${ROCM_USEDEP}]
 		sci-libs/rocPRIM[${ROCM_USEDEP}]
 		sci-libs/rocRAND[${ROCM_USEDEP}]
+		sci-libs/rocSOLVER[${ROCM_USEDEP}]
+		sci-libs/rocSPARSE[${ROCM_USEDEP}]
 		sci-libs/rocThrust[${ROCM_USEDEP}]
 	)
 	qnnpack? ( sci-libs/QNNPACK )
@@ -95,6 +98,10 @@ DEPEND="
 S="${WORKDIR}"/${MYP}
 
 PATCHES=(
+	"${FILESDIR}"/0001-${PN}-2.1-rocm-6.patch
+	"${FILESDIR}"/0002-${PN}-2.1-rocm-6.patch
+	"${FILESDIR}"/0003-${PN}-2.1-rocm-6.patch
+	"${FILESDIR}"/0004-${PN}-2.1-rocm-6.patch
 	"${FILESDIR}"/${PN}-2.1-gentoo.patch
 	"${FILESDIR}"/${PN}-1.13.0-install-dirs.patch
 	"${FILESDIR}"/${PN}-1.12.0-glog-0.6.0.patch
@@ -243,24 +250,27 @@ src_configure() {
 		export HIPCUB_PATH="${EPREFIX}"/usr
 		export HIPFFT_PATH="${EPREFIX}"/usr
 		export HIPRAND_PATH="${EPREFIX}"/usr
+		export HIPSOLVER_PATH="${EPREFIX}"/usr
 		export HIPSPARSE_PATH="${EPREFIX}"/usr
-		export HIP_CLANG_PATH="${EPREFIX}/usr/$(get_libdir)/llvm/17/bin"
+		export HIP_CLANG_PATH="${EPREFIX}/usr/lib/llvm/17/bin"
 		export HIP_PATH="${EPREFIX}"/usr
 		export HSA_PATH="${EPREFIX}"/usr
 		export MIOPEN_PATH="${EPREFIX}"/usr
-		export PYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
 		export RCCL_PATH="${EPREFIX}"/usr
 		export ROCBLAS_PATH="${EPREFIX}"/usr
 		export ROCFFT_PATH="${EPREFIX}"/usr
 		export ROCM_PATH="${EPREFIX}"/usr
 		export ROCPRIM_PATH="${EPREFIX}"/usr
 		export ROCRAND_PATH="${EPREFIX}"/usr
+		export ROCSOLVER_PATH="${EPREFIX}"/usr
 		export ROCSPARSE_PATH="${EPREFIX}"/usr
 		export ROCTHRUST_PATH="${EPREFIX}"/usr
 		export ROCTRACER_PATH="${EPREFIX}"/usr
 		export THRUST_PATH="${EPREFIX}"/usr
 		mycmakeargs+=(
+		    -DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
 			-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
+			-DTORCH_HIP_VERSION=${HIP_VERSION}
 			-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
 		)
 	fi

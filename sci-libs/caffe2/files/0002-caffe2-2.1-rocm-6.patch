@@ -1,0 +1,317 @@
+From 28c0b07d19b53d423e44c0601e7d34f75678a40b Mon Sep 17 00:00:00 2001
+From: Jeff Daily <jeff.daily@amd.com>
+Date: Thu, 26 Oct 2023 02:39:01 +0000
+Subject: [PATCH] [ROCm] remove HCC references (#111975)
+
+- rename `__HIP_PLATFORM_HCC__` to `__HIP_PLATFORM_AMD__`
+- rename `HIP_HCC_FLAGS` to `HIP_CLANG_FLAGS`
+- rename `PYTORCH_HIP_HCC_LIBRARIES` to `PYTORCH_HIP_LIBRARIES`
+- workaround in tools/amd_build/build_amd.py until submodules are updated
+
+These symbols have had a long deprecation cycle and will finally be removed in ROCm 6.0.
+
+Pull Request resolved: https://github.com/pytorch/pytorch/pull/111975
+Approved by: https://github.com/ezyang, https://github.com/hongxiayang
+---
+ .../src/ATen/native/cuda/layer_norm_kernel.cu |  2 +-
+ c10/hip/CMakeLists.txt                        |  2 +-
+ caffe2/CMakeLists.txt                         | 10 ++---
+ caffe2/utils/math_gpu.cu                      |  4 +-
+ cmake/Dependencies.cmake                      |  4 +-
+ cmake/public/LoadHIP.cmake                    | 25 ++---------
+ test/cpp/jit/CMakeLists.txt                   |  2 +-
+ test/cpp/lazy/CMakeLists.txt                  |  2 +-
+ test/cpp/tensorexpr/CMakeLists.txt            |  4 +-
+ tools/amd_build/build_amd.py                  | 44 +++++++++++++++++++
+ torch/CMakeLists.txt                          |  2 +-
+ torch/utils/cpp_extension.py                  |  2 +-
+ 12 files changed, 65 insertions(+), 38 deletions(-)
+
+diff --git a/aten/src/ATen/native/cuda/layer_norm_kernel.cu b/aten/src/ATen/native/cuda/layer_norm_kernel.cu
+index 8f5829a8e215a23..45b9717fbe2d73d 100644
+--- a/aten/src/ATen/native/cuda/layer_norm_kernel.cu
++++ b/aten/src/ATen/native/cuda/layer_norm_kernel.cu
+@@ -1156,7 +1156,7 @@ void LayerNormBackwardKernelImplInternal(
+   cudaStream_t cuda_stream = at::cuda::getCurrentCUDAStream();
+   const int warp_size = at::cuda::warp_size();
+   if (dX_data != nullptr) {
+-#if defined __HIP_PLATFORM_HCC__
++#ifdef USE_ROCM
+     if (M >= 32768) {
+       const uint64_t maxGridY = at::cuda::getCurrentDeviceProperties()->maxGridSize[1];
+       const dim3 blocks1(1, std::min((uint64_t)M, maxGridY), 1);
+diff --git a/c10/hip/CMakeLists.txt b/c10/hip/CMakeLists.txt
+index 6a0e0e41a13497c..f4273ca2055c165 100644
+--- a/c10/hip/CMakeLists.txt
++++ b/c10/hip/CMakeLists.txt
+@@ -44,7 +44,7 @@ endif()
+ # ---[ Dependency of c10_hip
+ target_link_libraries(c10_hip PUBLIC c10)
+ 
+-target_link_libraries(c10_hip PUBLIC ${PYTORCH_HIP_HCC_LIBRARIES})
++target_link_libraries(c10_hip PUBLIC ${PYTORCH_HIP_LIBRARIES})
+ 
+ target_include_directories(
+     c10_hip PUBLIC
+diff --git a/caffe2/CMakeLists.txt b/caffe2/CMakeLists.txt
+index 078531c0776c1fc..1ea44c2374d981a 100644
+--- a/caffe2/CMakeLists.txt
++++ b/caffe2/CMakeLists.txt
+@@ -692,7 +692,7 @@ if(USE_ROCM)
+   # caffe2_nvrtc's stubs to driver APIs are useful for HIP.
+   # See NOTE [ ATen NVRTC Stub and HIP ]
+   add_library(caffe2_nvrtc SHARED ${ATen_NVRTC_STUB_SRCS})
+-  target_link_libraries(caffe2_nvrtc ${PYTORCH_HIP_HCC_LIBRARIES} ${ROCM_HIPRTC_LIB})
++  target_link_libraries(caffe2_nvrtc ${PYTORCH_HIP_LIBRARIES} ${ROCM_HIPRTC_LIB})
+   target_include_directories(caffe2_nvrtc PRIVATE ${CMAKE_BINARY_DIR})
+   target_compile_definitions(caffe2_nvrtc PRIVATE USE_ROCM __HIP_PLATFORM_HCC__)
+   install(TARGETS caffe2_nvrtc DESTINATION "${TORCH_INSTALL_LIB_DIR}")
+@@ -1260,21 +1260,21 @@ endif()
+ if(USE_ROCM)
+   target_compile_definitions(torch_hip PRIVATE
+     USE_ROCM
+-    __HIP_PLATFORM_HCC__
++    __HIP_PLATFORM_AMD__
+     )
+   # NB: Massive hack.  torch/csrc/jit/codegen/fuser/codegen.cpp includes
+   # torch/csrc/jit/codegen/fuser/cuda/resource_strings.h which changes the
+-  # strings depending on if you're __HIP_PLATFORM_HCC__ or not.
++  # strings depending on if you're __HIP_PLATFORM_AMD__ or not.
+   # But that file is in torch_cpu!  So, against all odds, this macro
+   # has to be set on torch_cpu too.  I also added it to torch for
+   # better luck
+   target_compile_definitions(torch_cpu PRIVATE
+     USE_ROCM
+-    __HIP_PLATFORM_HCC__
++    __HIP_PLATFORM_AMD__
+     )
+   target_compile_definitions(torch PRIVATE
+     USE_ROCM
+-    __HIP_PLATFORM_HCC__
++    __HIP_PLATFORM_AMD__
+     )
+   target_include_directories(torch_hip PRIVATE
+     /opt/rocm/include
+diff --git a/caffe2/utils/math_gpu.cu b/caffe2/utils/math_gpu.cu
+index e4e40bd8987fc07..3a587638d33792e 100644
+--- a/caffe2/utils/math_gpu.cu
++++ b/caffe2/utils/math_gpu.cu
+@@ -46,9 +46,9 @@
+ // however hipblas v1 is still using its custom type
+ #define HIP_R_16F  HIPBLAS_R_16F
+ #define HIP_R_32F  HIPBLAS_R_32F
+-#else // __HIP_PLATFORM_HCC
++#else // USE_ROCM
+ #define CUBLAS_HALF_TYPE __half
+-#endif // __HIP_PLATFORM_HCC
++#endif // USE_ROCM
+ 
+ #include "caffe2/utils/math/utils.h"
+ 
+diff --git a/cmake/Dependencies.cmake b/cmake/Dependencies.cmake
+index 0602d534dc4c140..2ed673686441014 100644
+--- a/cmake/Dependencies.cmake
++++ b/cmake/Dependencies.cmake
+@@ -1258,7 +1258,7 @@ if(USE_ROCM)
+     endif()
+ 
+     list(APPEND HIP_CXX_FLAGS -fPIC)
+-    list(APPEND HIP_CXX_FLAGS -D__HIP_PLATFORM_HCC__=1)
++    list(APPEND HIP_CXX_FLAGS -D__HIP_PLATFORM_AMD__=1)
+     list(APPEND HIP_CXX_FLAGS -DCUDA_HAS_FP16=1)
+     list(APPEND HIP_CXX_FLAGS -DUSE_ROCM)
+     list(APPEND HIP_CXX_FLAGS -D__HIP_NO_HALF_OPERATORS__=1)
+@@ -1294,7 +1294,7 @@ if(USE_ROCM)
+     hip_include_directories(${Caffe2_HIP_INCLUDE})
+ 
+     set(Caffe2_PUBLIC_HIP_DEPENDENCY_LIBS
+-      ${PYTORCH_HIP_HCC_LIBRARIES} ${PYTORCH_MIOPEN_LIBRARIES} ${hipcub_LIBRARIES} ${ROCM_HIPRTC_LIB} ${ROCM_ROCTX_LIB})
++      ${PYTORCH_HIP_LIBRARIES} ${PYTORCH_MIOPEN_LIBRARIES} ${hipcub_LIBRARIES} ${ROCM_HIPRTC_LIB} ${ROCM_ROCTX_LIB})
+ 
+     list(APPEND Caffe2_PUBLIC_HIP_DEPENDENCY_LIBS
+       roc::hipblas hip::hipfft hip::hiprand roc::hipsparse roc::hipsolver)
+diff --git a/cmake/public/LoadHIP.cmake b/cmake/public/LoadHIP.cmake
+index 75bf146c441a280..906bf30db0b00be 100644
+--- a/cmake/public/LoadHIP.cmake
++++ b/cmake/public/LoadHIP.cmake
+@@ -21,13 +21,6 @@ if(NOT EXISTS ${HIP_PATH})
+   return()
+ endif()
+ 
+-# HCC_PATH
+-if(NOT DEFINED ENV{HCC_PATH})
+-  set(HCC_PATH ${ROCM_PATH}/hcc)
+-else()
+-  set(HCC_PATH $ENV{HCC_PATH})
+-endif()
+-
+ # HSA_PATH
+ if(NOT DEFINED ENV{HSA_PATH})
+   set(HSA_PATH ${ROCM_PATH}/hsa)
+@@ -240,8 +233,8 @@ if(HIP_FOUND)
+ 
+   message("\n***** Library versions from cmake find_package *****\n")
+ 
+-  set(CMAKE_HCC_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+-  set(CMAKE_HCC_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
++  set(CMAKE_HIP_CLANG_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
++  set(CMAKE_HIP_CLANG_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+   ### Remove setting of Flags when FindHIP.CMake PR #558 is accepted.###
+ 
+   # As of ROCm 5.1.x, all *.cmake files are under /opt/rocm/lib/cmake/<package>
+@@ -303,18 +296,8 @@ if(HIP_FOUND)
+   find_package_and_print_version(rocthrust REQUIRED)
+   find_package_and_print_version(hipsolver REQUIRED)
+ 
+-  if(HIP_COMPILER STREQUAL clang)
+-    set(hip_library_name amdhip64)
+-  else()
+-    set(hip_library_name hip_hcc)
+-  endif()
+-  message("HIP library name: ${hip_library_name}")
+ 
+-  # TODO: hip_hcc has an interface include flag "-hc" which is only
+-  # recognizable by hcc, but not gcc and clang. Right now in our
+-  # setup, hcc is only used for linking, but it should be used to
+-  # compile the *_hip.cc files as well.
+-  find_library(PYTORCH_HIP_HCC_LIBRARIES ${hip_library_name} HINTS ${HIP_PATH}/lib)
++  find_library(PYTORCH_HIP_LIBRARIES amdhip64 HINTS ${HIP_PATH}/lib)
+   # TODO: miopen_LIBRARIES should return fullpath to the library file,
+   # however currently it's just the lib name
+   if(TARGET ${miopen_LIBRARIES})
+@@ -330,7 +313,7 @@ if(HIP_FOUND)
+     find_library(PYTORCH_RCCL_LIBRARIES ${rccl_LIBRARIES} HINTS ${RCCL_PATH}/lib)
+   endif()
+   # hiprtc is part of HIP
+-  find_library(ROCM_HIPRTC_LIB ${hip_library_name} HINTS ${HIP_PATH}/lib)
++  find_library(ROCM_HIPRTC_LIB amdhip64 HINTS ${HIP_PATH}/lib)
+   # roctx is part of roctracer
+   find_library(ROCM_ROCTX_LIB roctx64 HINTS ${ROCTRACER_PATH}/lib)
+ endif()
+diff --git a/test/cpp/jit/CMakeLists.txt b/test/cpp/jit/CMakeLists.txt
+index 42349cdb8395c5e..2d88d3f7172dc34 100644
+--- a/test/cpp/jit/CMakeLists.txt
++++ b/test/cpp/jit/CMakeLists.txt
+@@ -147,7 +147,7 @@ if(USE_CUDA)
+ elseif(USE_ROCM)
+   target_link_libraries(test_jit PRIVATE
+     ${ROCM_HIPRTC_LIB}
+-    ${PYTORCH_HIP_HCC_LIBRARIES}
++    ${PYTORCH_HIP_LIBRARIES}
+     ${TORCH_CUDA_LIBRARIES})
+ 
+   target_compile_definitions(test_jit PRIVATE USE_ROCM)
+diff --git a/test/cpp/lazy/CMakeLists.txt b/test/cpp/lazy/CMakeLists.txt
+index 841fa351d7126bc..be37b47ac9b9204 100644
+--- a/test/cpp/lazy/CMakeLists.txt
++++ b/test/cpp/lazy/CMakeLists.txt
+@@ -37,7 +37,7 @@ if(USE_CUDA)
+ elseif(USE_ROCM)
+   target_link_libraries(test_lazy PRIVATE
+     ${ROCM_HIPRTC_LIB}
+-    ${PYTORCH_HIP_HCC_LIBRARIES}
++    ${PYTORCH_HIP_LIBRARIES}
+     ${TORCH_CUDA_LIBRARIES})
+ 
+   target_compile_definitions(test_lazy PRIVATE USE_ROCM)
+diff --git a/test/cpp/tensorexpr/CMakeLists.txt b/test/cpp/tensorexpr/CMakeLists.txt
+index 900f16395dda1c1..012471d0e584c78 100644
+--- a/test/cpp/tensorexpr/CMakeLists.txt
++++ b/test/cpp/tensorexpr/CMakeLists.txt
+@@ -62,13 +62,13 @@ if(USE_CUDA)
+ elseif(USE_ROCM)
+   target_link_libraries(test_tensorexpr PRIVATE
+     ${ROCM_HIPRTC_LIB}
+-    ${PYTORCH_HIP_HCC_LIBRARIES}
++    ${PYTORCH_HIP_LIBRARIES}
+     ${TORCH_CUDA_LIBRARIES})
+   target_compile_definitions(test_tensorexpr PRIVATE USE_ROCM)
+ 
+   target_link_libraries(tutorial_tensorexpr PRIVATE
+     ${ROCM_HIPRTC_LIB}
+-    ${PYTORCH_HIP_HCC_LIBRARIES}
++    ${PYTORCH_HIP_LIBRARIES}
+     ${TORCH_CUDA_LIBRARIES})
+   target_compile_definitions(tutorial_tensorexpr PRIVATE USE_ROCM)
+ endif()
+diff --git a/tools/amd_build/build_amd.py b/tools/amd_build/build_amd.py
+index a1218762ec5a7a5..ba0e4912fb77d05 100755
+--- a/tools/amd_build/build_amd.py
++++ b/tools/amd_build/build_amd.py
+@@ -144,6 +144,50 @@ def is_hip_clang() -> bool:
+         return False
+ 
+ 
++# TODO Remove once the following submodules are updated
++hip_platform_files = [
++    "third_party/fbgemm/fbgemm_gpu/CMakeLists.txt",
++    "third_party/fbgemm/fbgemm_gpu/cmake/Hip.cmake",
++    "third_party/fbgemm/fbgemm_gpu/codegen/embedding_backward_dense_host.cpp",
++    "third_party/fbgemm/fbgemm_gpu/codegen/embedding_backward_split_host_template.cpp",
++    "third_party/fbgemm/fbgemm_gpu/codegen/embedding_backward_split_template.cu",
++    "third_party/fbgemm/fbgemm_gpu/codegen/embedding_forward_quantized_split_lookup.cu",
++    "third_party/fbgemm/fbgemm_gpu/include/fbgemm_gpu/fbgemm_cuda_utils.cuh",
++    "third_party/fbgemm/fbgemm_gpu/include/fbgemm_gpu/sparse_ops.cuh",
++    "third_party/fbgemm/fbgemm_gpu/src/jagged_tensor_ops.cu",
++    "third_party/fbgemm/fbgemm_gpu/src/quantize_ops.cu",
++    "third_party/fbgemm/fbgemm_gpu/src/sparse_ops.cu",
++    "third_party/fbgemm/fbgemm_gpu/src/split_embeddings_cache_cuda.cu",
++    "third_party/fbgemm/fbgemm_gpu/src/topology_utils.cpp",
++    "third_party/fbgemm/src/EmbeddingSpMDM.cc",
++    "third_party/gloo/cmake/Dependencies.cmake",
++    "third_party/gloo/gloo/cuda.cu",
++    "third_party/kineto/libkineto/CMakeLists.txt",
++    "third_party/nvfuser/CMakeLists.txt",
++    "third_party/tensorpipe/cmake/Hip.cmake",
++]
++
++
++def remove_hcc(line: str) -> str:
++    line = line.replace("HIP_PLATFORM_HCC", "HIP_PLATFORM_AMD")
++    line = line.replace("HIP_HCC_FLAGS", "HIP_CLANG_FLAGS")
++    return line
++
++
++for hip_platform_file in hip_platform_files:
++    do_write = False
++    if os.path.exists(hip_platform_file):
++        with open(hip_platform_file) as sources:
++            lines = sources.readlines()
++        newlines = [remove_hcc(line) for line in lines]
++        if lines == newlines:
++            print(f"{hip_platform_file} skipped")
++        else:
++            with open(hip_platform_file, "w") as sources:
++                for line in newlines:
++                    sources.write(line)
++            print(f"{hip_platform_file} updated")
++
+ hipify_python.hipify(
+     project_directory=proj_dir,
+     output_directory=out_dir,
+diff --git a/torch/CMakeLists.txt b/torch/CMakeLists.txt
+index 74260712fd454f8..eceaa71be40d9df 100644
+--- a/torch/CMakeLists.txt
++++ b/torch/CMakeLists.txt
+@@ -140,7 +140,7 @@ if(USE_ROCM)
+ 
+     list(APPEND TORCH_PYTHON_COMPILE_DEFINITIONS
+       USE_ROCM
+-      __HIP_PLATFORM_HCC__
++      __HIP_PLATFORM_AMD__
+       )
+     list(APPEND TORCH_PYTHON_LINK_LIBRARIES ${ROCM_ROCTX_LIB})
+ endif()
+diff --git a/torch/utils/cpp_extension.py b/torch/utils/cpp_extension.py
+index 83289c840d28788..611d45594de909e 100644
+--- a/torch/utils/cpp_extension.py
++++ b/torch/utils/cpp_extension.py
+@@ -234,7 +234,7 @@ def _join_rocm_home(*paths) -> str:
+ 
+ COMMON_HIP_FLAGS = [
+     '-fPIC',
+-    '-D__HIP_PLATFORM_HCC__=1',
++    '-D__HIP_PLATFORM_AMD__=1',
+     '-DUSE_ROCM=1',
+ ]
+ 
