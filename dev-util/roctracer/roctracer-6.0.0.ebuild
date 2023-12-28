@@ -42,12 +42,13 @@ src_prepare() {
 
 	hprefixify script/*.py
 	eapply $(prefixify_ro "${FILESDIR}"/${PN}-5.3.3-rocm-path.patch)
+	sed -e "s,find_package(HIP REQUIRED MODULE),find_package(HIP REQUIRED),g" -i test/CMakeLists.txt || die
 }
 
 src_configure() {
 	export ROCM_PATH="$(hipconfig -p)"
 	local mycmakeargs=(
-		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/lib64/cmake/hip:${EPREFIX}/usr/share/Tensile/Source/"
+		-DCMAKE_MODULE_PATH="${EPREFIX}/usr/lib64/cmake/hip"
 		-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
 		-DFILE_REORG_BACKWARD_COMPATIBILITY=OFF
 		-DHIP_CLANG_PATH="$(hipconfig -l)"
