@@ -30,6 +30,7 @@ RESTRICT="!test? ( test )"
 S="${WORKDIR}/rccl-rocm-${PV}"
 
 PATCHES=(
+	"${FILESDIR}/${P}-remove-old-rocm-sup.patch"
 )
 
 src_prepare() {
