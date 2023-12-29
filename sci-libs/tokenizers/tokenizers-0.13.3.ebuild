@@ -294,13 +294,13 @@ CRATES="
 	zstd-sys-2.0.8+zstd.1.5.5
 "
 
-inherit cargo distutils-r1
+inherit cargo distutils-r1 pypi
 
 DESCRIPTION="Implementation of today's most used tokenizers"
-HOMEPAGE="https://github.com/huggingface/tokenizers"
-SRC_URI="
-	https://github.com/huggingface/${PN}/archive/refs/tags/v${PV}.tar.gz
-	-> ${P}.gh.tar.gz
+HOMEPAGE="https://github.com/huggingface/tokenizers
+https://pypi.org/project/tokenizers
+"
+SRC_URI+="
 	$(cargo_crate_uris)
 "
 
