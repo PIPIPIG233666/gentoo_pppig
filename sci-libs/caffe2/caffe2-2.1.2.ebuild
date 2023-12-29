@@ -120,6 +120,23 @@ src_prepare() {
 		cmake/Dependencies.cmake \
 		|| die
 	cmake_src_prepare
+
+	if use rocm; then
+		local HIP_VERSION="$(hipconfig -v)"
+		local HIP_VERSION="${HIP_VERSION/-}"
+		sed -e "/rocm_version = /s:(0, 0, 0):(${HIP_VERSION//./, }):" -i torch/utils/hipify/cuda_to_hip_mappings.py || die
+		sed -e "/set(roctracer_INCLUDE_DIRS/s,\${ROCTRACER_PATH}/include,${EPREFIX}/usr/include/roctracer," \
+			-e "/PYTORCH_HIP_HCC_LIBRARIES/s,\${HIP_PATH}/lib,${EPREFIX}/usr/$(get_libdir)," \
+			-e "/set(roctracer_INCLUDE_DIRS/a\  set(thrust_INCLUDE_DIRS ${EPREFIX}/usr/include/rocthrust)" \
+			-e "s,\${ROCTRACER_PATH}/lib,${EPREFIX}/usr/lib64/roctracer," \
+			-e "/READ.*\.info\/version-dev/c\  set(ROCM_VERSION_DEV_RAW ${HIP_VERSION})" \
+			-i cmake/public/LoadHIP.cmake || die
+			# sed -r -e '/^if\(USE_ROCM/{:a;N;/\nendif/!ba; s,\{([^\{]*)_PATH\}(/include)?,\{\L\1_\UINCLUDE_DIRS\},g}' -i cmake/Dependencies.cmake || die
+		ebegin "HIPifying cuda sources"
+		${EPYTHON} tools/amd_build/build_amd.py || die
+		eend $?
+	fi
+
 	pushd torch/csrc/jit/serialization || die
 	flatc --cpp --gen-mutable --scoped-enums mobile_bytecode.fbs || die
 	popd
@@ -137,35 +154,6 @@ src_prepare() {
 		cmake/Dependencies.cmake \
 		torch/CMakeLists.txt \
 		CMakeLists.txt
-
-
-
-	if use rocm; then
-		# ebegin "HIPifying cuda sources"
-		# ${EPYTHON} tools/amd_build/build_amd.py || die
-		# eend $?
-		# for rocm_lib in rocblas hipfft hipsparse; do
-			# sed -e "/#include <${rocm_lib}.h>/s,${rocm_lib}.h,${rocm_lib}/${rocm_lib}.h," \
-				# -i $(grep -rl "#include <${rocm_lib}.h>" .) || die
-#
-		# done
-#
-		# sed -e "/#include <hipfftXt.h>/s,hipfftXt.h,hipfft/hipfftXt.h," \
-			# -i $(grep -rl "#include <hipfftXt.h>" .) || die
-		local HIP_VERSION="$(hipconfig -v)"
-		local HIP_VERSION="${HIP_VERSION/-}"
-		sed -e "/rocm_version = /s:(0, 0, 0):(${HIP_VERSION//./, }):" -i torch/utils/hipify/cuda_to_hip_mappings.py || die
-		sed -e "/set(roctracer_INCLUDE_DIRS/s,\${ROCTRACER_PATH}/include,${EPREFIX}/usr/include/roctracer," \
-			-e "/PYTORCH_HIP_HCC_LIBRARIES/s,\${HIP_PATH}/lib,${EPREFIX}/usr/$(get_libdir)," \
-			-e "/set(roctracer_INCLUDE_DIRS/a\  set(thrust_INCLUDE_DIRS ${EPREFIX}/usr/include/rocthrust)" \
-			-e "s,\${ROCTRACER_PATH}/lib,${EPREFIX}/usr/lib64/roctracer," \
-			-e "/READ.*\.info\/version-dev/c\  set(ROCM_VERSION_DEV_RAW ${HIP_VERSION})" \
-			-i cmake/public/LoadHIP.cmake || die
-			# sed -r -e '/^if\(USE_ROCM/{:a;N;/\nendif/!ba; s,\{([^\{]*)_PATH\}(/include)?,\{\L\1_\UINCLUDE_DIRS\},g}' -i cmake/Dependencies.cmake || die
-		ebegin "HIPifying cuda sources"
-		${EPYTHON} tools/amd_build/build_amd.py || die
-		eend $?
-	fi
 }
 
 src_configure() {
@@ -279,7 +267,10 @@ src_configure() {
 		addpredict /dev/kfd
 		addpredict /dev/dri/
 	fi
+
 	cmake_src_configure
+	# do not rerun cmake and the build process in src_install
+	sed '/RERUN/,+1d' -i "${BUILD_DIR}"/build.ninja || die
 }
 
 src_install() {
