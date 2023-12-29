@@ -37,9 +37,8 @@ PATCHES=(
 src_prepare() {
 	cmake_src_prepare
 
-	# Disable lld parallel linking - not supported
-	# https://github.com/ROCm/rccl/pull/199/files#r417539612
-	sed '/parallel-jobs=16/d' -i CMakeLists.txt
+	# https://reviews.llvm.org/D69582 - clang does not support parallel jobs
+	sed -i 's/-parallel-jobs=[0-9][0-9]//g' CMakeLists.txt || die
 
 	# https://github.com/ROCmSoftwarePlatform/rccl/pull/860 - bad escape
 	sed -i 's/\\%/%/' src/include/msccl/msccl_struct.h || die
