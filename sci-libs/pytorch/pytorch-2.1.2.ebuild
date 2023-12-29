@@ -5,9 +5,10 @@ EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{9..11} )
+ROCM_VERSION=6.0.0
 DISTUTILS_SINGLE_IMPL=1
 DISTUTILS_EXT=1
-inherit distutils-r1 prefix
+inherit distutils-r1 prefix rocm
 
 DESCRIPTION="Tensors and Dynamic neural networks in Python"
 HOMEPAGE="https://pytorch.org/"
@@ -18,11 +19,29 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64"
 RESTRICT="test"
+IUSE="rocm"
 
-REQUIRED_USE=${PYTHON_REQUIRED_USE}
-RDEPEND="
+REQUIRED_USE="
+${PYTHON_REQUIRED_USE}
+rocm? ( ${ROCM_REQUIRED_USE} )
+"
+DEPEND="
 	${PYTHON_DEPS}
 	~sci-libs/caffe2-${PV}[${PYTHON_SINGLE_USEDEP}]
+	rocm? (
+		dev-util/hip
+		dev-util/roctracer
+		dev-libs/rccl[${ROCM_USEDEP}]
+		sci-libs/hipFFT[${ROCM_USEDEP}]
+		sci-libs/hipSPARSE[${ROCM_USEDEP}]
+		sci-libs/hipCUB[${ROCM_USEDEP}]
+		sci-libs/miopen[${ROCM_USEDEP}]
+		sci-libs/rocBLAS[${ROCM_USEDEP}]
+		sci-libs/rocFFT[${ROCM_USEDEP}]
+		sci-libs/rocPRIM[${ROCM_USEDEP}]
+		sci-libs/rocRAND[${ROCM_USEDEP}]
+		sci-libs/rocThrust[${ROCM_USEDEP}]
+	)
 	$(python_gen_cond_dep '
 		dev-python/typing-extensions[${PYTHON_USEDEP}]
 		dev-python/sympy[${PYTHON_USEDEP}]
@@ -36,6 +55,11 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	eapply \
+		"${FILESDIR}"/0000-caffe2-2.1-rocm-6.patch \
+		"${FILESDIR}"/0001-caffe2-2.1-rocm-6.patch \
+		"${FILESDIR}"/0002-caffe2-2.1-rocm-6.patch \
+		"${FILESDIR}"/0003-caffe2-2.1-rocm-6.patch \
+		"${FILESDIR}"/0004-caffe2-2.1-rocm-6.patch \
 		"${FILESDIR}"/${PN}-2.1.1-dontbuildagain.patch \
 		"${FILESDIR}"/pytorch-1.9.0-Change-library-directory-according-to-CMake-build.patch \
 		"${FILESDIR}"/${PN}-2.0.0-global-dlopen.patch \
@@ -51,6 +75,31 @@ src_prepare() {
 	distutils-r1_src_prepare
 
 	hprefixify tools/setup_helpers/env.py
+
+	sed -e "s,\${ROCM_PATH}/lib,\${ROCM_PATH}/$(get_libdir),g" -i cmake/public/LoadHIP.cmake || die
+
+	if use rocm; then
+		ebegin "HIPifying cuda sources"
+		${EPYTHON} tools/amd_build/build_amd.py || die
+		eend $?
+	fi
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DUSE_ROCM=? $(usex rocm) 1 : 0
+	)
+	if use rocm; then
+			export HIP_PATH="${EPREFIX}/usr"
+			export HIP_CLANG_PATH="${EPREFIX}/usr/$(get_libdir)/llvm/17/bin"
+			mycmakeargs+=(
+				-DPYTORCH_ROCM_ARCH="$(get_amdgpu_flags)"
+				-DROCM_VERSION_DEV_RAW=${ROCM_VERSION}
+				-DCMAKE_MODULE_PATH="${EPREFIX}/usr/$(get_libdir)/cmake/hip"
+		)
+	fi
+
+	cmake_src_configure
 }
 
 python_compile() {
