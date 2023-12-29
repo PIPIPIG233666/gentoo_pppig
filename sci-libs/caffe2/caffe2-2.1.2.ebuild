@@ -98,6 +98,7 @@ DEPEND="
 S="${WORKDIR}"/${MYP}
 
 PATCHES=(
+	"${FILESDIR}"/0000-${PN}-2.1-rocm-6.patch
 	"${FILESDIR}"/0001-${PN}-2.1-rocm-6.patch
 	"${FILESDIR}"/0002-${PN}-2.1-rocm-6.patch
 	"${FILESDIR}"/0003-${PN}-2.1-rocm-6.patch
