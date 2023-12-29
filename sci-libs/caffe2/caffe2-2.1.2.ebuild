@@ -3,7 +3,7 @@
 
 EAPI=8
 ROCM_VERSION=6.0.0
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_1{0,1} )
 inherit python-single-r1 cmake cuda flag-o-matic prefix rocm
 
 MYPN=pytorch

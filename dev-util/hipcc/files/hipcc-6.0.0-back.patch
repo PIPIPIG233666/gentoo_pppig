@@ -1,0 +1,208 @@
+From d64acece8b35d3b739e7ea41458772fd0b9f6128 Mon Sep 17 00:00:00 2001
+From: Konstantin Zhuravlyov <kzhuravl@amd.com>
+Date: Fri, 3 Nov 2023 15:05:05 -0400
+Subject: [PATCH] Squash merge changes from
+ https://github.com/RadeonOpenCompute/llvm-project
+
+For backwards compatibility
+---
+ CMakeLists.txt                |  4 ++--
+ bin/hipcc                     |  3 +--
+ bin/hipcc.pl                  | 15 +--------------
+ bin/hipconfig.pl              |  4 ++--
+ docs/.sphinx/requirements.in  |  2 +-
+ docs/.sphinx/requirements.txt |  2 +-
+ src/hipBin_amd.h              | 25 +------------------------
+ src/hipBin_nvidia.h           |  2 +-
+ 8 files changed, 10 insertions(+), 47 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 90743ab..fa9029b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -55,7 +55,7 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+ 
+ # Debian-specific packaging variables.
+ set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
+-set(CPACK_DEBIAN_PACKAGE_DEPENDS "perl (>= 5.0), libfile-basedir-perl, hip-dev, rocm-core, rocm-llvm")
++set(CPACK_DEBIAN_PACKAGE_DEPENDS "perl (>= 5.0), hip-dev, rocm-core, rocm-llvm")
+ set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/ROCm-Developer-Tools/HIPCC")
+ if(DEFINED ENV{CPACK_DEBIAN_PACKAGE_RELEASE})
+   set(CPACK_DEBIAN_PACKAGE_RELEASE $ENV{CPACK_DEBIAN_PACKAGE_RELEASE})
+@@ -66,7 +66,7 @@ endif()
+ # RPM-specific packaging variables.
+ set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
+ set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+-set(CPACK_RPM_PACKAGE_REQUIRES "perl >= 5.0, perl-File-BaseDir, hip-devel, rocm-core, rocm-llvm")
++set(CPACK_RPM_PACKAGE_REQUIRES "perl >= 5.0, hip-devel, rocm-core, rocm-llvm")
+ set(CPACK_RPM_PACKAGE_AUTOREQPROV 0)
+ if(DEFINED ENV{CPACK_RPM_PACKAGE_RELEASE})
+   set(CPACK_RPM_PACKAGE_RELEASE $ENV{CPACK_RPM_PACKAGE_RELEASE})
+diff --git a/bin/hipcc b/bin/hipcc
+index 8dae941..4002631 100755
+--- a/bin/hipcc
++++ b/bin/hipcc
+@@ -33,10 +33,9 @@ $USE_PERL_SCRIPT //= 1;  # use defined-or assignment operator.  Use env var, but
+ 
+ my $isWindows =  ($^O eq 'MSWin32' or $^O eq 'msys');
+ # escapes args with quotes SWDEV-341955
+-# do not escape @ for rsp files on windows
+ foreach $arg (@ARGV) {
+   if ($isWindows) {
+-    $arg =~ s/[^-a-zA-Z0-9_=+,.:@\/\\ ]/\\$&/g;
++    $arg =~ s/[^-a-zA-Z0-9_=+,.:\/\\ ]/\\$&/g;
+   }
+ }
+ 
+diff --git a/bin/hipcc.pl b/bin/hipcc.pl
+index aea655f..53b6222 100755
+--- a/bin/hipcc.pl
++++ b/bin/hipcc.pl
+@@ -218,10 +218,6 @@ sub get_normalized_path {
+     exit (-1);
+ }
+ 
+-# Add paths to common HIP includes:
+-$HIPCXXFLAGS .= " -isystem " . get_normalized_path("$HIP_INCLUDE_PATH");
+-$HIPCFLAGS .= " -isystem " . get_normalized_path("$HIP_INCLUDE_PATH");
+-
+ my $compileOnly = 0;
+ my $needCXXFLAGS = 0;  # need to add CXX flags to compile step
+ my $needCFLAGS = 0;    # need to add C flags to compile step
+@@ -372,15 +368,6 @@ sub get_normalized_path {
+         $hsacoVersion = $arg;
+         $swallowArg = 1;
+     }
+-    if($arg =~ /\.rsp$/) {
+-        $pre_rsp = " ";
+-        if($isWindows) {
+-            $pre_rsp = " --rsp-quoting=windows ";
+-        }
+-        $HIPLDFLAGS .= $pre_rsp.$arg;
+-        $HIPCXXFLAGS .= $pre_rsp.$arg;
+-        $swallowArg = 1;
+-    }
+ 
+     # nvcc does not handle standard compiler options properly
+     # This can prevent hipcc being used as standard CXX/C Compiler
+@@ -480,7 +467,7 @@ sub get_normalized_path {
+     # Do the quoting here because sometimes the $arg is changed in the loop
+     # Important to have all of '-Xlinker' in the set of unquoted characters.
+     if (not $isWindows and $escapeArg) {
+-        $arg =~ s/[^-a-zA-Z0-9_=+,.@\/]/\\$&/g;
++        $arg =~ s/[^-a-zA-Z0-9_=+,.\/]/\\$&/g;
+     }
+     $toolArgs .= " $arg" unless $swallowArg;
+     $prevArg = $arg;
+diff --git a/bin/hipconfig.pl b/bin/hipconfig.pl
+index bc781a8..5abdfbf 100755
+--- a/bin/hipconfig.pl
++++ b/bin/hipconfig.pl
+@@ -71,7 +71,7 @@ BEGIN
+         $HIP_CLANG_INCLUDE = `$HIP_CLANG_PATH/clang++ --print-resource-dir`;
+     }
+ 
+-    $CPP_CONFIG = " -D__HIP_PLATFORM_AMD__=";
++    $CPP_CONFIG = " -D__HIP_PLATFORM_HCC__= -D__HIP_PLATFORM_AMD__=";
+ 
+     $HIP_PATH_INCLUDE = $HIP_PATH."/include";
+     if($isWindows) {
+@@ -81,7 +81,7 @@ BEGIN
+     }
+ }
+ if ($HIP_PLATFORM eq "nvidia") {
+-    $CPP_CONFIG = " -D__HIP_PLATFORM_NVIDIA__= -I$HIP_PATH/include -I$CUDA_PATH/include";
++    $CPP_CONFIG = " -D__HIP_PLATFORM_NVCC__= -D__HIP_PLATFORM_NVIDIA__= -I$HIP_PATH/include -I$CUDA_PATH/include";
+ };
+ 
+ if ($p_help) {
+diff --git a/docs/.sphinx/requirements.in b/docs/.sphinx/requirements.in
+index c6a8856..313c5e9 100644
+--- a/docs/.sphinx/requirements.in
++++ b/docs/.sphinx/requirements.in
+@@ -1 +1 @@
+-rocm-docs-core==0.20.0
++rocm-docs-core>=0.24.0
+diff --git a/docs/.sphinx/requirements.txt b/docs/.sphinx/requirements.txt
+index 5e40863..de3a63d 100644
+--- a/docs/.sphinx/requirements.txt
++++ b/docs/.sphinx/requirements.txt
+@@ -92,7 +92,7 @@ requests==2.28.2
+     # via
+     #   pygithub
+     #   sphinx
+-rocm-docs-core==0.20.0
++rocm-docs-core>=0.24.0
+     # via -r requirements.in
+ smmap==5.0.0
+     # via gitdb
+diff --git a/src/hipBin_amd.h b/src/hipBin_amd.h
+index 7558f66..024a0bf 100644
+--- a/src/hipBin_amd.h
++++ b/src/hipBin_amd.h
+@@ -155,17 +155,6 @@ void HipBinAmd::initializeHipLdFlags() {
+ }
+ 
+ void HipBinAmd::initializeHipCFlags() {
+-  string hipCFlags;
+-  const OsType& os = getOSInfo();
+-  if (os != windows) {
+-    string hsaPath;
+-    hsaPath = getHsaPath();
+-    hipCFlags += " -isystem " + hsaPath + "/include";
+-  }
+-  string hipIncludePath;
+-  hipIncludePath = getHipInclude();
+-  hipCFlags += " -isystem \"" + hipIncludePath + "\"";
+-  hipCFlags_ = hipCFlags;
+ }
+ 
+ const string& HipBinAmd::getHipCXXFlags() const {
+@@ -197,14 +186,6 @@ void HipBinAmd::initializeHipCXXFlags() {
+     " -Xclang -fallow-half-arguments-and-returns -D__HIP_HCC_COMPAT_MODE__=1";
+   }
+ 
+-  if (os != windows) {
+-    const string& hsaPath = getHsaPath();
+-    hipCXXFlags += " -isystem " + hsaPath + "/include";
+-  }
+-  // Add paths to common HIP includes:
+-  string hipIncludePath;
+-  hipIncludePath = getHipInclude();
+-  hipCXXFlags += " -isystem \"" + hipIncludePath + "\"";
+   hipCXXFlags_ = hipCXXFlags;
+ }
+ 
+@@ -300,7 +281,7 @@ const PlatformInfo& HipBinAmd::getPlatformInfo() const {
+ 
+ 
+ string HipBinAmd::getCppConfig() {
+-  string cppConfig = " -D__HIP_PLATFORM_AMD__=";
++  string cppConfig = " -D__HIP_PLATFORM_HCC__= -D__HIP_PLATFORM_AMD__=";
+ 
+   string compilerVersion;
+   compilerVersion = getCompilerVersion();
+@@ -880,10 +861,6 @@ void HipBinAmd::executeHipCCCmd(vector<string> argv) {
+     }
+     if (!windows) {
+       HIPLDFLAGS += "  --rtlib=compiler-rt -unwindlib=libgcc";
+-    } else {
+-      // to avoid using dk linker or MSVC linker
+-      HIPLDFLAGS += " -fuse-ld=lld";
+-      HIPLDFLAGS += " --ld-path=$HIP_CLANG_PATH/lld-link.exe";
+     }
+   }
+ 
+diff --git a/src/hipBin_nvidia.h b/src/hipBin_nvidia.h
+index f0ff8fe..b94e147 100644
+--- a/src/hipBin_nvidia.h
++++ b/src/hipBin_nvidia.h
+@@ -276,7 +276,7 @@ const PlatformInfo& HipBinNvidia::getPlatformInfo() const {
+ // returns the cpp config
+ string HipBinNvidia::getCppConfig() {
+   string cppConfig =
+-  " -D__HIP_PLATFORM_NVIDIA__= -I";
++  " - D__HIP_PLATFORM_NVCC__ = -D__HIP_PLATFORM_NVIDIA__ = -I";
+   string hipPath;
+   hipPath = getHipPath();
+   cppConfig += hipPath;
