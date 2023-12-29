@@ -51,8 +51,6 @@ BDEPEND="
 distutils_enable_tests pytest
 
 PATCHES=(
-	# https://github.com/encode/uvicorn/pull/2198
-	"${FILESDIR}/${P}-test.patch"
 )
 
 python_test() {
