@@ -29,6 +29,8 @@ DEPEND="${RDEPEND}"
 src_prepare() {
 	sed -e "/CPACK_RESOURCE_FILE_LICENSE/d" -i CMakeLists.txt || die
 	sed -e "/num_change_since_prev_pkg(/cset(NUM_COMMITS 0)" -i cmake_modules/utils.cmake || die # Fix QA issue on "git not found"
+	# python 3.12 does not recognize \w as regex
+	sed -e 's\python3\python3.11\' -i rocm_agent_enumerator || die
 	cmake_src_prepare
 }
 
