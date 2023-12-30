@@ -1,0 +1,71 @@
+From c947ed11354f73b3fa7386022473b01f29777362 Mon Sep 17 00:00:00 2001
+From: Nikita Shulga <nshulga@meta.com>
+Date: Fri, 15 Dec 2023 00:38:40 +0000
+Subject: [PATCH] [BE][ROCm] Use modern C++ (#115844)
+
+This removes global (but ROCM_ONLY) `over_arch` and `gcn_arch_override_flag` variables in favor of block level static initialization introduced in C++11
+
+To quote from [ISO/IEC 14882-2014](https://www.open-std.org/jtc1/sc22/wg21/docs/standards)
+>The zero-initialization (8.5) of all block-scope variables with static storage duration (3.7.1) or thread storage
+> duration (3.7.2) is performed before any other initialization takes place. Constant initialization (3.6.2) of a
+> block-scope entity with static storage duration, if applicable, is performed before its block is first entered.
+> An implementation is permitted to perform early initialization of other block-scope variables with static or
+> thread storage duration under the same conditions that an implementation is permitted to statically initialize
+> a variable with static or thread storage duration in namespace scope (3.6.2). Otherwise such a variable is
+> initialized the first time control passes through its declaration; such a variable is considered initialized upon
+> the completion of its initialization. If the initialization exits by throwing an exception, the initialization
+> is not complete, so it will be tried again the next time control enters the declaration. If control enters
+> the declaration concurrently while the variable is being initialized, the concurrent execution shall wait for
+> completion of the initialization.
+
+Fixes #ISSUE_NUMBER
+
+Pull Request resolved: https://github.com/pytorch/pytorch/pull/115844
+Approved by: https://github.com/huydhn
+---
+ .../native/transformers/cuda/sdp_utils.cpp    | 24 +++++++------------
+ 1 file changed, 9 insertions(+), 15 deletions(-)
+
+diff --git a/aten/src/ATen/native/transformers/cuda/sdp_utils.cpp b/aten/src/ATen/native/transformers/cuda/sdp_utils.cpp
+index adf4e2d329e17ab..f06c91f7f4fc27f 100644
+--- a/aten/src/ATen/native/transformers/cuda/sdp_utils.cpp
++++ b/aten/src/ATen/native/transformers/cuda/sdp_utils.cpp
+@@ -177,20 +177,6 @@ bool check_sm_version(cudaDeviceProp * dprops) {
+   return is_gte_lower_bound && is_lte_upper_bound;
+ }
+ 
+-#if USE_ROCM
+-c10::once_flag gcn_arch_override_flag;
+-const char* over_arch = nullptr;
+-
+-void init_gcn_arch_override() {
+-  over_arch = std::getenv("PYTORCH_DEBUG_FLASH_ATTENTION_GCN_ARCH_OVERRIDE");
+-  if (over_arch) {
+-      TORCH_WARN("SDPA functions only loads value from PYTORCH_DEBUG_FLASH_ATTENTION_GCN_ARCH_OVERRIDE once. "
+-                 "Later changes to this environment variable with os.environ "
+-                 "(or other methods) will not affect SDPA function's behavior.");
+-  }
+-}
+-#endif
+-
+ bool check_flash_attention_hardware_support(sdp_params const& params, bool debug) {
+   // Check that the gpu is capable of running flash attention
+   using sm80 = SMVersion<8, 0>;
+@@ -198,8 +184,16 @@ bool check_flash_attention_hardware_support(sdp_params const& params, bool debug
+   auto dprops = at::cuda::getCurrentDeviceProperties();
+ #if USE_ROCM
+   constexpr std::string_view mi200 = "gfx90a:sramecc+:xnack-";
++  static const char *over_arch = [] {
++    auto rc = std::getenv("PYTORCH_DEBUG_FLASH_ATTENTION_GCN_ARCH_OVERRIDE");
++    if (rc) {
++        TORCH_WARN("SDPA functions only loads value from PYTORCH_DEBUG_FLASH_ATTENTION_GCN_ARCH_OVERRIDE once. "
++                   "Later changes to this environment variable with os.environ "
++                   "(or other methods) will not affect SDPA function's behavior.");
++    }
++    return rc;
++  }();
+   const char* real_arch = dprops->gcnArchName;
+-  c10::call_once(gcn_arch_override_flag, init_gcn_arch_override);
+   const char* arch = over_arch ? over_arch : real_arch;
+   if (mi200 != arch) {
+     if (debug) {

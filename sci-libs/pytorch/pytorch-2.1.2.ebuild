@@ -66,6 +66,7 @@ src_prepare() {
 		"${FILESDIR}"/pytorch-1.7.1-torch_shm_manager.patch \
 		"${FILESDIR}"/${PN}-1.13.0-setup.patch \
 		"${FILESDIR}"/${PN}-2.1.1-emptyso.patch \
+		"${FILESDIR}"/${PN}-2.1.2-kernel-assert.patch \
 
 	# Set build dir for pytorch's setup
 	sed -i \

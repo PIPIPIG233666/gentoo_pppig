@@ -112,6 +112,7 @@ PATCHES=(
 	"${FILESDIR}"/find-hip.patch
 	"${FILESDIR}"/specify-rocm-arch.patch
 	"${FILESDIR}"/disable-frexp.patch
+	"${FILESDIR}"/${PN}-2.1.2-kernel-assert.patch
 )
 
 src_prepare() {
