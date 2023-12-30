@@ -48,6 +48,12 @@ src_prepare() {
 	cmake_src_prepare
 	use cuda && cuda_add_sandbox
 	sed -e "s,find_package(HIP 1.0),find_package(HIP)," -i cmake/Hip.cmake || die
+
+	if use rocm; then
+		ebegin "HIPifying cuda sources"
+		# ${EPYTHON} tools/amd_build/build_amd.py --project-directory . --output-directory ? || die
+		eend $?
+	fi
 }
 
 src_configure() {
