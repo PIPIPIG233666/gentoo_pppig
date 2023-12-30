@@ -57,7 +57,7 @@ PATCHES=(
 )
 
 src_prepare() {
-	mv "${WORKDIR}/${KDB_FILE}" ${S}/src/kernels/ || die
+	cp "${DISTDIR}/${KDB_FILE}.bz2" ${S}/src/kernels/ || die
 	cmake_src_prepare
 
 	sed -e "s:/opt/rocm/llvm:$(get_llvm_prefix ${LLVM_MAX_SLOT}) NO_DEFAULT_PATH:" \
@@ -68,6 +68,8 @@ src_prepare() {
 		-i CMakeLists.txt || die
 
 	sed -e "/add_test/s:--build \${CMAKE_CURRENT_BINARY_DIR}:--build ${BUILD_DIR}:" \
+		-e "s,/opt/rocm,," \
+		-e "s,MIOPEN_TEST_GFX103X,MIOPEN_TEST_GFX1030,g" \
 		-i test/CMakeLists.txt || die
 
 	sed -e "s:\${PROJECT_BINARY_DIR}/miopen/include:\${PROJECT_BINARY_DIR}/include:" \

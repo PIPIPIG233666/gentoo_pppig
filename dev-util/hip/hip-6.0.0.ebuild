@@ -77,11 +77,12 @@ src_prepare() {
 src_configure() {
 	use debug && CMAKE_BUILD_TYPE="Debug"
 
+	local HIP_VERSION="$(hipconfig -v)"
+    local HIP_VERSION="${HIP_VERSION/-}"
 	local mycmakeargs=(
 		-DCMAKE_PREFIX_PATH="$(get_llvm_prefix "${LLVM_MAX_SLOT}")"
 		-DCMAKE_BUILD_TYPE=${buildtype}
 		-DCMAKE_SKIP_RPATH=ON
-		-DBUILD_HIPIFY_CLANG=OFF
 		-DHIP_PLATFORM=amd
 		-DHIP_COMMON_DIR="${WORKDIR}/HIP-rocm-${PV}"
 		-DROCM_PATH="${EPREFIX}/usr"
@@ -98,6 +99,7 @@ src_configure() {
 		local mycmakeargs=(
 			-DROCM_PATH="${BUILD_DIR}"/hipamd
 			-DHIP_PLATFORM=amd
+			-DHIP_VERSION=${HIP_VERSION}
 		)
 		hip_test_wrapper cmake_src_configure
 	fi
