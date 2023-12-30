@@ -9,6 +9,7 @@ inherit cmake flag-o-matic llvm rocm
 
 GTEST_COMMIT="e2239ee6043f73722e7aa812a459f54a28552929"
 GTEST_FILE="gtest-1.11.0_p20210611.tar.gz"
+KDB_FILE="gfx1030.kdb"
 
 LLVM_MAX_SLOT=17
 
@@ -16,7 +17,9 @@ DESCRIPTION="AMD's Machine Intelligence Library"
 HOMEPAGE="https://github.com/ROCmSoftwarePlatform/MIOpen"
 
 SRC_URI="https://github.com/ROCmSoftwarePlatform/MIOpen/archive/rocm-${PV}.tar.gz -> MIOpen-${PV}.tar.gz
-	test? ( https://github.com/google/googletest/archive/${GTEST_COMMIT}.tar.gz -> ${GTEST_FILE} )"
+	test? ( https://github.com/google/googletest/archive/${GTEST_COMMIT}.tar.gz -> ${GTEST_FILE} )
+	https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/gfx1030.kdb.bz2 -> ${KDB_FILE}.bz2
+"
 
 LICENSE="MIT"
 KEYWORDS="~amd64"
@@ -54,6 +57,7 @@ PATCHES=(
 )
 
 src_prepare() {
+	mv "${WORKDIR}/${KDB_FILE}" ${S}/src/kernels/ || die
 	cmake_src_prepare
 
 	sed -e "s:/opt/rocm/llvm:$(get_llvm_prefix ${LLVM_MAX_SLOT}) NO_DEFAULT_PATH:" \
