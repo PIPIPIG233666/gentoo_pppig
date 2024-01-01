@@ -682,10 +682,19 @@ BDEPEND="
 dev-libs/protobuf-c
 "
 
-src_compile() {
+src_unpack() {
+	cargo_src_unpack
+	cd "${S}" || die
 	rm -rf ftl/core-repo ftl/qt-repo || die
 	mv "${WORKDIR}"/anki-core-i18n-${I18N_COMMIT} ftl/core-repo || die
 	mv "${WORKDIR}"/anki-desktop-ftl-${QT_COMMIT} ftl/qt-repo || die
+}
+
+src_compile() {
 	export PROTOC="${EPREFIX}/usr/bin/protoc"
 	cargo build --package anki-sync-server --release || die
+}
+
+src_install() {
+	dobin target/release/anki-sync-server
 }
