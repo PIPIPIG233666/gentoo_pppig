@@ -679,7 +679,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 
 BDEPEND="
-dev-libs/protobuf-c
+dev-libs/protobuf
 "
 
 src_unpack() {
