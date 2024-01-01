@@ -687,7 +687,7 @@ dev-libs/protobuf
 RDEPEND="${PYTHON_DEPS}
 	$(python_gen_cond_dep '
 		>=dev-python/PyQt6-6.6.1[gui,svg,widgets,${PYTHON_USEDEP}]
-		>=dev-python/PyQtWebEngine-6.6.1[${PYTHON_USEDEP}]
+		>=dev-python/PyQt6-WebEngine-6.6.0[${PYTHON_USEDEP}]
 		dev-python/beautifulsoup4[${PYTHON_USEDEP}]
 		dev-python/decorator[${PYTHON_USEDEP}]
 		dev-python/jsonschema[${PYTHON_USEDEP}]
