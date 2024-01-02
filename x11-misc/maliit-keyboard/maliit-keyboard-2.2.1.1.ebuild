@@ -1,7 +1,7 @@
-# Copyright 2021 Gentoo Authors
+# Copyright 2021-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit cmake gnome2-utils xdg flag-o-matic
 
@@ -13,7 +13,7 @@ if [[ ${PV} == 9999 ]]; then
 inherit git-r3
 else
 		SRC_URI="https://github.com/maliit/keyboard/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
-		KEYWORDS="~amd64 ~arm"
+		KEYWORDS="~amd64 "
 S="${WORKDIR}"/keyboard-${PV}
 fi
 
@@ -24,8 +24,11 @@ IUSE="test"
 DEPEND="x11-misc/maliit-framework
 		media-fonts/noto-emoji
 		dev-qt/qtmultimedia
+		dev-qt/qtfeedback
 		app-text/hunspell
+		app-text/presage[sqlite]
 		app-i18n/libchewing
+		app-i18n/libpinyin
 		app-i18n/anthy
 		dev-db/sqlite
 "

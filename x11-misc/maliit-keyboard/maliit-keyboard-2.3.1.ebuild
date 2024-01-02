@@ -21,6 +21,7 @@ BDEPEND="sys-devel/gettext"
 DEPEND="
 	dev-libs/glib
 	dev-qt/qtmultimedia:5
+	=dev-qt/qtfeedback-5*
 	x11-misc/maliit-framework
 	anthy? ( app-i18n/anthy )
 	chewing? ( app-i18n/libchewing )

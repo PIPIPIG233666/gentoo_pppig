@@ -1,3 +1,6 @@
+# Copyright 1999-2022 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
 EAPI=8
 
 inherit cmake
@@ -8,7 +11,7 @@ SRC_URI="https://github.com/${PN/-/\/}/archive/refs/tags/${PV}.tar.gz -> ${P}.ta
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~arm"
 
 IUSE="dbus doc examples glib +hwkeyboard wayland xcb"
 
