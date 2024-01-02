@@ -661,7 +661,7 @@ QT_COMMIT="8c2191a7c797747cec767e3953bbbcc50acc5246"
 PYTHON_COMPAT=( python3_1{0..2} )
 PYTHON_REQ_USE="sqlite"
 
-inherit cargo desktop optfeature python-single-r1 xdg
+inherit cargo desktop optfeature python-single-r1 readme.gentoo-r1 xdg
 
 DESCRIPTION="A spaced-repetition memory training program (flash cards)"
 HOMEPAGE="https://apps.ankiweb.net"
@@ -717,6 +717,18 @@ PATCHES=(
 	"${FILESDIR}/node-drop-yarn-install.patch"
 )
 
+DOC_CONTENTS="Users with add-ons that still rely on Anki's Qt5 GUI can either switch
+to ${CATEGORY}/${PN}[-qt6], or temporarily set an environment variable
+ENABLE_QT5_COMPAT to 1 to have Anki install the previous compatibility code.
+The latter option has additional runtime dependencies. Please take a look
+at this package's 'optional runtime features' for a complete listing.
+\n\nIn an early 2024 update, ENABLE_QT5_COMPAT will be removed, so this is not a
+long-term solution.
+\n\nAnki's user manual is located online at https://docs.ankiweb.net/
+\nAnki's add-on developer manual is located online at
+https://addon-docs.ankiweb.net/
+"
+
 src_prepare() {
 	default
 	# Build process wants .git/HEAD to be present. Workaround to be able to use tarballs
@@ -760,25 +772,30 @@ src_compile() {
 
 src_install() {
 	doicon "qt/bundle/lin/${PN}.png"
+	doicon "qt/bundle/lin/${PN}.xpm"
 	domenu "qt/bundle/lin/${PN}.desktop"
 	doman "qt/bundle/lin/${PN}.1"
 
-	dodoc README.md
-	python_domodule qt/aqt out/pylib/anki
-	python_newscript qt/runanki.py anki
+	python_domodule out/pylib/anki out/qt/_aqt qt/aqt
+	printf "#!/usr/bin/python3\nimport sys;from aqt import run;sys.exit(run())" > runanki
+	python_newscript runanki anki
+	insinto /usr/share/mime/packages
+	doins "qt/bundle/lin/${PN}.xml"
 
-	# Localization files go into the anki directory:
-	python_moduleinto anki
-
-	# not sure if this is correct, but
-	# site-packages/qt/aqt/mediasrv.py wants the directory
-	# insinto /usr/share/anki
-	# doins -r web
+	readme.gentoo_create_doc
 }
 
 pkg_postinst() {
+	readme.gentoo_print_elog
 	xdg_pkg_postinst
-	optfeature "LaTeX in cards" "app-text/texlive app-text/dvipng"
-	optfeature "Record sound" "dev-python/pyaudio media-sound/lame"
-	optfeature "Playback sound" media-video/mpv media-video/mplayer
+	optfeature "LaTeX in cards" "app-text/texlive[extra] app-text/dvipng"
+	optfeature "sound support" media-video/mpv media-video/mplayer
+	optfeature "recording support" "media-sound/lame[frontend] dev-python/PyQt$(usex qt6 6 5)[multimedia]"
+	optfeature "faster database operations" dev-python/orjson
+	use qt6 && optfeature "compatibility with Qt5-dependent add-ons" dev-python/PyQt6[dbus,printsupport]
+	use qt6 && optfeature "Vulkan driver" "media-libs/vulkan-loader dev-qt/qtbase[vulkan]
+							  dev-qt/qtdeclarative:6[vulkan] dev-qt/qtwebengine:6[vulkan]"
+
+	einfo "You can customize the LaTeX header for your cards to fit your needs:"
+	einfo "Notes > Manage Note Types > [select a note type] > Options"
 }
