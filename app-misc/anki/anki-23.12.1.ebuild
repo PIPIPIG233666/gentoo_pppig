@@ -653,24 +653,29 @@ declare -A GIT_CRATES=(
 	[percent-encoding-iri]='https://github.com/ankitects/rust-url;bb930b8d089f4d30d7d19c12e54e66191de47b88;rust-url-%commit%/percent_encoding'
 )
 
-# this is for versioning anki internally
-ANKI_COMMIT="1a1d4d5419c6b57ef3baf99c9d2d9cf85d36ae0a"
-I18N_COMMIT="fb301cc62da3b7a83b4ea266d9a2e70cfc1a8418"
-QT_COMMIT="8c2191a7c797747cec767e3953bbbcc50acc5246"
+declare -A COMMITS=(
+	# this is for versioning anki internally
+	[anki]="1a1d4d5419c6b57ef3baf99c9d2d9cf85d36ae0a"
+	# git submodules
+	[ftl-core]="fb301cc62da3b7a83b4ea266d9a2e70cfc1a8418"
+	[ftl-desktop]="8c2191a7c797747cec767e3953bbbcc50acc5246"
+)
 
 PYTHON_COMPAT=( python3_1{0..2} )
 PYTHON_REQ_USE="sqlite"
 
-inherit cargo desktop optfeature python-single-r1 readme.gentoo-r1 xdg
+inherit cargo desktop flag-o-matic optfeature python-single-r1 readme.gentoo-r1 toolchain-funcs xdg
 
 DESCRIPTION="A spaced-repetition memory training program (flash cards)"
 HOMEPAGE="https://apps.ankiweb.net"
 SRC_URI="
 	${CARGO_CRATE_URIS}
-https://github.com/ankitects/anki/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz
-https://github.com/ankitects/anki-core-i18n/archive/${I18N_COMMIT}.tar.gz -> anki-core-i18n-${I18N_COMMIT}.tar.gz
-https://github.com/ankitects/anki-desktop-ftl/archive/${QT_COMMIT}.tar.gz -> anki-desktop-ftl-${QT_COMMIT}.tar.gz
-https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/node-modules.tar.gz
+	https://github.com/ankitects/anki/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz
+	https://github.com/ankitects/anki-core-i18n/archive/${COMMITS[ftl-core]}.tar.gz
+		-> anki-core-i18n-${COMMITS[ftl-core]}.tar.gz
+	https://github.com/ankitects/anki-desktop-ftl/archive/${COMMITS[ftl-desktop]}.tar.gz
+		-> anki-desktop-ftl-${COMMITS[ftl-desktop]}.tar.gz
+	https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/node-modules.tar.gz
 "
 LICENSE="AGPL-3+"
 # Dependent crate licenses
@@ -679,40 +684,89 @@ LICENSE+="
 	MPL-2.0 Unicode-DFS-2016 ZLIB
 "
 
+IUSE="lto minimal qt6 test"
+RESTRICT="!test? ( test )
+minimal? ( test )"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="lto qt6"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+REQUIRED_USE="!minimal? ( ${PYTHON_REQUIRED_USE} )"
 
-BDEPEND="
-dev-libs/protobuf
-sys-apps/yarn
-net-libs/nodejs
+# Dependencies:
+# Python: python/requirements.{anki,aqt}.in
+# If ENABLE_QT5_COMPAT is set at runtime
+# additionally depend on PyQt6[dbus,printsupport].
+# Qt: qt/aqt/{sound.py,qt/*.py}
+# app-misc/certificates: The rust backend library is built against
+# rustls-native-certs to use the native certificate store.
+
+DEPEND="
+	dev-db/sqlite:3
+	>=app-arch/zstd-1.5.5:=
 "
-
-RDEPEND="${PYTHON_DEPS}
+GUI="
 	$(python_gen_cond_dep '
-		qt6? (
-			>=dev-python/PyQt6-6.6.1[gui,svg,widgets,quick,${PYTHON_USEDEP}]
-			>=dev-python/PyQt6-WebEngine-6.6.0[${PYTHON_USEDEP}]
-		)
-		!qt6? (
-			~dev-python/PyQt5-5.15.10[gui,svg,widgets,${PYTHON_USEDEP}]
-			~dev-python/PyQtWebEngine-5.15.6[${PYTHON_USEDEP}]
-		)
 		dev-python/beautifulsoup4[${PYTHON_USEDEP}]
+		dev-python/distro[${PYTHON_USEDEP}]
 		dev-python/decorator[${PYTHON_USEDEP}]
-		dev-python/jsonschema[${PYTHON_USEDEP}]
-		dev-python/markdown[${PYTHON_USEDEP}]
-		dev-python/requests[${PYTHON_USEDEP}]
-		dev-python/send2trash[${PYTHON_USEDEP}]
-		dev-python/protobuf-python[${PYTHON_USEDEP}]
-		dev-python/orjson[${PYTHON_USEDEP}]
 		dev-python/flask[${PYTHON_USEDEP}]
 		dev-python/flask-cors[${PYTHON_USEDEP}]
+		dev-python/jsonschema[${PYTHON_USEDEP}]
+		dev-python/markdown[${PYTHON_USEDEP}]
+		dev-python/protobuf-python[${PYTHON_USEDEP}]
+		dev-python/requests[${PYTHON_USEDEP}]
+		dev-python/send2trash[${PYTHON_USEDEP}]
 		dev-python/waitress[${PYTHON_USEDEP}]
 	')
+	qt6? (   >=dev-qt/qtsvg-6.5:6
+			 $(python_gen_cond_dep '
+			   >=dev-python/PyQt6-6.5.0[gui,network,opengl,quick,webchannel,widgets,${PYTHON_USEDEP}]
+			   >=dev-python/PyQt6-sip-13.5.1[${PYTHON_USEDEP}]
+			   >=dev-python/PyQt6-WebEngine-6.5.0[widgets,${PYTHON_USEDEP}]')
+
+		 )
+	!qt6? ( >=dev-qt/qtgui-5.15:5[jpeg,png]
+			>=dev-qt/qtsvg-5.15:5
+			$(python_gen_cond_dep '
+				>=dev-python/PyQt5-5.15.5[gui,network,webchannel,widgets,${PYTHON_USEDEP}]
+				>=dev-python/PyQt5-sip-12.9.0[${PYTHON_USEDEP}]
+				>=dev-python/PyQtWebEngine-5.15.5[${PYTHON_USEDEP}]')
+
+		  )
+	${PYTHON_DEPS}
 "
+RDEPEND="
+	app-misc/ca-certificates
+	!minimal? ( ${GUI} )
+	${DEPEND}
+"
+BDEPEND="
+	dev-libs/protobuf
+	virtual/pkgconfig
+	>=virtual/rust-1.74.0
+	!minimal? (
+			  app-arch/unzip
+			  dev-util/ninja
+			  net-libs/nodejs
+			  $(python_gen_cond_dep 'dev-python/wheel[${PYTHON_USEDEP}]')
+			  qt6? ( $(python_gen_cond_dep '>=dev-python/PyQt6-6.5.0[${PYTHON_USEDEP}]') )
+			  !qt6? ( $(python_gen_cond_dep '>=dev-python/PyQt5-5.15.5[${PYTHON_USEDEP}]') )
+			  ${PYTHON_DEPS}
+			  )
+	test? (
+		  app-text/texlive
+		  app-text/dvipng
+		  dev-libs/openssl
+		  dev-util/cargo-nextest
+		  ${RDEPEND}
+		  $(python_gen_cond_dep '
+			  dev-python/pytest[${PYTHON_USEDEP}]
+			  dev-python/mock[${PYTHON_USEDEP}]')
+		  )
+"
+
+QA_FLAGS_IGNORED="usr/bin/anki-sync-server
+	usr/lib/python.*/site-packages/anki/_rsbridge.so"
+
 # from https://aur.archlinux.org/cgit/aur.git
 PATCHES=(
 	"${FILESDIR}/disable-git-checks.patch"
@@ -720,6 +774,8 @@ PATCHES=(
 	"${FILESDIR}/strip-formatter-deps.patch"
 	"${FILESDIR}/strip-type-checking-deps.patch"
 	"${FILESDIR}/node-drop-yarn-install.patch"
+	"${FILESDIR}/${P}-prefer-system-nextest.patch"
+	"${FILESDIR}/${P}-unbundle-sqlite.patch"
 )
 
 DOC_CONTENTS="Users with add-ons that still rely on Anki's Qt5 GUI can either switch
@@ -736,16 +792,23 @@ https://addon-docs.ankiweb.net/
 
 src_prepare() {
 	default
-	# Build process wants .git/HEAD to be present. Workaround to be able to use tarballs
-	# (together with disable-git-checks.patch)
-	mkdir -p .git
-	touch .git/HEAD
-	sed -i "s/MY_REV/${ANKI_COMMIT}/" build/runner/src/build.rs
+	if use minimal; then
+		mkdir out || die
+		# A missing 'buildhash' file marks the 'anki' crate as dirty and triggers a
+		# rebuild at install time.
+		touch out/buildhash || die
+	else
+		# Build process wants .git/HEAD to be present. Workaround to be able to use tarballs
+		# (together with disable-git-checks.patch)
+		mkdir -p .git
+		touch .git/HEAD
+		sed -i "s/MY_REV/${COMMITS[anki]:0:8}/" build/runner/src/build.rs
+	fi
 
 	# place translations in build dir
 	rm -rf ftl/core-repo ftl/qt-repo || die
-	mv "${WORKDIR}"/anki-core-i18n-${I18N_COMMIT} ftl/core-repo || die
-	mv "${WORKDIR}"/anki-desktop-ftl-${QT_COMMIT} ftl/qt-repo || die
+	mv "${WORKDIR}"/anki-core-i18n-${COMMITS[ftl-core]} ftl/core-repo || die
+	mv "${WORKDIR}"/anki-desktop-ftl-${COMMITS[ftl-desktop]} ftl/qt-repo || die
 
 	# place node_modules in build dir
 	mkdir -p out/node_modules || die
@@ -758,18 +821,18 @@ src_prepare() {
 	printf '#!/bin/bash\nexit 0' > "$venv/bin/pip-sync"
 	chmod +x "$venv/bin/pip-sync"
 
-	sed -i -e "s/updates=True/updates=False/" \
-		qt/aqt/profiles.py || die
-
 	# Anki's Qt detection mechanism falls back to Qt5 Python bindings, if Qt6
 	# Python bindings don't get imported successfully.
 	if ! use qt6; then
-		sed -i "s/import PyQt6/raise ImportError/" aqt/qt/__init__.py || die
+		sed -i "s/import PyQt6/raise ImportError/" qt/aqt/__init__.py || die
 	fi
 }
 
-src_compile() {
-	if use lto; then
+src_configure() {
+	export ZSTD_SYS_USE_PKG_CONFIG=1
+	if use debug; then
+		export RELEASE=0
+	elif use lto; then
 		export RELEASE=2
 	fi
 	export CARGO_TARGET_DIR=out/rust
@@ -777,41 +840,67 @@ src_compile() {
 	export PYTHON_BINARY="${EPREFIX}/usr/bin/python3"
 	export NODE_BINARY="${EPREFIX}/usr/bin/node"
 	export YARN_BINARY="${EPREFIX}/usr/bin/yarn"
-	cargo build -p runner --release || die "cargo build failed"
-	${CARGO_TARGET_DIR}/release/runner build || die "runner build failed"
+	export PROTOC="${PROTOC_BINARY}"
+}
+
+src_compile() {
+	if use minimal; then
+		cargo build --package anki-sync-server --release || die
+	else
+		filter-lto
+		tc-export AR CC PKG_CONFIG
+		cargo build -p runner --release || die "cargo build failed"
+		${CARGO_TARGET_DIR}/release/runner build || die "runner build failed"
+	fi
 }
 
 src_install() {
-	mkdir python
-	rm -rf out/pylib/anki/_rsbridge.so || die
-	if use lto; then
-		cp ${CARGO_TARGET_DIR}/release-lto/librsbridge.so out/pylib/anki/_rsbridge.so || die
+	if use minimal; then
+		dobin target/release/anki-sync-server
 	else
-		cp ${CARGO_TARGET_DIR}/release/librsbridge.so out/pylib/anki/_rsbridge.so || die
+		mkdir python
+		rm -rf out/pylib/anki/_rsbridge.so || die
+		if use lto; then
+			cp ${CARGO_TARGET_DIR}/release-lto/librsbridge.so out/pylib/anki/_rsbridge.so || die
+		else
+			cp ${CARGO_TARGET_DIR}/release/librsbridge.so out/pylib/anki/_rsbridge.so || die
+		fi
+
+		cp -r pylib/anki/* out/pylib/anki || die
+		cp -r out/pylib/anki python/anki || die
+
+		cp -r qt/aqt python/aqt || die
+		cp -r out/qt/_aqt/ python/_aqt || die
+
+		doicon "qt/bundle/lin/${PN}.png"
+		doicon "qt/bundle/lin/${PN}.xpm"
+		domenu "qt/bundle/lin/${PN}.desktop"
+		doman "qt/bundle/lin/${PN}.1"
+
+		python_domodule python/{anki,{,_}aqt}
+		printf "#!/usr/bin/python3\nimport sys;from aqt import run;sys.exit(run())" > runanki
+		python_newscript runanki anki
+		insinto /usr/share/mime/packages
+		doins "qt/bundle/lin/${PN}.xml"
+
+		readme.gentoo_create_doc
 	fi
+}
 
-	cp -r pylib/anki/* out/pylib/anki || die
-	cp -r out/pylib/anki python/anki || die
-
-	cp -r qt/aqt python/aqt || die
-	cp -r out/qt/_aqt/ python/_aqt || die
-
-	doicon "qt/bundle/lin/${PN}.png"
-	doicon "qt/bundle/lin/${PN}.xpm"
-	domenu "qt/bundle/lin/${PN}.desktop"
-	doman "qt/bundle/lin/${PN}.1"
-
-	python_domodule python/{anki,{,_}aqt}
-	printf "#!/usr/bin/python3\nimport sys;from aqt import run;sys.exit(run())" > runanki
-	python_newscript runanki anki
-	insinto /usr/share/mime/packages
-	doins "qt/bundle/lin/${PN}.xml"
-
-	readme.gentoo_create_doc
+src_test() {
+	ln -s "${EPREFIX}"/usr/bin/pytest out/pyenv/bin/pytest || die
+	mkdir "${S}"/out/bin || die
+	ln -s "${EPREFIX}"/usr/bin/cargo-nextest "${S}"/out/bin/cargo-nextest || die
+	for runner in pytest rust_test jest; do
+		./ninja check:$runner -v || die "check:$runner failed!"
+	done
 }
 
 pkg_postinst() {
 	readme.gentoo_print_elog
+	if use minimal; then
+		exit 0
+	fi
 	xdg_pkg_postinst
 	optfeature "LaTeX in cards" "app-text/texlive[extra] app-text/dvipng"
 	optfeature "sound support" media-video/mpv media-video/mplayer

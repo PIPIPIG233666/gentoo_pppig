@@ -6,6 +6,10 @@
 		<name>Patrick Lauer</name>
 	</maintainer>
 	<maintainer type="person" proxied="yes">
+		<email>watermanpaint@posteo.net</email>
+		<name>Lucio Sauer</name>
+	</maintainer>
+	<maintainer type="person" proxied="yes">
 		<email>umich.email@pppig236.com</email>
 		<name>Weikai Kong</name>
 	</maintainer>
@@ -21,4 +25,8 @@
 	<upstream>
 		<remote-id type="github">ankitects/anki</remote-id>
 	</upstream>
+	<use>
+		<flag name="lto">Build with link-time optimization. Ignored if debug is enabled.</flag>
+		<flag name="minimal">Only build the standalone sync server. Does not respect the lto flag.</flag>
+	</use>
 </pkgmetadata>
