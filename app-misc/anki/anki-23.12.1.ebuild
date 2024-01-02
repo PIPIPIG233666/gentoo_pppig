@@ -653,10 +653,12 @@ declare -A GIT_CRATES=(
 	[percent-encoding-iri]='https://github.com/ankitects/rust-url;bb930b8d089f4d30d7d19c12e54e66191de47b88;rust-url-%commit%/percent_encoding'
 )
 
+# this is for versioning anki internally
+ANKI_COMMIT="1a1d4d5419c6b57ef3baf99c9d2d9cf85d36ae0a"
 I18N_COMMIT="fb301cc62da3b7a83b4ea266d9a2e70cfc1a8418"
 QT_COMMIT="8c2191a7c797747cec767e3953bbbcc50acc5246"
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_1{0..2} )
 PYTHON_REQ_USE="sqlite"
 
 inherit cargo desktop optfeature python-single-r1 xdg
@@ -668,6 +670,7 @@ SRC_URI="
 https://github.com/ankitects/anki/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz
 https://github.com/ankitects/anki-core-i18n/archive/${I18N_COMMIT}.tar.gz -> anki-core-i18n-${I18N_COMMIT}.tar.gz
 https://github.com/ankitects/anki-desktop-ftl/archive/${QT_COMMIT}.tar.gz -> anki-desktop-ftl-${QT_COMMIT}.tar.gz
+https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/node-modules.tar.gz
 "
 LICENSE="AGPL-3+"
 # Dependent crate licenses
@@ -677,17 +680,26 @@ LICENSE+="
 "
 
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64"
+IUSE="lto qt6"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 BDEPEND="
 dev-libs/protobuf
+sys-apps/yarn
+net-libs/nodejs
 "
 
 RDEPEND="${PYTHON_DEPS}
 	$(python_gen_cond_dep '
-		>=dev-python/PyQt6-6.6.1[gui,svg,widgets,${PYTHON_USEDEP}]
-		>=dev-python/PyQt6-WebEngine-6.6.0[${PYTHON_USEDEP}]
+		qt6? (
+			>=dev-python/PyQt6-6.6.1[gui,svg,widgets,${PYTHON_USEDEP}]
+			>=dev-python/PyQt6-WebEngine-6.6.0[${PYTHON_USEDEP}]
+		)
+		!qt6? (
+			~dev-python/PyQt5-5.15.10[gui,svg,widgets,${PYTHON_USEDEP}]
+			~dev-python/PyQtWebEngine-5.15.6[${PYTHON_USEDEP}]
+		)
 		dev-python/beautifulsoup4[${PYTHON_USEDEP}]
 		dev-python/decorator[${PYTHON_USEDEP}]
 		dev-python/jsonschema[${PYTHON_USEDEP}]
@@ -698,10 +710,11 @@ RDEPEND="${PYTHON_DEPS}
 "
 # from https://aur.archlinux.org/cgit/aur.git
 PATCHES=(
-"${FILESDIR}/disable-git-checks.patch"
-        "${FILESDIR}/no-update.patch"
-        "${FILESDIR}/strip-formatter-deps.patch"
-        "${FILESDIR}/strip-type-checking-deps.patch"
+	"${FILESDIR}/disable-git-checks.patch"
+	"${FILESDIR}/no-update.patch"
+	"${FILESDIR}/strip-formatter-deps.patch"
+	"${FILESDIR}/strip-type-checking-deps.patch"
+	"${FILESDIR}/node-drop-yarn-install.patch"
 )
 
 src_prepare() {
@@ -710,20 +723,39 @@ src_prepare() {
 	# (together with disable-git-checks.patch)
 	mkdir -p .git
 	touch .git/HEAD
+	sed -i "s/MY_REV/${ANKI_COMMIT}/" build/runner/src/build.rs
 
 	# place translations in build dir
 	rm -rf ftl/core-repo ftl/qt-repo || die
 	mv "${WORKDIR}"/anki-core-i18n-${I18N_COMMIT} ftl/core-repo || die
 	mv "${WORKDIR}"/anki-desktop-ftl-${QT_COMMIT} ftl/qt-repo || die
 
+	# place node_modules in build dir
+	mkdir -p out/node_modules || die
+	mv "${WORKDIR}"/out/node_modules out/ || die
+	ln -sf out/node_modules node_modules || die
+
+	# mask pip-sync as we provide dependencies ourselves
+	local venv="out/pyenv"
+	${EPYTHON} -m venv --system-site-packages --without-pip "$venv"
+	printf '#!/bin/bash\nexit 0' > "$venv/bin/pip-sync"
+	chmod +x "$venv/bin/pip-sync"
+
 	sed -i -e "s/updates=True/updates=False/" \
 		qt/aqt/profiles.py || die
 }
 
 src_compile() {
-	export PROTOC="${EPREFIX}/usr/bin/protoc"
-	export RELEASE=2
-	cargo_src_compile
+	if use lto; then
+		export RELEASE=2
+	fi
+	export CARGO_TARGET_DIR=out/rust
+	export PROTOC_BINARY="${EPREFIX}/usr/bin/protoc"
+	export PYTHON_BINARY="${EPREFIX}/usr/bin/python3"
+	export NODE_BINARY="${EPREFIX}/usr/bin/node"
+	export YARN_BINARY="${EPREFIX}/usr/bin/yarn"
+	cargo build -p runner --release || die "cargo build failed"
+	out/rust/release/runner build -- pylib qt || die "runner build failed"
 }
 
 src_install() {
@@ -732,7 +764,7 @@ src_install() {
 	doman "qt/bundle/lin/${PN}.1"
 
 	dodoc README.md
-	python_domodule qt/aqt pylib/anki
+	python_domodule qt/aqt out/pylib/anki
 	python_newscript qt/runanki.py anki
 
 	# Localization files go into the anki directory:
@@ -750,4 +782,3 @@ pkg_postinst() {
 	optfeature "Record sound" "dev-python/pyaudio media-sound/lame"
 	optfeature "Playback sound" media-video/mpv media-video/mplayer
 }
-
