@@ -706,6 +706,7 @@ RDEPEND="${PYTHON_DEPS}
 		dev-python/markdown[${PYTHON_USEDEP}]
 		dev-python/requests[${PYTHON_USEDEP}]
 		dev-python/send2trash[${PYTHON_USEDEP}]
+		dev-python/protobuf-python[${PYTHON_USEDEP}]
 	')
 "
 # from https://aur.archlinux.org/cgit/aur.git
@@ -755,6 +756,12 @@ src_prepare() {
 
 	sed -i -e "s/updates=True/updates=False/" \
 		qt/aqt/profiles.py || die
+
+	# Anki's Qt detection mechanism falls back to Qt5 Python bindings, if Qt6
+	# Python bindings don't get imported successfully.
+	if ! use qt6; then
+		sed -i "s/import PyQt6/raise ImportError/" aqt/qt/__init__.py || die
+	fi
 }
 
 src_compile() {
@@ -767,16 +774,22 @@ src_compile() {
 	export NODE_BINARY="${EPREFIX}/usr/bin/node"
 	export YARN_BINARY="${EPREFIX}/usr/bin/yarn"
 	cargo build -p runner --release || die "cargo build failed"
-	out/rust/release/runner build -- pylib qt || die "runner build failed"
+	${CARGO_TARGET_DIR}/release/runner build -- pylib qt || die "runner build failed"
 }
 
 src_install() {
+	mkdir python
+	cp -r pylib/anki/* out/pylib/anki || die
+	cp -r out/pylib/anki python/anki || die
+
+	cp -r qt/aqt python/aqt || die
+	cp -r out/qt/_aqt/ python/_aqt || die
 	doicon "qt/bundle/lin/${PN}.png"
 	doicon "qt/bundle/lin/${PN}.xpm"
 	domenu "qt/bundle/lin/${PN}.desktop"
 	doman "qt/bundle/lin/${PN}.1"
 
-	python_domodule out/pylib/anki out/qt/_aqt qt/aqt
+	python_domodule python/{anki,{,_}aqt}
 	printf "#!/usr/bin/python3\nimport sys;from aqt import run;sys.exit(run())" > runanki
 	python_newscript runanki anki
 	insinto /usr/share/mime/packages
