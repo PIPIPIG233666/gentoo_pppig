@@ -693,7 +693,7 @@ net-libs/nodejs
 RDEPEND="${PYTHON_DEPS}
 	$(python_gen_cond_dep '
 		qt6? (
-			>=dev-python/PyQt6-6.6.1[gui,svg,widgets,${PYTHON_USEDEP}]
+			>=dev-python/PyQt6-6.6.1[gui,svg,widgets,quick,${PYTHON_USEDEP}]
 			>=dev-python/PyQt6-WebEngine-6.6.0[${PYTHON_USEDEP}]
 		)
 		!qt6? (
@@ -707,6 +707,10 @@ RDEPEND="${PYTHON_DEPS}
 		dev-python/requests[${PYTHON_USEDEP}]
 		dev-python/send2trash[${PYTHON_USEDEP}]
 		dev-python/protobuf-python[${PYTHON_USEDEP}]
+		dev-python/orjson[${PYTHON_USEDEP}]
+		dev-python/flask[${PYTHON_USEDEP}]
+		dev-python/flask-cors[${PYTHON_USEDEP}]
+		dev-python/waitress[${PYTHON_USEDEP}]
 	')
 "
 # from https://aur.archlinux.org/cgit/aur.git
@@ -774,7 +778,7 @@ src_compile() {
 	export NODE_BINARY="${EPREFIX}/usr/bin/node"
 	export YARN_BINARY="${EPREFIX}/usr/bin/yarn"
 	cargo build -p runner --release || die "cargo build failed"
-	${CARGO_TARGET_DIR}/release/runner build -- pylib qt || die "runner build failed"
+	${CARGO_TARGET_DIR}/release/runner build || die "runner build failed"
 }
 
 src_install() {
