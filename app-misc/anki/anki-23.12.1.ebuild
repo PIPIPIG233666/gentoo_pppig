@@ -856,7 +856,7 @@ src_compile() {
 
 src_install() {
 	if use minimal; then
-		dobin target/release/anki-sync-server
+		dobin ${CARGO_TARGET_DIR}/release/anki-sync-server
 	else
 		mkdir python
 		rm -rf out/pylib/anki/_rsbridge.so || die
