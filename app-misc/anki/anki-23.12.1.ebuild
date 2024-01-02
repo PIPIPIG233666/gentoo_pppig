@@ -899,7 +899,7 @@ src_test() {
 pkg_postinst() {
 	readme.gentoo_print_elog
 	if use minimal; then
-		exit 0
+		return 0
 	fi
 	xdg_pkg_postinst
 	optfeature "LaTeX in cards" "app-text/texlive[extra] app-text/dvipng"
