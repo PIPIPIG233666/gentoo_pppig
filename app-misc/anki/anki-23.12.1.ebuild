@@ -883,8 +883,8 @@ src_install() {
 		insinto /usr/share/mime/packages
 		doins "qt/bundle/lin/${PN}.xml"
 
-		readme.gentoo_create_doc
 	fi
+	readme.gentoo_create_doc
 }
 
 src_test() {
