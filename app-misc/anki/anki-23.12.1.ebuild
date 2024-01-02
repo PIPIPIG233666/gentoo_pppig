@@ -783,11 +783,19 @@ src_compile() {
 
 src_install() {
 	mkdir python
+	rm -rf out/pylib/anki/_rsbridge.so || die
+	if use lto; then
+		cp ${CARGO_TARGET_DIR}/release-lto/librsbridge.so out/pylib/anki/_rsbridge.so || die
+	else
+		cp ${CARGO_TARGET_DIR}/release/librsbridge.so out/pylib/anki/_rsbridge.so || die
+	fi
+
 	cp -r pylib/anki/* out/pylib/anki || die
 	cp -r out/pylib/anki python/anki || die
 
 	cp -r qt/aqt python/aqt || die
 	cp -r out/qt/_aqt/ python/_aqt || die
+
 	doicon "qt/bundle/lin/${PN}.png"
 	doicon "qt/bundle/lin/${PN}.xpm"
 	domenu "qt/bundle/lin/${PN}.desktop"
