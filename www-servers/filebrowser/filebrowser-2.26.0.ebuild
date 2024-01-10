@@ -27,13 +27,14 @@ https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/go-vendor.t
 https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/node-modules.tar.gz -> ${PN}-dep-node-${PV}.tar.gz
 "
 
-LICENSE="Apache 2.0"
+LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64"
 
-DEPEND="net-libs/nodejs"
+DEPEND="
+acct-group/filebrowser
+acct-user/filebrowser"
 RDEPEND="${DEPEND}"
-BDEPEND=""
+BDEPEND="net-libs/nodejs"
 
 src_prepare() {
 	default
@@ -50,7 +51,7 @@ src_configure() {
 
 src_compile() {
 	cd frontend && npm run build || die "building npm frontend failed"
-	cd ${S} && go build . || die "building go backend failed"
+	cd "${S}" && go build . || die "building go backend failed"
 }
 
 src_install() {
