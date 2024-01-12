@@ -21,6 +21,7 @@ SRC_URI="
 
 LICENSE="MIT"
 SLOT="0"
+KEYWORDS="~amd64 ~x86"
 PROPERTIES="test_network"
 RESTRICT="test"
 
