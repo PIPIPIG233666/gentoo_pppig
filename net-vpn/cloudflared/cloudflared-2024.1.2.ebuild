@@ -21,9 +21,6 @@ RDEPEND="acct-user/cloudflared"
 DOCS=( {CHANGES,README}.md RELEASE_NOTES )
 
 PATCHES=(
-	"${FILESDIR}"/remove_legacy_status.patch
-	"${FILESDIR}"/update_quic-go.patch
-	"${FILESDIR}"/update_to_go_1.21.5.patch
 )
 
 src_prepare() {
