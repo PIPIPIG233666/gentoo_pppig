@@ -1,4 +1,4 @@
-BDEPEND=dev-lang/go dev-lang/perl app-alternatives/ninja >=dev-util/cmake-3.20.5 >=dev-lang/go-1.18 app-arch/unzip
+BDEPEND=dev-lang/go dev-lang/perl app-alternatives/ninja >=dev-build/cmake-3.20.5 >=dev-lang/go-1.20:= app-arch/unzip
 DEFINED_PHASES=compile configure install prepare test unpack
 DEPEND=app-arch/brotli:= app-arch/lz4:= app-arch/zstd:= dev-libs/libpcre2:= >=dev-libs/protobuf-3.0.0:= sys-libs/zlib:= virtual/libusb:1=
 DESCRIPTION=Android platform tools (adb, fastboot, and mkbootimg)
@@ -13,5 +13,5 @@ REQUIRED_USE=python? ( || ( python_targets_python3_10 python_targets_python3_11 
 RESTRICT=strip
 SLOT=0
 SRC_URI=https://github.com/nmeum/android-tools/releases/download/34.0.4/android-tools-34.0.4.tar.xz https://dev.gentoo.org/~zmedico/dist/android-tools-31.0.3-no-gtest.patch https://gitlab.com/pig.priv/gentoo_pppig/-/raw/main/android-tools-dep-go-34.0.4.tar.gz -> android-tools-dep-go-34.0.4.tar.gz
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	78cf3cc2d5572fddf5e5e10c70f7c81a	multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	xdg-utils	baea6080dd821f5562d715887954c9d3	cmake	0f2e0c197fad0312f3c4765c9cf36271	go-env	96e1747610bbb2f5c5d3fb16f0f3a83a	go-module	9e5a8f7b134fd3ed3785755097fe8ef0	out-of-source-utils	1a9007554652a6e627edbccb3c25a439	multibuild	d67e78a235f541871c7dfe4cf7931489	python-utils-r1	042f4cc53680245bf99a84669b94155a	python-r1	8a28fa6d3e3bc96ff8a7eff2badbe71f
+_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	78cf3cc2d5572fddf5e5e10c70f7c81a	multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	xdg-utils	baea6080dd821f5562d715887954c9d3	cmake	c7c9a62d6232cac66d4ea32d575c3e7c	go-env	96e1747610bbb2f5c5d3fb16f0f3a83a	go-module	09ccb1fdea4f1f3f718e27b756636097	out-of-source-utils	1a9007554652a6e627edbccb3c25a439	multibuild	d67e78a235f541871c7dfe4cf7931489	python-utils-r1	042f4cc53680245bf99a84669b94155a	python-r1	8a28fa6d3e3bc96ff8a7eff2badbe71f
 _md5_=a504326b453a2f7c04019c9e7e5ef787
