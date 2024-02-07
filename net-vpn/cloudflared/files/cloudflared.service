@@ -1,19 +1,16 @@
 [Unit]
-Description=Argo Tunnel client daemon for Cloudflared
+Description=Anki Web self hosted sync server
 After=network.target
 Wants=network.target
 
 [Service]
 Type=notify
-ExecStart=/usr/bin/cloudflared --config /etc/cloudflared/config.yml --no-autoupdate
-User=cloudflared
-Group=cloudflared
+ExecStart=SYNC_PORT=8088 SYNC_USER1=pig:Wko55910 anki-sync-server
+User=pppig
+Group=pppig
 Restart=on-failure
 RestartSec=5s
 TimeoutStartSec=0
-
-# Allow cloudflared access to logfile
-ReadWritePaths=/var/log/cloudflared.log
 
 # Allow cloudflared to bind ports in the range of 0-1024 and restrict it to
 # that capability

@@ -17,5 +17,4 @@ LICENSE=""
 SLOT="0"
 KEYWORDS="~amd64"
 
-RDEPEND="
-"
+BDEPEND="app-text/poppler"
