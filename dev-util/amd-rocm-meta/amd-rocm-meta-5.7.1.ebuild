@@ -27,9 +27,6 @@ RDEPEND="
 	=dev-libs/rocr-runtime-${ROCMVER}*
 	=dev-libs/rccl-${ROCMVER}*
 
-	opencl? ( =dev-libs/rocm-opencl-runtime-${ROCMVER}* )
-	opencl? ( =dev-util/rocm-clang-ocl-${ROCMVER}* )
-
 	hip? ( =dev-util/hip-${ROCMVER}* )
 
 	profiling? ( =dev-util/rocm_bandwidth_test-${ROCMVER}* )
