@@ -36,6 +36,7 @@ src_prepare() {
 
 src_compile() {
 	cd ${WORKDIR}/go-cf/src || die "cd go/src failed"
+	export GOROOT_BOOTSTRAP=/usr/lib/go1.22/
 	./make.bash || die "make.bash failed"
 	DATE="$(date -u '+%Y-%m-%d-%H%M UTC')"
 	LDFLAGS="-X main.Version=${PV} -X \"main.BuildTime=${DATE}\""
