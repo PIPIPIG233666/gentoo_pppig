@@ -6,7 +6,7 @@
 
 EAPI=8
 
-MY_LLVM_V=15.0.7
+MY_LLVM_V=18.1.2
 
 PYTHON_COMPAT=( python3_{10..12} )
 
@@ -66,7 +66,7 @@ CHECKREQS_DISK_BUILD="4G"
 PATCHES=(
 	"${FILESDIR}"/julia-1.10.0-cuda.patch
 	"${FILESDIR}"/julia-1.10.0-libgit2.patch
-	"${FILESDIR}"/julia-1.10.0-lib.patch
+	# "${FILESDIR}"/julia-1.10.0-lib.patch
 	"${FILESDIR}"/julia-1.9.4-string-replace.patch
 	"${FILESDIR}"/julia-1.10.0-nodoc.patch
 	)
