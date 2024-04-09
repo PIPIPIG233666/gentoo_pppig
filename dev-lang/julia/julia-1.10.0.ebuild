@@ -6,7 +6,7 @@
 
 EAPI=8
 
-MY_LLVM_V=18.1.2
+MY_LLVM_V=15.0.7
 
 PYTHON_COMPAT=( python3_{10..12} )
 
