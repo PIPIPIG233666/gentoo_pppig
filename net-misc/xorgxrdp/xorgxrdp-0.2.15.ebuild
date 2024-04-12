@@ -11,6 +11,9 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
+PATCHES=(
+	"${FILESDIR}"/glamor.patch
+)
 RDEPEND="
 	>=net-misc/xrdp-0.9.14:0=
 	x11-base/xorg-server:0=
