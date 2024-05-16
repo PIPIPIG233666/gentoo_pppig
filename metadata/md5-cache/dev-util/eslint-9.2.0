@@ -1,0 +1,11 @@
+BDEPEND=>=net-libs/nodejs-18.19.15[npm] >=dev-lang/typescript-5.3.3
+DEFINED_PHASES=install unpack
+DESCRIPTION=Find and fix problems in your JavaScript code.
+EAPI=8
+HOMEPAGE=https://www.npmjs.com/package/eslint
+KEYWORDS=~amd64
+LICENSE=Apache-2.0
+RDEPEND=>=net-libs/nodejs-18.19.15
+SLOT=0
+SRC_URI=https://registry.npmjs.org/eslint/-/eslint-9.2.0.tgz
+_md5_=7b4e00c0f77d7d2abb75c18de3e85221
