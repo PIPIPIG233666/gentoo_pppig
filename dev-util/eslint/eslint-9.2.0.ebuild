@@ -13,6 +13,8 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
 
+# "packages/eslint-config-eslint"
+# "tools/internal-rules"
 # jq '.packages[].resolved' package-lock.json | sed -E '/^null$/d;s@^\"https://[^/]+/(.+)\"$@\"\1\"@' | sort -u | xclip
 NPM_RESOLVED=(
 "abbrev/-/abbrev-1.1.1.tgz"
@@ -840,7 +842,6 @@ NPM_RESOLVED=(
 "os-browserify/-/os-browserify-0.3.0.tgz"
 "os-tmpdir/-/os-tmpdir-1.0.2.tgz"
 "package-license/-/package-license-0.1.2.tgz"
-"packages/eslint-config-eslint"
 "pac-proxy-agent/-/pac-proxy-agent-7.0.1.tgz"
 "pac-resolver/-/pac-resolver-7.0.1.tgz"
 "pako/-/pako-1.0.11.tgz"
@@ -1120,7 +1121,6 @@ NPM_RESOLVED=(
 "tmp/-/tmp-0.0.33.tgz"
 "to-fast-properties/-/to-fast-properties-2.0.0.tgz"
 "to-no-case/-/to-no-case-1.0.2.tgz"
-"tools/internal-rules"
 "@tootallnate/quickjs-emscripten/-/quickjs-emscripten-0.23.0.tgz"
 "to-pascal-case/-/to-pascal-case-1.0.0.tgz"
 "to-regex-range/-/to-regex-range-5.0.1.tgz"
