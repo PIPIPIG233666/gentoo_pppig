@@ -8,7 +8,7 @@ inherit go-module systemd
 DESCRIPTION="Argo Tunnel client"
 HOMEPAGE="https://github.com/cloudflare/cloudflared"
 SRC_URI="https://github.com/cloudflare/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
-https://github.com/cloudflare/go/archive/cf.tar.gz -> go-cf.tar.gz
+https://github.com/cloudflare/go/archive/cf.tar.gz -> go-cf-${PV}.tar.gz
 "
 
 LICENSE="Cloudflare"
@@ -41,7 +41,7 @@ src_compile() {
 	DATE="$(date -u '+%Y-%m-%d-%H%M UTC')"
 	LDFLAGS="-X main.Version=${PV} -X \"main.BuildTime=${DATE}\""
 	cd ${S} || die "cd .. failed"
-	export PATH=${PATH}:${WORKDIR}/go-cf/bin/
+	export PATH=${WORKDIR}/go-cf/bin/:${PATH}
 	go build -v -mod=vendor -ldflags="${LDFLAGS}" ./cmd/cloudflared || die "build failed"
 }
 
