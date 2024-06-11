@@ -41,7 +41,8 @@ src_compile() {
 	DATE="$(date -u '+%Y-%m-%d-%H%M UTC')"
 	LDFLAGS="-X main.Version=${PV} -X \"main.BuildTime=${DATE}\""
 	cd ${S} || die "cd .. failed"
-	${WORKDIR}/go-cf/bin/go build -v -mod=vendor -ldflags="${LDFLAGS}" ./cmd/cloudflared || die "build failed"
+	export PATH=${PATH}:${WORKDIR}/go-cf/bin/
+	go build -v -mod=vendor -ldflags="${LDFLAGS}" ./cmd/cloudflared || die "build failed"
 }
 
 src_test() {
