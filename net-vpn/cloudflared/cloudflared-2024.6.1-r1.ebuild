@@ -5,10 +5,12 @@ EAPI=7
 
 inherit go-module systemd
 
+GO_VER=pwu/cf-1.22.5
+
 DESCRIPTION="Argo Tunnel client"
 HOMEPAGE="https://github.com/cloudflare/cloudflared"
 SRC_URI="https://github.com/cloudflare/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
-https://github.com/cloudflare/go/archive/cf.tar.gz -> go-cf-${PV}.tar.gz
+https://codeload.github.com/cloudflare/go/tar.gz/refs/heads/${GO_VER} -> go-cf-${PV}.tar.gz
 "
 
 LICENSE="Cloudflare"
