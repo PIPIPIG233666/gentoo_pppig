@@ -5,12 +5,13 @@ EAPI=7
 
 inherit go-module systemd
 
-GO_VER=pwu/cf-1.22.5
+GO_MAY_VER=1.22
+GO_VER=${GO_MAY_VER}.5
 
 DESCRIPTION="Argo Tunnel client"
 HOMEPAGE="https://github.com/cloudflare/cloudflared"
 SRC_URI="https://github.com/cloudflare/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
-https://codeload.github.com/cloudflare/go/tar.gz/refs/heads/${GO_VER} -> go-cf-${PV}.tar.gz
+https://codeload.github.com/cloudflare/go/tar.gz/refs/heads/pwu/cf-${GO_VER} -> go-cf-${PV}.tar.gz
 "
 
 LICENSE="Cloudflare"
@@ -37,13 +38,13 @@ src_prepare() {
 }
 
 src_compile() {
-	cd ${WORKDIR}/go-cf/src || die "cd go/src failed"
-	export GOROOT_BOOTSTRAP=/usr/lib/go1.22/
+	cd ${WORKDIR}/go-pwu-cf-${GO_VER}/src || die "cd go/src failed"
+	export GOROOT_BOOTSTRAP=/usr/lib/go${GO_MAY_VER}/
 	./make.bash || die "make.bash failed"
 	DATE="$(date -u '+%Y-%m-%d-%H%M UTC')"
 	LDFLAGS="-X main.Version=${PV} -X \"main.BuildTime=${DATE}\""
 	cd ${S} || die "cd .. failed"
-	export PATH=${WORKDIR}/go-cf/bin/:${PATH}
+	export PATH=${WORKDIR}/go-pwu-cf-${GO_VER}/bin/:${PATH}
 	go build -v -mod=vendor -ldflags="${LDFLAGS}" ./cmd/cloudflared || die "build failed"
 }
 
