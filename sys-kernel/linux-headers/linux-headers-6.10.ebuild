@@ -32,7 +32,6 @@ src_unpack() {
 src_prepare() {
 	local PATCHES=()
 	PATCHES+=( "${WORKDIR}"/6.9 )
-	PATCHES+=( "${FILESDIR}"/${PN}-sparc-move-struct-termio-to-asm-termios.h.patch )
 
 	# TODO: May need forward porting to newer versions
 	use elibc_musl && PATCHES+=(
