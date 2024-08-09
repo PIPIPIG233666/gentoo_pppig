@@ -1,0 +1,14 @@
+BDEPEND=dev-lang/go >=dev-lang/go-1.20:= app-arch/unzip virtual/pkgconfig
+DEFINED_PHASES=compile install prepare test unpack
+DESCRIPTION=Argo Tunnel client
+EAPI=7
+HOMEPAGE=https://github.com/cloudflare/cloudflared
+INHERIT=go-module systemd
+KEYWORDS=~amd64 ~x86
+LICENSE=Cloudflare
+RDEPEND=acct-user/cloudflared
+RESTRICT=test
+SLOT=0
+SRC_URI=https://github.com/cloudflare/cloudflared/archive/2024.8.2.tar.gz -> cloudflared-2024.8.2.tar.gz https://codeload.github.com/cloudflare/go/tar.gz/refs/heads/pwu/cf-1.22.5 -> go-cf-2024.8.2.tar.gz
+_eclasses_=multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	toolchain-funcs	e7e7331166166e7a516d19e264b098c2	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	e503ea5acc20410237ba33ec3f7c857d	go-env	7eb56e61e641d6db098d57fb37477c44	go-module	83fd3ed1657cfc316c93d6a37018290d	systemd	c8b03e8df84486aa991d4396686e8942
+_md5_=fc5e6afc81143d0c3395f233fc2fb292
