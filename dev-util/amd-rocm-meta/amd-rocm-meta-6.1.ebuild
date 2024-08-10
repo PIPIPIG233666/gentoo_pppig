@@ -8,7 +8,7 @@ LICENSE="metapackage"
 
 SLOT="0/$(ver_cut 1-2)"
 KEYWORDS="~amd64"
-IUSE="debug-tools hip opencl profiling science tensorflow"
+IUSE="debug-tools hip opencl science tensorflow"
 
 # This ROCm version...
 ROCMVER="$(ver_cut 1-2)"
@@ -28,8 +28,6 @@ RDEPEND="
 	=dev-libs/rccl-${ROCMVER}*
 
 	hip? ( =dev-util/hip-${ROCMVER}* )
-
-	profiling? ( =dev-util/rocm_bandwidth_test-${ROCMVER}* )
 
 	debug-tools? ( =dev-util/rocprofiler-${ROCMVER}* )
 	debug-tools? ( =dev-util/roctracer-${ROCMVER}* )
