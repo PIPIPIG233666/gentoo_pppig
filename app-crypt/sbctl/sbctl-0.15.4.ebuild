@@ -39,7 +39,8 @@ src_compile() {
 }
 
 src_install() {
-	go_src_install
+	# go_src_install
+	emake PREFIX="${ED}/usr" install
 }
 
 pkg_postinst() {
