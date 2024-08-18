@@ -10,7 +10,7 @@ HOMEPAGE="https://github.com/Foxboron/sbctl"
 SRC_URI="https://github.com/Foxboron/${PN}/releases/download/${PV}/${P}.tar.gz
 	verify-sig? ( https://github.com/Foxboron/${PN}/releases/download/${PV}/${P}.tar.gz.sig )"
 # SRC_URI+=" https://dev.gentoo.org/~ajak/distfiles/${CATEGORY}/${PN}/${P}-deps.tar.xz"
-SRC_URI+=" https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/go-mod.tar.gz"
+SRC_URI+=" https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/go-mod.tar.gz -> ${P}-go-mod.tar.gz"
 
 LICENSE="Apache-2.0 BSD BSD-2 MIT"
 SLOT="0"
@@ -22,7 +22,6 @@ BDEPEND="app-text/asciidoc
 VERIFY_SIG_OPENPGP_KEY_PATH="/usr/share/openpgp-keys/foxboron.asc"
 
 PATCHES=(
-	# "${FILESDIR}/sbctl-0.14-installkernel-bashism.patch"
 )
 
 src_unpack() {
