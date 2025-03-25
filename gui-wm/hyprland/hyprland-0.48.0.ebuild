@@ -63,7 +63,7 @@ RDEPEND="
 "
 DEPEND="
 	${RDEPEND}
-	>=dev-libs/hyprland-protocols-0.4
+	>=dev-libs/hyprland-protocols-0.6.2
 	>=dev-libs/wayland-protocols-1.36
 "
 BDEPEND="
