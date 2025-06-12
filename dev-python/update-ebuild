@@ -1,3 +1,0 @@
-#!/bin/bash
-cp -r /var/db/repos/gentoo/dev-python/$1 .
-cp `find $1 -name '*.ebuild'|head -n1` $1/$1-$2.ebuild
