@@ -16,6 +16,8 @@ LICENSE="Apache-2.0 BSD BSD-2 MIT"
 SLOT="0"
 KEYWORDS="amd64"
 
+RDEPEND="sys-apps/pcsc-lite"
+
 BDEPEND="app-text/asciidoc
 	verify-sig? ( sec-keys/openpgp-keys-foxboron )"
 
