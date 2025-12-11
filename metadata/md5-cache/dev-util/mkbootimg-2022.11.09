@@ -1,6 +1,0 @@
-DEFINED_PHASES=install
-EAPI=8
-KEYWORDS=~amd64
-SLOT=0
-SRC_URI=https://github.com/osm0sis/mkbootimg/archive/refs/tags/2022.11.09.tar.gz -> mkbootimg-2022.11.09.tar.gz
-_md5_=0a4a76190d328fb1557439a43e29565c
