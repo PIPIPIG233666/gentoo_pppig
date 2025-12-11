@@ -1,0 +1,14 @@
+BDEPEND=app-text/asciidoc verify-sig? ( sec-keys/openpgp-keys-foxboron ) >=dev-lang/go-1.16 >=dev-lang/go-1.20:= app-arch/unzip verify-sig? ( || ( app-alternatives/gpg app-crypt/gnupg[-alternatives(-)] ) >=app-portage/gemato-20 )
+DEFINED_PHASES=compile install postinst unpack
+DESCRIPTION=Secure Boot key manager
+EAPI=8
+HOMEPAGE=https://github.com/Foxboron/sbctl
+INHERIT=go go-module optfeature verify-sig
+IUSE=pie verify-sig
+KEYWORDS=amd64
+LICENSE=Apache-2.0 BSD BSD-2 MIT
+RESTRICT=strip
+SLOT=0
+SRC_URI=https://github.com/Foxboron/sbctl/releases/download/0.18/sbctl-0.18.tar.gz verify-sig? ( https://github.com/Foxboron/sbctl/releases/download/0.18/sbctl-0.18.tar.gz.sig ) https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/sbctl-0.18/go-mod.tar.gz -> sbctl-0.18-go-mod.tar.gz
+_eclasses_=edo	a5e294016aa84979fcb2459749eb80b2	version	7d27b7786280729d7491350e2bac074e	go	1cde3bd9981ff927bdce93e8961b22b9	multiprocessing	1e32df7deee68372153dca65f4a7c21f	toolchain-funcs	98d9f464d912ae6b7316fb8a3721f5db	flag-o-matic	a7afe42e95fb46ce9691605acfb24672	go-env	0e2babf96e7d0b045fc07ad199eb2399	go-module	d96f2a2fd6d8fbad6d94516bf238f885	optfeature	538bce96e5589935b57e178e8635f301	eapi9-pipestatus	d2c134036ac31c3085aebc9147f572bd	verify-sig	2cf23b136af9fd4c3fceadc34d0f98ad
+_md5_=b5ed396906f2d75b8c7596f9434b774b
