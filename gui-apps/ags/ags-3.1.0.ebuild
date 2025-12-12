@@ -8,7 +8,7 @@ inherit go-module
 DESCRIPTION="Scaffolding CLI for Astal+TypeScript"
 HOMEPAGE="https://aylur.github.io/ags/"
 SRC_URI="https://github.com/Aylur/ags/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
-SRC_URI+="https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/${P}-deps.tar.xz"
+SRC_URI+=" https://github.com/PIPIPIG233666/gentoo_pppig/releases/download/${P}/${P}-deps.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
