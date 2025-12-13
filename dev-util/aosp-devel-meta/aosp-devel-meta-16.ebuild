@@ -35,7 +35,7 @@ RDEPEND="
 	sys-devel/flex
 	sys-devel/gcc[cxx]
 	sys-fs/squashfs-tools
-	sys-libs/libxcrypt-compat
+	sys-libs/libxcrypt
 	sys-libs/ncurses-compat:5=[abi_x86_32,tinfo]
 	sys-libs/readline[abi_x86_32]
 	sys-libs/zlib
